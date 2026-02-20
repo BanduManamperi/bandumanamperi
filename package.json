@@ -1,0 +1,26 @@
+{
+  "name": "bandumanamperi-mono",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter \"./apps/*\" dev",
+    "dev:web": "pnpm --filter @bandumanamperi/web dev",
+    "dev:cms": "pnpm --filter @bandumanamperi/cms dev",
+    "build": "pnpm --filter \"./apps/*\" build",
+    "build:web": "pnpm --filter @bandumanamperi/web build",
+    "build:cms": "pnpm --filter @bandumanamperi/cms build",
+    "lint": "pnpm --filter \"./apps/*\" lint",
+    "clean": "pnpm --filter \"./apps/*\" exec rm -rf node_modules .next",
+    "clean:all": "rm -rf node_modules && pnpm clean"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.7",
+      "@types/react-dom": "19.2.3"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

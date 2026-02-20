@@ -1,0 +1,28 @@
+{
+  "name": "@bandumanamperi/ui",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.4.0"
+  },
+  "peerDependencies": {
+    "lucide-react": "*",
+    "next-themes": "*",
+    "react": "^19",
+    "react-dom": "^19",
+    "sonner": "*"
+  },
+  "devDependencies": {
+    "@bandumanamperi/tsconfig": "workspace:*",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}
