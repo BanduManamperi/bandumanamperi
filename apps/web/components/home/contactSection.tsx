@@ -6,6 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Mail, MapPin, Building2, Send, Facebook, Instagram, ExternalLink } from "lucide-react";
 import posthog from "posthog-js";
+import { CONTACT_FORM_ENABLED } from "@/lib/contact-form";
+import { ContactFormUnavailable } from "@/components/contact/contact-form-unavailable";
 
 const ContactSection = () => {
     const [formData, setFormData] = useState({
@@ -89,7 +91,9 @@ const ContactSection = () => {
                     </h2>
                     <p className="text-lg text-muted-foreground leading-relaxed">
                         For exhibition inquiries, commissions, performances, or to discuss Bandu Manamperi&apos;s work,
-                        please reach out using the form below or contact directly.
+                        {CONTACT_FORM_ENABLED
+                            ? " please reach out using the form below or contact directly."
+                            : " please get in touch using the contact details below."}
                     </p>
                 </div>
 
@@ -189,6 +193,7 @@ const ContactSection = () => {
 
                     {/* Contact Form */}
                     <div className="lg:col-span-2">
+                        {CONTACT_FORM_ENABLED ? (
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
@@ -254,6 +259,9 @@ const ContactSection = () => {
                                 )}
                             </Button>
                         </form>
+                        ) : (
+                        <ContactFormUnavailable title="Message form" className="h-full" />
+                        )}
                     </div>
                 </div>
             </div>

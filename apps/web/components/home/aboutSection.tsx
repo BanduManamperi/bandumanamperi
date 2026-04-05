@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 const AboutSection = () => {
     return (
@@ -22,6 +24,14 @@ const AboutSection = () => {
                                 Bandu Manamperi continues to inspire and provoke thought, cementing his place as a visionary artist whose work resonates across cultures and generations.
                             </p>
                         </div>
+
+                        <Link
+                            href="/about"
+                            className="inline-flex items-center gap-2 mt-8 text-sm font-medium uppercase tracking-wider text-foreground hover:text-muted-foreground transition-colors group"
+                        >
+                            <span>Full biography &amp; CV</span>
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                        </Link>
 
                         {/* <div className="mt-10 pt-8 border-t border-border">
                             <div className="grid grid-cols-3 gap-8 text-center">

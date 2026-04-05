@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import posthog from "posthog-js";
+import { CONTACT_FORM_ENABLED } from "@/lib/contact-form";
+import { ContactFormUnavailable } from "@/components/contact/contact-form-unavailable";
 
 const ContactPage = () => {
     const [formData, setFormData] = useState({
@@ -89,10 +91,10 @@ const ContactPage = () => {
                                                 Email
                                             </p>
                                             <a 
-                                                href="mailto:info@bandumanamperi.com"
+                                                href="mailto:bandumanamperi@yahoo.com"
                                                 className="text-foreground hover:text-muted-foreground transition-colors"
                                             >
-                                                info@bandumanamperi.com
+                                                bandumanamperi@yahoo.com
                                             </a>
                                         </div>
                                     </div>
@@ -104,10 +106,10 @@ const ContactPage = () => {
                                                 Phone
                                             </p>
                                             <a 
-                                                href="tel:+94123456789"
+                                                href="tel:+94773672789"
                                                 className="text-foreground hover:text-muted-foreground transition-colors"
                                             >
-                                                +94 12 345 6789
+                                                +94773672789
                                             </a>
                                         </div>
                                     </div>
@@ -164,6 +166,8 @@ const ContactPage = () => {
 
                         {/* Contact Form */}
                         <div className="md:col-span-3">
+                            {CONTACT_FORM_ENABLED ? (
+                            <>
                             <h2 className="text-2xl font-light mb-8">Send a Message</h2>
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
@@ -243,7 +247,7 @@ const ContactPage = () => {
 
                                 {status === "success" && (
                                     <p className="text-sm text-foreground">
-                                        Thank you for your message. We'll get back to you soon.
+                                        Thank you for your message. We&apos;ll get back to you soon.
                                     </p>
                                 )}
 
@@ -253,6 +257,10 @@ const ContactPage = () => {
                                     </p>
                                 )}
                             </form>
+                            </>
+                            ) : (
+                            <ContactFormUnavailable />
+                            )}
                         </div>
                     </div>
                 </div>

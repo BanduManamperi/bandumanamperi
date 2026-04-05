@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { CONTACT_FORM_ENABLED } from "@/lib/contact-form";
+import { ContactFormUnavailable } from "@/components/contact/contact-form-unavailable";
 
 const ContactSection = () => {
     const [formData, setFormData] = useState({
@@ -70,7 +72,9 @@ const ContactSection = () => {
                     </h2>
                     <p className="text-gallery-gray">
                         For exhibition inquiries, commissions, performances, or to discuss Bandu Manamperi&apos;s work,
-                        please reach out using the form below.
+                        {CONTACT_FORM_ENABLED
+                            ? " please reach out using the form below."
+                            : " please get in touch using the contact details below."}
                     </p>
                 </div>
 
@@ -107,6 +111,7 @@ const ContactSection = () => {
                     </div>
 
                     <div className="md:col-span-3 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+                        {CONTACT_FORM_ENABLED ? (
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
@@ -159,6 +164,9 @@ const ContactSection = () => {
                                 {isSubmitting ? "Sending..." : "Send Message"}
                             </Button>
                         </form>
+                        ) : (
+                        <ContactFormUnavailable variant="gallery" />
+                        )}
                     </div>
                 </div>
             </div>
