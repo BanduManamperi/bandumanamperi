@@ -435,7 +435,10 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                                         Show on homepage banner
                                     </Label>
                                     <p className="text-xs text-muted-foreground">
-                                        Displays this exhibition in the site announcement banner while it is on view.
+                                        Shows a dark announcement bar at the top of the homepage
+                                        for upcoming and current exhibitions (hidden after the end
+                                        date). Also enable this for exhibitions in the events
+                                        section below the hero.
                                     </p>
                                 </div>
                             </div>

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Lora, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Navbar } from "@/components/navBar/navbar";
+import { SiteHeader } from "@/components/site/site-header";
 import { Toaster } from "@/components/ui/sonner";
 import Footer from "@/components/footer/footer";
 import Provider from "@/components/provider";
+
+export const revalidate = 60;
 
 const lora = Lora({
   variable: "--font-lora",
@@ -83,8 +85,8 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
-            <main className="pt-14 sm:pt-16">
+            <SiteHeader />
+            <main>
               {children}
             </main>
             <Footer />

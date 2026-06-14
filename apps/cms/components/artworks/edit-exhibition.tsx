@@ -622,7 +622,9 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                                         Show on homepage banner
                                     </Label>
                                     <p className="text-xs text-muted-foreground">
-                                        Displays this exhibition in the site announcement banner while it is on view.
+                                        Shows a dark announcement bar at the top of the homepage
+                                        for upcoming and current exhibitions (hidden after the end
+                                        date).
                                     </p>
                                 </div>
                             </div>

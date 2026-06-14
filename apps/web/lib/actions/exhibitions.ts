@@ -160,7 +160,11 @@ export async function getExhibitions(): Promise<Exhibition[]> {
             const key = getExhibitionIdentityKey(mapped)
 
             if (exhibitionsMap.has(key)) {
-                exhibitionsMap.get(key)!.artworks.push(artwork)
+                const existing = exhibitionsMap.get(key)!
+                existing.artworks.push(artwork)
+                if (mapped.highlightOnHomepage) {
+                    existing.highlightOnHomepage = true
+                }
             } else {
                 exhibitionsMap.set(key, mapped)
             }
@@ -171,7 +175,16 @@ export async function getExhibitions(): Promise<Exhibition[]> {
     for (const row of standaloneRows) {
         const mapped = rowToExhibition(row)
         const key = getExhibitionIdentityKey(mapped)
-        if (!exhibitionsMap.has(key)) {
+        if (exhibitionsMap.has(key)) {
+            const existing = exhibitionsMap.get(key)!
+            if (mapped.highlightOnHomepage) {
+                existing.highlightOnHomepage = true
+            }
+            if (mapped.id) {
+                existing.id = mapped.id
+                existing.isStandalone = true
+            }
+        } else {
             exhibitionsMap.set(key, mapped)
         }
     }
@@ -180,14 +193,19 @@ export async function getExhibitions(): Promise<Exhibition[]> {
 }
 
 /**
- * Exhibitions marked for the homepage banner (ongoing / highlighted).
+ * Exhibitions marked for the homepage banner (highlighted + upcoming or on view).
  */
 export async function getHighlightedExhibitions(): Promise<Exhibition[]> {
     const exhibitions = await getExhibitions()
-    return exhibitions.filter(
-        (exhibition) =>
-            exhibition.highlightOnHomepage === true &&
-            getExhibitionScheduleStatus(exhibition) !== "past"
+    return sortExhibitionsForDisplay(
+        exhibitions.filter((exhibition) => {
+            if (exhibition.highlightOnHomepage !== true) {
+                return false
+            }
+
+            const status = getExhibitionScheduleStatus(exhibition)
+            return status === "upcoming" || status === "ongoing"
+        })
     )
 }
 
