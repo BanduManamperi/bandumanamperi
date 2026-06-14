@@ -6,14 +6,16 @@ import AboutSection from './aboutSection'
 import ContactSection from './contactSection'
 import IntroAnimation from './introAnimation'
 import { ExhibitionBanner } from './exhibitionBanner'
-import { getHighlightedExhibitions } from '@/lib/actions/exhibitions'
+import { UpcomingEventsSection } from './upcomingEventsSection'
+import { getHighlightedExhibitions, getUpcomingExhibitions } from '@/lib/actions/exhibitions'
 
 const Home = async () => {
     // Fetch featured artworks
     // This can be easily replaced with a database query later
-    const [featuredArtworks, highlightedExhibitions] = await Promise.all([
+    const [featuredArtworks, highlightedExhibitions, upcomingExhibitions] = await Promise.all([
         getFeaturedArtworks(),
         getHighlightedExhibitions(),
+        getUpcomingExhibitions(),
     ])
 
     return (
@@ -21,6 +23,7 @@ const Home = async () => {
             <IntroAnimation />
             <ExhibitionBanner exhibitions={highlightedExhibitions} />
             <HeroSection />
+            <UpcomingEventsSection exhibitions={upcomingExhibitions} />
             <FeaturedWorks artworks={featuredArtworks} />
             <AboutSection />
             <ContactSection />

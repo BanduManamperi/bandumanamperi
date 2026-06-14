@@ -239,6 +239,48 @@ export function sortExhibitionsForDisplay<
   })
 }
 
+/** Ongoing, upcoming, or ended within the last N months (default 6). */
+export function isExhibitionInHomepageEventsWindow(
+  schedule: ExhibitionScheduleFields,
+  now: Date = new Date(),
+  lookbackMonths = 6
+): boolean {
+  const status = getExhibitionScheduleStatus(schedule, now)
+
+  if (status === "upcoming" || status === "ongoing") {
+    return true
+  }
+
+  const end = getExhibitionEndDate(schedule) ?? getExhibitionStartDate(schedule)
+  if (!end) {
+    return false
+  }
+
+  const cutoff = new Date(
+    now.getFullYear(),
+    now.getMonth() - lookbackMonths,
+    now.getDate()
+  )
+
+  return startOfDay(end) >= startOfDay(cutoff)
+}
+
+export function sortHomepageEventsExhibitions<
+  T extends ExhibitionScheduleFields
+>(exhibitions: T[]): T[] {
+  return sortExhibitionsForDisplay(exhibitions)
+}
+
+export function getHomepageEventLabel(
+  status: ExhibitionScheduleStatus
+): string {
+  if (status === "past") {
+    return "Recent"
+  }
+
+  return getExhibitionScheduleLabel(status)
+}
+
 export function buildExhibitionSchedulePayload(input: {
   startDate: string
   endDate?: string

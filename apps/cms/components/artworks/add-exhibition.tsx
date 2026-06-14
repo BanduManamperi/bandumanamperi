@@ -217,11 +217,6 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
     }
 
     const handleSave = async () => {
-        if (selectedArtworkIds.size === 0) {
-            toast.error("Please select at least one artwork")
-            return
-        }
-
         if (!exhibitionName.trim()) {
             toast.error("Please enter an exhibition name")
             return
@@ -285,7 +280,7 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
             toast.success(
                 selectedArtworkIds.size > 0
                     ? `Added exhibition "${exhibitionName}" to ${selectedArtworkIds.size} artwork(s)`
-                    : `Created exhibition "${exhibitionName}"`
+                    : `Created standalone exhibition "${exhibitionName}"`
             )
             handleClose()
             router.refresh()
@@ -552,12 +547,15 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
 
                     {/* Search and Selection Controls */}
                     <div className="mb-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold">Link Artworks (optional)</h3>
-                            <p className="text-xs text-muted-foreground">
-                                Skip this for upcoming exhibitions and add artworks later from the edit screen.
-                            </p>
-                            <div className="flex gap-2">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 className="text-sm font-semibold">Link Artworks (optional)</h3>
+                                <p className="text-xs text-muted-foreground">
+                                    Leave empty for upcoming shows — saved as a standalone exhibition and
+                                    shown on the homepage events section when dates qualify.
+                                </p>
+                            </div>
+                            <div className="flex shrink-0 gap-2">
                                 <Button
                                     type="button"
                                     variant="outline"

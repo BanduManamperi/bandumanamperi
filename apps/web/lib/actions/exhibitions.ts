@@ -6,7 +6,9 @@ import {
     formatExhibitionSchedule,
     getExhibitionIdentityKey,
     getExhibitionScheduleStatus,
+    isExhibitionInHomepageEventsWindow,
     sortExhibitionsForDisplay,
+    sortHomepageEventsExhibitions,
 } from "@bandumanamperi/types"
 
 const STANDALONE_EXHIBITIONS_TABLE = "standalone_exhibitions"
@@ -186,5 +188,18 @@ export async function getHighlightedExhibitions(): Promise<Exhibition[]> {
         (exhibition) =>
             exhibition.highlightOnHomepage === true &&
             getExhibitionScheduleStatus(exhibition) !== "past"
+    )
+}
+
+/**
+ * Exhibitions for the homepage events section:
+ * ongoing, upcoming, or ended within the past 6 months.
+ */
+export async function getUpcomingExhibitions(): Promise<Exhibition[]> {
+    const exhibitions = await getExhibitions()
+    return sortHomepageEventsExhibitions(
+        exhibitions.filter((exhibition) =>
+            isExhibitionInHomepageEventsWindow(exhibition)
+        )
     )
 }
