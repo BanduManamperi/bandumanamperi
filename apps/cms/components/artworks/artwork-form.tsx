@@ -251,6 +251,8 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
       {
         name: "",
         venue: "",
+        startDate: "",
+        endDate: "",
         dates: "",
         about: "",
         curator: "",
@@ -399,7 +401,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         thumbnailPath,
         media: allMediaUrls,
         exhibitionHistory: exhibitionHistory.filter(
-          (e) => e.name && e.venue && e.dates
+          (e) => e.name && e.venue && (e.startDate || e.dates)
         ),
       }
 
@@ -980,11 +982,19 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                   }
                 />
                 <Input
-                  type="text"
-                  placeholder="Dates (e.g., Jan 2024)"
-                  value={exhibition.dates}
+                  type="date"
+                  placeholder="Start date"
+                  value={exhibition.startDate || ""}
                   onChange={(e) =>
-                    handleUpdateExhibition(index, "dates", e.target.value)
+                    handleUpdateExhibition(index, "startDate", e.target.value)
+                  }
+                />
+                <Input
+                  type="date"
+                  placeholder="End date"
+                  value={exhibition.endDate || ""}
+                  onChange={(e) =>
+                    handleUpdateExhibition(index, "endDate", e.target.value)
                   }
                 />
                 <Button

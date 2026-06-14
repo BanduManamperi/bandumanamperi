@@ -19,11 +19,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { IconPlus, IconSearch, IconCheck, IconCalendar, IconUpload, IconX } from "@tabler/icons-react"
 import type { Artwork, ExhibitionType } from "@/lib/types/artwork"
 import { addExhibitionToArtworks } from "@/lib/actions/exhibitions"
+import { buildExhibitionSchedulePayload } from "@bandumanamperi/types"
 import { getArtworks } from "@/lib/actions/artworks"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { IconPalette } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface AddExhibitionProps {
     open: boolean
@@ -40,7 +42,11 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
     const [exhibitionVenue, setExhibitionVenue] = useState("")
     const [exhibitionAbout, setExhibitionAbout] = useState("")
     const [exhibitionCurator, setExhibitionCurator] = useState("")
-    const [exhibitionDates, setExhibitionDates] = useState("")
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
+    const [startTime, setStartTime] = useState("")
+    const [endTime, setEndTime] = useState("")
+    const [highlightOnHomepage, setHighlightOnHomepage] = useState(false)
     const [exhibitionType, setExhibitionType] = useState<ExhibitionType>("solo")
     const [otherArtists, setOtherArtists] = useState("")
     const [coverImage, setCoverImage] = useState<File | null>(null)
@@ -231,13 +237,18 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
             return
         }
 
-        if (!exhibitionCurator.trim()) {
-            toast.error("Please enter exhibition curator")
+        if (exhibitionType === "group" && !exhibitionCurator.trim()) {
+            toast.error("Please enter exhibition curator for group exhibitions")
             return
         }
 
-        if (!exhibitionDates) {
-            toast.error("Please enter exhibition dates")
+        if (!startDate) {
+            toast.error("Please enter an exhibition start date")
+            return
+        }
+
+        if (endDate && endDate < startDate) {
+            toast.error("End date must be on or after the start date")
             return
         }
 
@@ -252,19 +263,29 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
             const coverImagePath = await uploadCoverImage()
             const exhibitionImagePaths = await uploadExhibitionImages()
 
+            const schedule = buildExhibitionSchedulePayload({
+                startDate,
+                endDate: endDate || undefined,
+                startTime: startTime || undefined,
+                endTime: endTime || undefined,
+            })
+
             await addExhibitionToArtworks(Array.from(selectedArtworkIds), {
                 name: exhibitionName.trim(),
                 venue: exhibitionVenue.trim(),
                 about: exhibitionAbout.trim(),
                 curator: exhibitionCurator.trim(),
-                dates: exhibitionDates,
+                ...schedule,
                 coverImage: coverImagePath,
                 exhibitionImages: exhibitionImagePaths,
                 type: exhibitionType,
                 otherArtists: exhibitionType === "group" ? otherArtists.trim() : null,
+                highlightOnHomepage,
             })
             toast.success(
-                `Added exhibition "${exhibitionName}" to ${selectedArtworkIds.size} artwork(s)`
+                selectedArtworkIds.size > 0
+                    ? `Added exhibition "${exhibitionName}" to ${selectedArtworkIds.size} artwork(s)`
+                    : `Created exhibition "${exhibitionName}"`
             )
             handleClose()
             router.refresh()
@@ -282,7 +303,11 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
             setExhibitionVenue("")
             setExhibitionAbout("")
             setExhibitionCurator("")
-            setExhibitionDates("")
+            setStartDate("")
+            setEndDate("")
+            setStartTime("")
+            setEndTime("")
+            setHighlightOnHomepage(false)
             setExhibitionType("solo")
             setOtherArtists("")
             setCoverImage(null)
@@ -316,7 +341,7 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                 <DrawerHeader>
                     <DrawerTitle>Add Exhibition</DrawerTitle>
                     <DrawerDescription>
-                        Create a new exhibition and select artworks to include
+                        Create a new exhibition. Link artworks now or add them later for upcoming shows.
                     </DrawerDescription>
                 </DrawerHeader>
 
@@ -353,7 +378,9 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="exhibition-curator">Curator *</Label>
+                                <Label htmlFor="exhibition-curator">
+                                    Curator{exhibitionType === "group" ? " *" : " (optional)"}
+                                </Label>
                                 <Input
                                     id="exhibition-curator"
                                     value={exhibitionCurator}
@@ -361,14 +388,61 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                                     placeholder="Curator name"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="exhibition-dates">Dates *</Label>
-                                <Input
-                                    id="exhibition-dates"
-                                    value={exhibitionDates}
-                                    onChange={(e) => setExhibitionDates(e.target.value)}
-                                    placeholder="e.g., Jan 15 - Feb 28, 2024"
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-start-date">Start date *</Label>
+                                    <Input
+                                        id="exhibition-start-date"
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-end-date">End date</Label>
+                                    <Input
+                                        id="exhibition-end-date"
+                                        type="date"
+                                        value={endDate}
+                                        min={startDate || undefined}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-start-time">Start time</Label>
+                                    <Input
+                                        id="exhibition-start-time"
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) => setStartTime(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-end-time">End time</Label>
+                                    <Input
+                                        id="exhibition-end-time"
+                                        type="time"
+                                        value={endTime}
+                                        onChange={(e) => setEndTime(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3 rounded-lg border p-3">
+                                <Checkbox
+                                    id="highlight-on-homepage"
+                                    checked={highlightOnHomepage}
+                                    onCheckedChange={(checked) =>
+                                        setHighlightOnHomepage(checked === true)
+                                    }
                                 />
+                                <div className="space-y-1">
+                                    <Label htmlFor="highlight-on-homepage" className="cursor-pointer">
+                                        Show on homepage banner
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Displays this exhibition in the site announcement banner while it is on view.
+                                    </p>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="exhibition-type">Exhibition Type *</Label>
@@ -479,7 +553,10 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                     {/* Search and Selection Controls */}
                     <div className="mb-4 space-y-3">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold">Select Artworks</h3>
+                            <h3 className="text-sm font-semibold">Link Artworks (optional)</h3>
+                            <p className="text-xs text-muted-foreground">
+                                Skip this for upcoming exhibitions and add artworks later from the edit screen.
+                            </p>
                             <div className="flex gap-2">
                                 <Button
                                     type="button"
@@ -609,8 +686,8 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                     <div className="flex items-center justify-between w-full">
                         <div className="text-sm text-muted-foreground">
                             {selectedArtworkIds.size > 0
-                                ? `${selectedArtworkIds.size} artwork(s) ready to add`
-                                : "No artworks selected"}
+                                ? `${selectedArtworkIds.size} artwork(s) selected`
+                                : "No artworks selected — exhibition will be saved without linked works"}
                         </div>
                         <div className="flex gap-2">
                             <Button
@@ -626,12 +703,11 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                                 onClick={handleSave}
                                 disabled={
                                     isSaving ||
-                                    selectedArtworkIds.size === 0 ||
                                     !exhibitionName.trim() ||
                                     !exhibitionVenue.trim() ||
                                     !exhibitionAbout.trim() ||
-                                    !exhibitionCurator.trim() ||
-                                    !exhibitionDates ||
+                                    (exhibitionType === "group" && !exhibitionCurator.trim()) ||
+                                    !startDate ||
                                     (exhibitionType === "group" && !otherArtists.trim())
                                 }
                             >

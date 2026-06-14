@@ -37,6 +37,11 @@ import { deleteExhibition } from "@/lib/actions/exhibitions"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import type { Exhibition } from "@/lib/actions/exhibitions"
+import {
+    formatExhibitionSchedule,
+    getExhibitionScheduleStatus,
+    getExhibitionScheduleLabel,
+} from "@bandumanamperi/types"
 
 interface ExhibitionsProps {
     initialExhibitions: Exhibition[]
@@ -92,10 +97,6 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                 updated[exhibitionIndex].artworks = updated[exhibitionIndex].artworks.filter(
                     (a) => a.id !== id
                 )
-                // Remove exhibition if no artworks left
-                if (updated[exhibitionIndex].artworks.length === 0) {
-                    updated.splice(exhibitionIndex, 1)
-                }
                 return updated
             })
             toast.success("Artwork deleted successfully")
@@ -132,30 +133,42 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
     const handleDeleteExhibition = async (exhibition: Exhibition) => {
         if (
             !confirm(
-                `Are you sure you want to delete the exhibition "${exhibition.name}"? This will remove the exhibition from ${exhibition.artworks.length} artwork(s). The artworks themselves will not be deleted.`
+                exhibition.artworks.length > 0
+                    ? `Are you sure you want to delete the exhibition "${exhibition.name}"? This will remove the exhibition from ${exhibition.artworks.length} artwork(s). The artworks themselves will not be deleted.`
+                    : `Are you sure you want to delete the exhibition "${exhibition.name}"?`
             )
         ) {
             return
         }
 
         try {
-            await deleteExhibition({
-                name: exhibition.name,
-                venue: exhibition.venue,
-                about: exhibition.about,
-                curator: exhibition.curator,
-                dates: exhibition.dates,
-                coverImage: exhibition.coverImage,
-                exhibitionImages: exhibition.exhibitionImages,
-                type: exhibition.type as any,
-                otherArtists: exhibition.otherArtists,
-            })
+            await deleteExhibition(
+                {
+                    name: exhibition.name,
+                    venue: exhibition.venue,
+                    about: exhibition.about,
+                    curator: exhibition.curator,
+                    startDate: exhibition.startDate,
+                    endDate: exhibition.endDate ?? null,
+                    startTime: exhibition.startTime ?? null,
+                    endTime: exhibition.endTime ?? null,
+                    dates: exhibition.dates,
+                    coverImage: exhibition.coverImage,
+                    exhibitionImages: exhibition.exhibitionImages,
+                    type: exhibition.type as ExhibitionHistory["type"],
+                    otherArtists: exhibition.otherArtists,
+                    highlightOnHomepage: exhibition.highlightOnHomepage === true,
+                },
+                exhibition.isStandalone && exhibition.id
+                    ? { standaloneId: exhibition.id }
+                    : undefined
+            )
             setExhibitions((prev) =>
                 prev.filter(
                     (e) =>
                         !(
-                            e.name === exhibition.name &&
-                            e.venue === exhibition.venue &&
+                            e.startDate === exhibition.startDate &&
+                            (e.endDate ?? "") === (exhibition.endDate ?? "") &&
                             e.dates === exhibition.dates
                         )
                 )
@@ -318,7 +331,7 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                     <CardDescription>
                                         {searchQuery
                                             ? "No exhibitions match your search query."
-                                            : "Create exhibitions by adding them to your artworks."}
+                                            : "Add an exhibition with or without linked artworks."}
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
@@ -328,9 +341,11 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                     const artworks = exhibition.artworks
                                     const publishedCount = artworks.filter((a) => a.status === "published").length
                                     const draftCount = artworks.filter((a) => a.status === "draft").length
+                                    const scheduleStatus = getExhibitionScheduleStatus(exhibition)
+                                    const scheduleLabel = getExhibitionScheduleLabel(scheduleStatus)
 
                                     return (
-                                        <Card key={`${exhibition.name}-${exhibition.venue}-${exhibition.dates}`}>
+                                        <Card key={exhibition.id ?? `${exhibition.name}-${exhibition.venue}-${exhibition.dates}`}>
                                             <CardHeader>
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex-1">
@@ -339,6 +354,16 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                                             <Badge variant={exhibition.type === "solo" ? "default" : exhibition.type === "group" ? "secondary" : "outline"} className="text-xs">
                                                                 {exhibition.type}
                                                             </Badge>
+                                                            {exhibition.highlightOnHomepage && (
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    Homepage banner
+                                                                </Badge>
+                                                            )}
+                                                            {scheduleStatus !== "past" && (
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {scheduleLabel}
+                                                                </Badge>
+                                                            )}
                                                         </CardTitle>
                                                         <CardDescription className="mt-1 space-y-1">
                                                             <div className="flex items-center gap-2">
@@ -347,21 +372,25 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 <IconCalendar className="h-3.5 w-3.5" />
-                                                                {exhibition.dates}
+                                                                {formatExhibitionSchedule(exhibition)}
                                                             </div>
                                                             <div className="mt-2 text-sm">
                                                                 {exhibition.about}
                                                             </div>
-                                                            <div className="text-sm">
-                                                                <span className="font-medium">Curator:</span> {exhibition.curator}
-                                                            </div>
+                                                            {exhibition.curator && (
+                                                                <div className="text-sm">
+                                                                    <span className="font-medium">Curator:</span> {exhibition.curator}
+                                                                </div>
+                                                            )}
                                                             {exhibition.otherArtists && (
                                                                 <div className="text-sm">
                                                                     <span className="font-medium">Other Artists:</span> {exhibition.otherArtists}
                                                                 </div>
                                                             )}
                                                             <div className="mt-2">
-                                                                {artworks.length} artwork{artworks.length !== 1 ? "s" : ""}
+                                                                {artworks.length === 0
+                                                                    ? "No artworks linked yet"
+                                                                    : `${artworks.length} artwork${artworks.length !== 1 ? "s" : ""}`}
                                                                 {publishedCount > 0 && (
                                                                     <span className="ml-2">
                                                                         • {publishedCount} published
@@ -428,6 +457,11 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                             )}
                                             <div className="px-6 pb-6">
                                                 <h4 className="text-sm font-semibold mb-3">Artworks in Exhibition</h4>
+                                                {artworks.length === 0 ? (
+                                                    <p className="text-sm text-muted-foreground">
+                                                        No artworks linked yet. Edit this exhibition to add artworks when they are ready.
+                                                    </p>
+                                                ) : (
                                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                                     {artworks.map((artwork) => {
                                                         const imageUrl = artwork.thumbnailPath
@@ -513,6 +547,7 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                                         )
                                                     })}
                                                 </div>
+                                                )}
                                             </div>
                                         </Card>
                                     )

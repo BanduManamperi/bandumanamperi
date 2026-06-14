@@ -7,8 +7,14 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Exhibition } from "@/lib/actions/exhibitions";
 import { generateSlugFromTitle } from "@/lib/utils";
-import { getExhibitionImageUrl, getArtworkImageUrl } from "@/lib/utils/supabase-storage";
+import { getExhibitionImageUrl, getArtworkImageUrl, generateExhibitionSlug } from "@/lib/utils/supabase-storage";
 import { PLACEHOLDERS } from "@/lib/utils/image-placeholders";
+import {
+    formatExhibitionSchedule,
+    getExhibitionScheduleLabel,
+    getExhibitionScheduleStatus,
+    getExhibitionYear,
+} from "@bandumanamperi/types";
 
 const ExhibitionDetailPage = () => {
     const params = useParams();
@@ -26,11 +32,10 @@ const ExhibitionDetailPage = () => {
 
                     // Find exhibition by matching slug
                     const found = exhibitions.find(ex => {
-                        const year = new Date(ex.dates).getFullYear().toString();
-                        const exSlug = ex.name
-                            .toLowerCase()
-                            .replace(/[^a-z0-9]+/g, "-")
-                            .replace(/^-+|-+$/g, "") + `-${year}`;
+                        const exSlug = generateExhibitionSlug(
+                            ex.name,
+                            getExhibitionYear(ex)
+                        );
                         return exSlug === slug;
                     });
 
@@ -46,19 +51,6 @@ const ExhibitionDetailPage = () => {
             loadExhibition();
         }
     }, [slug]);
-
-    const formatDate = (dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        } catch {
-            return dateString;
-        }
-    };
 
     const getTypeLabel = (type: string) => {
         switch (type.toLowerCase()) {
@@ -95,6 +87,9 @@ const ExhibitionDetailPage = () => {
         );
     }
 
+    const scheduleStatus = getExhibitionScheduleStatus(exhibition);
+    const scheduleLabel = getExhibitionScheduleLabel(scheduleStatus);
+
     return (
         <div className="min-h-screen bg-background">
             <main className="pt-24 md:pt-32 pb-24">
@@ -109,10 +104,15 @@ const ExhibitionDetailPage = () => {
                     </Link>
 
                     {/* Exhibition Type Badge */}
-                    <div className="mb-6">
+                    <div className="mb-6 flex flex-wrap gap-2">
                         <span className="inline-block text-xs tracking-widest uppercase text-muted-foreground border border-border/40 px-3 py-1">
                             {getTypeLabel(exhibition.type)}
                         </span>
+                        {scheduleStatus !== "past" && (
+                            <span className="inline-block text-xs tracking-widest uppercase text-foreground border border-border px-3 py-1">
+                                {scheduleLabel}
+                            </span>
+                        )}
                     </div>
 
                     {/* Exhibition Title & Meta */}
@@ -121,7 +121,7 @@ const ExhibitionDetailPage = () => {
                             {exhibition.name}
                         </h1>
                         <div className="space-y-2 text-lg text-muted-foreground font-light">
-                            <p>{formatDate(exhibition.dates)}</p>
+                            <p>{formatExhibitionSchedule(exhibition)}</p>
                             <p>{exhibition.venue}</p>
                             {exhibition.curator && (
                                 <p className="text-base">Curated by {exhibition.curator}</p>

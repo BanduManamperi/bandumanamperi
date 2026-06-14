@@ -22,14 +22,17 @@ import {
     updateExhibition,
     removeArtworksFromExhibition,
     addExhibitionToArtworks,
+    deleteStandaloneExhibition,
 } from "@/lib/actions/exhibitions"
 import { getArtworks } from "@/lib/actions/artworks"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { IconPalette } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Exhibition } from "@/lib/actions/exhibitions"
+import { buildExhibitionSchedulePayload } from "@bandumanamperi/types"
 
 interface EditExhibitionProps {
     open: boolean
@@ -45,7 +48,11 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
     const [newVenue, setNewVenue] = useState("")
     const [newAbout, setNewAbout] = useState("")
     const [newCurator, setNewCurator] = useState("")
-    const [newDates, setNewDates] = useState("")
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
+    const [startTime, setStartTime] = useState("")
+    const [endTime, setEndTime] = useState("")
+    const [highlightOnHomepage, setHighlightOnHomepage] = useState(false)
     const [newType, setNewType] = useState<ExhibitionType>("solo")
     const [newOtherArtists, setNewOtherArtists] = useState("")
     const [newCoverImage, setNewCoverImage] = useState<File | null>(null)
@@ -68,7 +75,11 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
             setNewVenue(exhibition.venue)
             setNewAbout(exhibition.about)
             setNewCurator(exhibition.curator)
-            setNewDates(exhibition.dates)
+            setStartDate(exhibition.startDate || "")
+            setEndDate(exhibition.endDate || "")
+            setStartTime(exhibition.startTime || "")
+            setEndTime(exhibition.endTime || "")
+            setHighlightOnHomepage(exhibition.highlightOnHomepage === true)
             setNewType(exhibition.type as ExhibitionType)
             setNewOtherArtists(exhibition.otherArtists || "")
             setNewCoverImage(null)
@@ -289,8 +300,18 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
         const trimmedCurator = newCurator.trim()
         const trimmedOtherArtists = newOtherArtists.trim()
 
-        if (!trimmedName || !trimmedVenue || !trimmedAbout || !trimmedCurator || !newDates) {
-            toast.error("All exhibition fields are required")
+        if (!trimmedName || !trimmedVenue || !trimmedAbout || (!startDate && !exhibition.dates)) {
+            toast.error("Please fill in all required exhibition fields")
+            return
+        }
+
+        if (newType === "group" && !trimmedCurator) {
+            toast.error("Please enter exhibition curator for group exhibitions")
+            return
+        }
+
+        if (startDate && endDate && endDate < startDate) {
+            toast.error("End date must be on or after the start date")
             return
         }
 
@@ -299,14 +320,34 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
             return
         }
 
+        const schedule = startDate
+            ? buildExhibitionSchedulePayload({
+                  startDate,
+                  endDate: endDate || undefined,
+                  startTime: startTime || undefined,
+                  endTime: endTime || undefined,
+              })
+            : {
+                  startDate: exhibition.startDate,
+                  endDate: exhibition.endDate ?? null,
+                  startTime: exhibition.startTime ?? null,
+                  endTime: exhibition.endTime ?? null,
+                  dates: exhibition.dates,
+              }
+
         const hasChanges =
             trimmedName !== exhibition.name ||
             trimmedVenue !== exhibition.venue ||
             trimmedAbout !== exhibition.about ||
             trimmedCurator !== exhibition.curator ||
-            newDates !== exhibition.dates ||
+            schedule.startDate !== exhibition.startDate ||
+            (schedule.endDate ?? "") !== (exhibition.endDate ?? "") ||
+            (schedule.startTime ?? "") !== (exhibition.startTime ?? "") ||
+            (schedule.endTime ?? "") !== (exhibition.endTime ?? "") ||
+            schedule.dates !== exhibition.dates ||
             newType !== exhibition.type ||
             trimmedOtherArtists !== (exhibition.otherArtists || "") ||
+            highlightOnHomepage !== (exhibition.highlightOnHomepage === true) ||
             newCoverImage !== null ||
             (coverImagePreview === null && exhibition.coverImage !== null) ||
             newExhibitionImages.length > 0 ||
@@ -334,23 +375,28 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                     venue: exhibition.venue,
                     about: exhibition.about,
                     curator: exhibition.curator,
-                    dates: exhibition.dates,
+                    ...schedule,
                     coverImage: exhibition.coverImage,
                     exhibitionImages: exhibition.exhibitionImages,
                     type: exhibition.type as ExhibitionType,
                     otherArtists: exhibition.otherArtists,
+                    highlightOnHomepage: exhibition.highlightOnHomepage === true,
                 },
                 {
                     name: trimmedName,
                     venue: trimmedVenue,
                     about: trimmedAbout,
                     curator: trimmedCurator,
-                    dates: newDates,
+                    ...schedule,
                     coverImage: finalCoverImage,
                     exhibitionImages: finalExhibitionImages,
                     type: newType,
                     otherArtists: newType === "group" ? trimmedOtherArtists : null,
-                }
+                    highlightOnHomepage,
+                },
+                exhibition.isStandalone && exhibition.id
+                    ? { standaloneId: exhibition.id }
+                    : undefined
             )
             toast.success("Exhibition updated successfully")
             handleClose()
@@ -387,6 +433,10 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                 venue: exhibition.venue,
                 about: exhibition.about,
                 curator: exhibition.curator,
+                startDate: exhibition.startDate,
+                endDate: exhibition.endDate ?? null,
+                startTime: exhibition.startTime ?? null,
+                endTime: exhibition.endTime ?? null,
                 dates: exhibition.dates,
                 coverImage: exhibition.coverImage,
                 exhibitionImages: exhibition.exhibitionImages,
@@ -420,12 +470,21 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                 venue: exhibition.venue,
                 about: exhibition.about,
                 curator: exhibition.curator,
+                startDate: exhibition.startDate,
+                endDate: exhibition.endDate ?? null,
+                startTime: exhibition.startTime ?? null,
+                endTime: exhibition.endTime ?? null,
                 dates: exhibition.dates,
                 coverImage: exhibition.coverImage,
                 exhibitionImages: exhibition.exhibitionImages,
                 type: exhibition.type as ExhibitionType,
                 otherArtists: exhibition.otherArtists,
+                highlightOnHomepage: exhibition.highlightOnHomepage === true,
             })
+
+            if (exhibition.isStandalone && exhibition.id) {
+                await deleteStandaloneExhibition(exhibition.id)
+            }
             toast.success(`Added ${selectedAddIds.size} artwork(s) to "${exhibition.name}"`)
             handleClose()
             router.refresh()
@@ -495,7 +554,9 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="exhibition-curator">Curator</Label>
+                                <Label htmlFor="exhibition-curator">
+                                    Curator{newType === "group" ? " *" : " (optional)"}
+                                </Label>
                                 <Input
                                     id="exhibition-curator"
                                     value={newCurator}
@@ -504,15 +565,66 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                                     disabled={isSaving}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="exhibition-dates">Dates</Label>
-                                <Input
-                                    id="exhibition-dates"
-                                    value={newDates}
-                                    onChange={(e) => setNewDates(e.target.value)}
-                                    placeholder="e.g., Jan 15 - Feb 28, 2024"
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-start-date">Start date</Label>
+                                    <Input
+                                        id="exhibition-start-date"
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        disabled={isSaving}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-end-date">End date</Label>
+                                    <Input
+                                        id="exhibition-end-date"
+                                        type="date"
+                                        value={endDate}
+                                        min={startDate || undefined}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        disabled={isSaving}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-start-time">Start time</Label>
+                                    <Input
+                                        id="exhibition-start-time"
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) => setStartTime(e.target.value)}
+                                        disabled={isSaving}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="exhibition-end-time">End time</Label>
+                                    <Input
+                                        id="exhibition-end-time"
+                                        type="time"
+                                        value={endTime}
+                                        onChange={(e) => setEndTime(e.target.value)}
+                                        disabled={isSaving}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3 rounded-lg border p-3">
+                                <Checkbox
+                                    id="edit-highlight-on-homepage"
+                                    checked={highlightOnHomepage}
+                                    onCheckedChange={(checked) =>
+                                        setHighlightOnHomepage(checked === true)
+                                    }
                                     disabled={isSaving}
                                 />
+                                <div className="space-y-1">
+                                    <Label htmlFor="edit-highlight-on-homepage" className="cursor-pointer">
+                                        Show on homepage banner
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Displays this exhibition in the site announcement banner while it is on view.
+                                    </p>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="cover-image">Cover Image</Label>
@@ -654,8 +766,8 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                                 !newName.trim() ||
                                 !newVenue.trim() ||
                                 !newAbout.trim() ||
-                                !newCurator.trim() ||
-                                !newDates ||
+                                (newType === "group" && !newCurator.trim()) ||
+                                (!startDate && !exhibition.dates) ||
                                 (newType === "group" && !newOtherArtists.trim())
                             }
                             size="sm"

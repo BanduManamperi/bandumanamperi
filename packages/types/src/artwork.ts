@@ -7,11 +7,18 @@ export interface ExhibitionHistory {
   venue: string
   about: string
   curator: string
-  dates: string
+  /** @deprecated Legacy free-text dates. Use startDate/endDate. */
+  dates?: string
+  startDate: string
+  endDate?: string | null
+  startTime?: string | null
+  endTime?: string | null
   coverImage: string | null
   exhibitionImages: string[]
   type: ExhibitionType
   otherArtists: string | null
+  /** When true, shown in the homepage exhibition banner */
+  highlightOnHomepage?: boolean
 }
 
 // Database schema (snake_case)

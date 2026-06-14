@@ -6,6 +6,12 @@ import Link from "next/link";
 import { Exhibition } from "@/lib/actions/exhibitions";
 import { getExhibitionImageUrl, getArtworkImageUrl, generateExhibitionSlug } from "@/lib/utils/supabase-storage";
 import { PLACEHOLDERS } from "@/lib/utils/image-placeholders";
+import {
+    formatExhibitionSchedule,
+    getExhibitionScheduleLabel,
+    getExhibitionScheduleStatus,
+    getExhibitionYear,
+} from "@bandumanamperi/types";
 import posthog from "posthog-js";
 
 const ExhibitionsPage = () => {
@@ -48,14 +54,8 @@ const ExhibitionsPage = () => {
         }
     };
 
-    const getExhibitionYear = (dates: string) => {
-        try {
-            const date = new Date(dates);
-            return date.getFullYear().toString();
-        } catch {
-            return "";
-        }
-    };
+    const getExhibitionYearFromSchedule = (exhibition: Exhibition) =>
+        getExhibitionYear(exhibition);
 
     // PostHog: Track filter changes
     const handleFilterChange = (newFilter: typeof filter) => {
@@ -72,7 +72,7 @@ const ExhibitionsPage = () => {
             exhibition_name: exhibition.name,
             exhibition_type: exhibition.type,
             exhibition_venue: exhibition.venue,
-            exhibition_year: getExhibitionYear(exhibition.dates),
+            exhibition_year: getExhibitionYearFromSchedule(exhibition),
             artworks_count: exhibition.artworks.length,
         });
     };
@@ -133,10 +133,15 @@ const ExhibitionsPage = () => {
                     ) : (
                         <div className="space-y-16">
                             {filteredExhibitions.map((exhibition, index) => {
-                                const slug = generateExhibitionSlug(exhibition.name, getExhibitionYear(exhibition.dates));
+                                const slug = generateExhibitionSlug(
+                                    exhibition.name,
+                                    getExhibitionYearFromSchedule(exhibition)
+                                );
+                                const scheduleStatus = getExhibitionScheduleStatus(exhibition);
+                                const scheduleLabel = getExhibitionScheduleLabel(scheduleStatus);
                                 return (
                                     <Link
-                                        key={`${exhibition.name}-${exhibition.venue}-${exhibition.dates}`}
+                                        key={exhibition.id ?? `${exhibition.name}-${exhibition.venue}-${exhibition.startDate}-${exhibition.dates}`}
                                         href={`/exhibitions/${slug}`}
                                         className="block group animate-fade-in"
                                         style={{ animationDelay: `${index * 0.1}s` }}
@@ -168,10 +173,15 @@ const ExhibitionsPage = () => {
                                                     }`}
                                             >
                                                 {/* Type Badge */}
-                                                <div className="inline-flex">
+                                                <div className="inline-flex flex-wrap gap-2">
                                                     <span className="text-xs tracking-widest uppercase text-muted-foreground border border-border/40 px-3 py-1">
                                                         {getTypeLabel(exhibition.type)}
                                                     </span>
+                                                    {scheduleStatus !== "past" && (
+                                                        <span className="text-xs tracking-widest uppercase text-foreground border border-border px-3 py-1">
+                                                            {scheduleLabel}
+                                                        </span>
+                                                    )}
                                                 </div>
 
                                                 {/* Title & Year */}
@@ -181,7 +191,7 @@ const ExhibitionsPage = () => {
 
                                                 {/* Meta Information */}
                                                 <div className="space-y-2 text-muted-foreground font-light">
-                                                    <p className="text-lg">{getExhibitionYear(exhibition.dates)}</p>
+                                                    <p className="text-lg">{formatExhibitionSchedule(exhibition)}</p>
                                                     <p>{exhibition.venue}</p>
                                                     {exhibition.curator && (
                                                         <p className="text-sm">
