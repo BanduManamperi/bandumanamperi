@@ -1,13 +1,21 @@
 "use client"
 
+import { useSyncExternalStore } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { usePathname, useRouter } from "next/navigation"
+import {
+    getActivePanelId,
+    getServerActivePanelId,
+    goToPanel,
+    subscribe,
+} from "@/components/horizontal-scroll-store"
 
 const navItems = [
-    { label: "About", href: "/about" },
-    { label: "Work", href: "/work" },
-    { label: "Contact", href: "/contact" },
+    { label: "About", panelId: "panel-hero" },
+    { label: "Work", panelId: "panel-work" },
+    { label: "Events", panelId: "panel-upcoming" },
+    { label: "Background", panelId: "panel-background" },
+    { label: "Contact", panelId: "panel-contact" },
     { label: "Blog", href: "/blog" },
 ]
 
@@ -22,60 +30,88 @@ const workNavItems = [
 
 export function Navbar() {
     const pathname = usePathname()
+    const router = useRouter()
+    const activePanelId = useSyncExternalStore(
+        subscribe,
+        getActivePanelId,
+        getServerActivePanelId
+    )
 
-    // Check if user is on a work-related page
-    const isWorkPage = pathname === "/work" ||
+    const isWorkPage =
+        pathname === "/work" ||
         pathname === "/artworks" ||
         pathname === "/exhibitions" ||
         pathname === "/performances" ||
         pathname === "/art-framing-and-restoration"
 
-    // Use work navigation items when on work pages, otherwise use main nav items
     const currentNavItems = isWorkPage ? workNavItems : navItems
 
-    return (
-        <nav className="relative z-50 border-b border-border/40 bg-background/90 backdrop-blur-md">
-            <div className="container mx-auto flex h-16 sm:h-20 items-center justify-between px-6 sm:px-8 lg:px-12">
-                {/* Logo/Brand */}
-                <Link
-                    href="/"
-                    className="group flex flex-col leading-none transition-all duration-300"
-                >
-                    <span className="text-lg sm:text-xl font-light tracking-wide group-hover:tracking-wider transition-all duration-300">
-                        Bandu Manamperi
-                    </span>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground font-light tracking-widest uppercase mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
-                        Artist
-                    </span>
-                </Link>
+    const handlePanelClick = (panelId: string) => {
+        if (pathname === "/") {
+            goToPanel(panelId)
+        } else {
+            // Navigate home, then HorizontalScroll picks up the hash to scroll.
+            router.push(`/#${panelId}`)
+        }
+    }
 
-                {/* Navigation Links */}
-                <div className="flex items-center gap-6 sm:gap-8 lg:gap-10">
-                    <div className="hidden md:flex items-center gap-6 lg:gap-8">
-                        {currentNavItems.map((item) => {
-                            const isActive = pathname === item.href
+    return (
+        <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-end justify-center pb-4">
+            <div
+                className="flex items-center justify-center px-6 py-2.5 rounded-full shadow-lg shadow-black/[0.08]"
+                style={{
+                    background: "rgba(250,250,250,0.72)",
+                    backdropFilter: "blur(40px) saturate(200%) brightness(1.05)",
+                    WebkitBackdropFilter: "blur(40px) saturate(200%) brightness(1.05)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    boxShadow: "0 2px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
+                }}
+            >
+                <div className="flex items-center gap-4 lg:gap-6">
+                    {currentNavItems.map((item) => {
+                        if ("panelId" in item && item.panelId) {
+                            const isActive =
+                                pathname === "/" && activePanelId === item.panelId
+
                             return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={`relative text-sm lg:text-base font-light tracking-wide transition-colors duration-300 group ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                                        }`}
+                                <button
+                                    key={item.label}
+                                    onClick={() => handlePanelClick(item.panelId)}
+                                    className={`relative text-[10px] tracking-widest uppercase transition-colors duration-300 group cursor-pointer font-serif ${
+                                        isActive
+                                            ? "text-foreground font-medium"
+                                            : "text-foreground/40 hover:text-foreground"
+                                    }`}
                                 >
                                     {item.label}
-                                    <span className={`absolute -bottom-1 left-0 h-px bg-foreground transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"
-                                        }`} />
-                                </Link>
+                                    <span className={`absolute -bottom-1 left-0 h-px bg-foreground transition-all duration-300 ${
+                                        isActive ? "w-full" : "w-0 group-hover:w-full"
+                                    }`} />
+                                </button>
                             )
-                        })}
-                    </div>
+                        }
 
-                    {/* Theme Toggle */}
-                    <div className="ml-2">
-                        <ThemeToggle />
-                    </div>
+                        const isActive = pathname === item.href
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href!}
+                                className={`relative text-[10px] tracking-widest uppercase transition-colors duration-300 group font-serif ${
+                                    isActive
+                                        ? "text-foreground font-medium"
+                                        : "text-foreground/40 hover:text-foreground"
+                                }`}
+                            >
+                                {item.label}
+                                <span className={`absolute -bottom-1 left-0 h-px bg-foreground transition-all duration-300 ${
+                                    isActive ? "w-full" : "w-0 group-hover:w-full"
+                                }`} />
+                            </Link>
+                        )
+                    })}
                 </div>
             </div>
         </nav>
     )
 }
-

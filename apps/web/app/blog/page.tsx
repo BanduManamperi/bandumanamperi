@@ -67,8 +67,8 @@ const BlogPage = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-background">
-            <main className="pt-24 md:pt-32 pb-24 blur-sm pointer-events-none select-none">
+        <div className="relative min-h-full bg-background">
+            <main className="pt-12 md:pt-16 pb-24 blur-sm pointer-events-none select-none">
                 <div className="max-w-7xl mx-auto px-6 lg:px-12">
                     {/* Header */}
                     <div className="text-center mb-16">

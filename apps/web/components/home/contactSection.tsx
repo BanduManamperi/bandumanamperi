@@ -1,268 +1,132 @@
 'use client';
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Mail, MapPin, Building2, Send, Facebook, Instagram, ExternalLink } from "lucide-react";
+import { Send, Facebook, Instagram, ExternalLink } from "lucide-react";
 import posthog from "posthog-js";
 import { CONTACT_FORM_ENABLED } from "@/lib/contact-form";
 import { ContactFormUnavailable } from "@/components/contact/contact-form-unavailable";
+import { motion } from "framer-motion";
 
 const ContactSection = () => {
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        message: "",
-    });
+    const [formData, setFormData] = useState({ name: "", email: "", message: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-
         try {
             const res = await fetch("/api/contact", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: formData.name,
-                    email: formData.email,
-                    subject: "Homepage inquiry",
-                    message: formData.message,
-                }),
+                body: JSON.stringify({ ...formData, subject: "Homepage inquiry" }),
             });
-
             if (!res.ok) {
-                toast.error("Something went wrong", {
-                    description: "Please try again or email directly.",
-                });
-                setIsSubmitting(false);
+                toast.error("Something went wrong", { description: "Please try again or email directly." });
                 return;
             }
-
-            toast.success("Message sent successfully", {
-                description: "Thank you for your message. I'll get back to you soon.",
-            });
-            posthog.capture("contact_form_home_submitted", {
-                message_length: formData.message.length,
-                source: "homepage_contact_section",
-            });
-            posthog.identify(formData.email, {
-                email: formData.email,
-                name: formData.name,
-            });
+            toast.success("Message sent", { description: "I'll get back to you soon." });
+            posthog.capture("contact_form_home_submitted", { message_length: formData.message.length });
+            posthog.identify(formData.email, { email: formData.email, name: formData.name });
             setFormData({ name: "", email: "", message: "" });
         } catch {
-            toast.error("Something went wrong", {
-                description: "Please try again or email directly.",
-            });
+            toast.error("Something went wrong", { description: "Please try again or email directly." });
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // PostHog: Track social link clicks
-    const handleSocialLinkClick = (platform: string, url: string) => {
-        posthog.capture('social_link_clicked', {
-            platform: platform,
-            url: url,
-            source: 'homepage_contact_section',
-        });
-    };
-
     return (
-        <section id="contact" className="py-24 md:py-32 bg-secondary/30">
-            <div className="max-w-7xl mx-auto px-6 lg:px-12">
-                <div className="max-w-3xl mx-auto text-center mb-16">
-                    <p className="text-sm uppercase tracking-wider text-muted-foreground mb-4">Get in Touch</p>
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                        Connect With Bandu
-                    </h2>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                        For exhibition inquiries, commissions, performances, or to discuss Bandu Manamperi&apos;s work,
-                        {CONTACT_FORM_ENABLED
-                            ? " please reach out using the form below or contact directly."
-                            : " please get in touch using the contact details below."}
-                    </p>
-                </div>
+        <section id="contact" className="h-full flex items-center bg-background">
+            <div className="max-w-7xl mx-auto w-full px-8 lg:px-20 py-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24 items-start">
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-                    {/* Contact Information */}
-                    <div className="lg:col-span-1 space-y-8">
-                        <div>
-                            <h3 className="text-2xl font-semibold mb-6">Contact Information</h3>
-                            <div className="space-y-6">
-                                <div className="flex items-start gap-4">
-                                    <div className="mt-1 p-2 rounded-lg bg-muted">
-                                        <Mail className="w-5 h-5 text-foreground" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-1">
-                                            Email
-                                        </h4>
-                                        <a
-                                            href="mailto:bandumanamperi@yahoo.com"
-                                            className="text-foreground hover:text-primary transition-colors"
-                                        >
-                                            bandumanamperi@yahoo.com
-                                        </a>
-                                    </div>
-                                </div>
+                    {/* ── Left: headline + contact details ── */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                            Get in Touch
+                        </p>
+                        <h2 className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,6vw,6rem)] font-normal leading-none tracking-tight text-foreground mb-8">
+                            Contact
+                        </h2>
 
-                                <div className="flex items-start gap-4">
-                                    <div className="mt-1 p-2 rounded-lg bg-muted">
-                                        <Building2 className="w-5 h-5 text-foreground" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-1">
-                                            Gallery Representation
-                                        </h4>
-                                        <p className="text-foreground">Theertha International Artists&apos; Collective</p>
-                                        <p className="text-sm text-muted-foreground">Colombo, Sri Lanka</p>
-                                    </div>
-                                </div>
+                        <div className="w-12 h-px bg-foreground/20 mb-8" />
 
-                                <div className="flex items-start gap-4">
-                                    <div className="mt-1 p-2 rounded-lg bg-muted">
-                                        <MapPin className="w-5 h-5 text-foreground" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-1">
-                                            Location
-                                        </h4>
-                                        <p className="text-foreground">Colombo</p>
-                                        <p className="text-sm text-muted-foreground">Sri Lanka</p>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Email */}
+                        <a
+                            href="mailto:bandumanamperi@yahoo.com"
+                            className="block text-base font-light text-foreground hover:text-muted-foreground transition-colors duration-300 mb-1"
+                        >
+                            bandumanamperi@yahoo.com
+                        </a>
+                        <p className="text-xs text-muted-foreground/60 font-light mb-10">
+                            Colombo, Sri Lanka
+                        </p>
+
+                        {/* Social links */}
+                        <div className="flex flex-col gap-3">
+                            {[
+                                { label: "Facebook", href: "https://www.facebook.com/bandu.manamperi", icon: Facebook, id: "facebook" },
+                                { label: "Instagram", href: "https://www.instagram.com/bandu_manamperi/", icon: Instagram, id: "instagram" },
+                                { label: "Theertha Collective", href: "https://theertha.org/artists/bandu-manamperi/", icon: ExternalLink, id: "theertha_collective" },
+                            ].map(({ label, href, icon: Icon, id }) => (
+                                <a
+                                    key={id}
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-sm font-light text-muted-foreground hover:text-foreground transition-colors duration-300 group w-fit"
+                                    onClick={() => posthog.capture("social_link_clicked", { platform: id, source: "homepage_contact_section" })}
+                                >
+                                    <Icon className="w-3.5 h-3.5" />
+                                    {label}
+                                </a>
+                            ))}
                         </div>
+                    </motion.div>
 
-                        {/* Social Links */}
-                        <div className="pt-8 border-t">
-                            <h4 className="text-sm font-medium uppercase tracking-wider text-muted-foreground mb-4">
-                                Follow
-                            </h4>
-                            <div className="flex flex-col gap-3">
-                                <a
-                                    href="https://www.facebook.com/bandu.manamperi"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-                                    onClick={() => handleSocialLinkClick('facebook', 'https://www.facebook.com/bandu.manamperi')}
-                                >
-                                    <Facebook className="w-4 h-4" />
-                                    <span>Facebook</span>
-                                    <ExternalLink className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </a>
-                                <a
-                                    href="https://www.instagram.com/bandu_manamperi/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-                                    onClick={() => handleSocialLinkClick('instagram', 'https://www.instagram.com/bandu_manamperi/')}
-                                >
-                                    <Instagram className="w-4 h-4" />
-                                    <span>Instagram</span>
-                                    <ExternalLink className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </a>
-                                <a
-                                    href="https://theertha.org/artists/bandu-manamperi/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-                                    onClick={() => handleSocialLinkClick('theertha_collective', 'https://theertha.org/artists/bandu-manamperi/')}
-                                >
-                                    <Building2 className="w-4 h-4" />
-                                    <span>Theertha Collective</span>
-                                    <ExternalLink className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Contact Form */}
-                    <div className="lg:col-span-2">
+                    {/* ── Right: form ── */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.15 }}
+                    >
                         {CONTACT_FORM_ENABLED ? (
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label htmlFor="name" className="text-sm font-medium">
-                                        Name *
-                                    </label>
-                                    <Input
-                                        id="name"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Your name"
-                                        className="h-11"
-                                    />
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="name" className="text-xs uppercase tracking-widest text-muted-foreground">Name</label>
+                                        <Input id="name" name="name" value={formData.name} onChange={handleChange} required placeholder="Your name" className="h-10 rounded-none border-border/60 focus:border-foreground bg-transparent" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="email" className="text-xs uppercase tracking-widest text-muted-foreground">Email</label>
+                                        <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="your@email.com" className="h-10 rounded-none border-border/60 focus:border-foreground bg-transparent" />
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="email" className="text-sm font-medium">
-                                        Email *
-                                    </label>
-                                    <Input
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="your.email@example.com"
-                                        className="h-11"
-                                    />
+                                <div className="space-y-1.5">
+                                    <label htmlFor="message" className="text-xs uppercase tracking-widest text-muted-foreground">Message</label>
+                                    <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required rows={5} placeholder="Tell me about your inquiry..." className="resize-none rounded-none border-border/60 focus:border-foreground bg-transparent" />
                                 </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="message" className="text-sm font-medium">
-                                    Message *
-                                </label>
-                                <Textarea
-                                    id="message"
-                                    name="message"
-                                    value={formData.message}
-                                    onChange={handleChange}
-                                    required
-                                    rows={6}
-                                    placeholder="Tell me about your inquiry..."
-                                    className="resize-none"
-                                />
-                            </div>
-                            <Button
-                                type="submit"
-                                disabled={isSubmitting}
-                                size="lg"
-                                className="w-full sm:w-auto min-w-[160px]"
-                            >
-                                {isSubmitting ? (
-                                    <>
-                                        <span className="mr-2">Sending...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Send className="w-4 h-4 mr-2" />
-                                        Send Message
-                                    </>
-                                )}
-                            </Button>
-                        </form>
+                                <Button type="submit" disabled={isSubmitting} className="rounded-none px-8 gap-2">
+                                    {isSubmitting ? "Sending..." : <><Send className="w-4 h-4" /> Send</>}
+                                </Button>
+                            </form>
                         ) : (
-                        <ContactFormUnavailable title="Message form" className="h-full" />
+                            <ContactFormUnavailable title="Message form" className="h-full" />
                         )}
-                    </div>
+                    </motion.div>
+
                 </div>
             </div>
         </section>

@@ -33,9 +33,9 @@ const PerformancesPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-full bg-background">
             {/* Hero Section - Centered Minimal */}
-            <div className="relative min-h-[50vh] flex items-center justify-center px-6 pt-24 md:pt-32 pb-16">
+            <div className="relative min-h-[50vh] flex items-center justify-center px-6 pt-12 md:pt-16 pb-16">
                 <div className="text-center max-w-4xl mx-auto space-y-8">
                     <div>
                         <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mb-6">

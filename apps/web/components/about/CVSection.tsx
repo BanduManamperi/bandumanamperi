@@ -95,28 +95,59 @@ function SubLabel({ children }: { children: React.ReactNode }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+// Walk up the DOM to find the nearest vertically-scrollable ancestor.
+function getScrollParent(node: HTMLElement | null): HTMLElement | null {
+    let el = node?.parentElement ?? null;
+    while (el) {
+        const overflowY = getComputedStyle(el).overflowY;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight) {
+            return el;
+        }
+        el = el.parentElement;
+    }
+    return null;
+}
+
 export function CVSection() {
     const [activeSection, setActiveSection] = useState('education');
 
     useEffect(() => {
-        const observers: IntersectionObserver[] = [];
+        const first = document.getElementById(NAV_SECTIONS[0].id);
+        if (!first) return;
 
-        NAV_SECTIONS.forEach(({ id }) => {
-            const el = document.getElementById(id);
-            if (!el) return;
+        const scroller = getScrollParent(first);
+        const target: HTMLElement | Window = scroller ?? window;
 
-            const observer = new IntersectionObserver(
-                ([entry]) => {
-                    if (entry.isIntersecting) setActiveSection(id);
-                },
-                { rootMargin: '-15% 0px -75% 0px' }
-            );
+        const updateActive = () => {
+            const viewTop = scroller ? scroller.getBoundingClientRect().top : 0;
+            const viewHeight = scroller ? scroller.clientHeight : window.innerHeight;
+            const threshold = viewHeight * 0.2;
 
-            observer.observe(el);
-            observers.push(observer);
-        });
+            // When scrolled to the bottom, the last nav section is the active one
+            // (its heading can't always reach the activation band).
+            const atBottom = scroller
+                ? Math.ceil(scroller.scrollTop + scroller.clientHeight) >= scroller.scrollHeight - 2
+                : window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
 
-        return () => observers.forEach(o => o.disconnect());
+            if (atBottom) {
+                setActiveSection(NAV_SECTIONS[NAV_SECTIONS.length - 1].id);
+                return;
+            }
+
+            let current = NAV_SECTIONS[0].id;
+            for (const { id } of NAV_SECTIONS) {
+                const el = document.getElementById(id);
+                if (!el) continue;
+                const top = el.getBoundingClientRect().top - viewTop;
+                if (top <= threshold) current = id;
+            }
+            setActiveSection(current);
+        };
+
+        target.addEventListener('scroll', updateActive, { passive: true });
+        updateActive();
+
+        return () => target.removeEventListener('scroll', updateActive);
     }, []);
 
     const scrollTo = (id: string) => {

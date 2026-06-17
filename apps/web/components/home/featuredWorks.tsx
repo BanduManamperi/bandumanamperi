@@ -76,7 +76,7 @@ const FeaturedWorks: React.FC<FeaturedWorksProps> = ({ artworks: propArtworks })
 
     if (loading) {
         return (
-            <section id="work" className="py-24 md:py-32 bg-secondary/30">
+            <section id="work" className="h-full flex flex-col justify-center py-10 bg-secondary/30">
                 <div className="max-w-7xl mx-auto px-6 lg:px-12">
                     <div className="text-center">
                         <p className="text-muted-foreground">Loading artworks...</p>
@@ -92,7 +92,7 @@ const FeaturedWorks: React.FC<FeaturedWorksProps> = ({ artworks: propArtworks })
 
     return (
         <>
-            <section id="work" className="py-24 md:py-32 bg-secondary/30">
+            <section id="work" className="h-full flex flex-col justify-center py-10 bg-secondary/30 overflow-y-hidden">
                 <div className="max-w-7xl mx-auto px-6 lg:px-12">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">Featured Work</h2>

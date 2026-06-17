@@ -2,80 +2,91 @@
 
 import React from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+
+const container: Variants = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.1 } },
+};
+
+const item: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: "easeOut" } },
+};
 
 const HeroSection = () => {
     return (
-        <section className="relative min-h-dvh flex items-center justify-center overflow-hidden">
-            {/* Full Section Image */}
+        <section className="h-full flex items-center bg-background">
             <motion.div
-                className="absolute inset-0 w-full h-full"
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="w-full px-10 md:px-20 lg:px-32 xl:px-44"
+                variants={container}
+                initial="hidden"
+                animate="show"
             >
-                <Image
-                    src="/IMG_8614.JPG"
-                    alt="Bandu manamperi"
-                    fill
-                    className="object-cover brightness-[0.35] grayscale"
-                    style={{ objectPosition: "center 30%" }}
-                    priority
-                    sizes="100vw"
-                />
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-6 xl:gap-6 lg:items-center">
 
-                {/* Subtle gradient overlay for better text readability */}
-                <div
-                    className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-black/20"
-                    aria-hidden="true"
-                />
-            </motion.div>
-
-            {/* Text Content - Centered */}
-            <div className="relative z-20 w-full px-6 sm:px-8 lg:px-12">
-                <div className="max-w-5xl mx-auto text-center">
-                    <div className="space-y-6 sm:space-y-8">
-                        {/* Name */}
+                    {/* ── Left: identity + bio ── */}
+                    <div className="min-w-0">
                         <motion.h1
-                            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-wide text-white"
-                            initial={{ opacity: 0, y: 24 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                            variants={item}
+                            className="text-[clamp(2.75rem,5.5vw,5rem)] font-black leading-[0.88] tracking-[-0.03em] uppercase text-foreground"
+                            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
                         >
-                            Bandu Manamperi
+                            Bandu
+                            <br />
+                            Manamperi
                         </motion.h1>
 
-                        {/* Divider */}
                         <motion.div
-                            className="flex items-center justify-center"
-                            initial={{ opacity: 0, scaleX: 0 }}
-                            animate={{ opacity: 1, scaleX: 1 }}
-                            transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
+                            variants={item}
+                            className="mt-7 h-px w-10 bg-foreground/15"
+                            aria-hidden
+                        />
+
+                        <motion.div
+                            variants={item}
+                            className="mt-6 space-y-4 text-[0.9375rem] text-muted-foreground font-light leading-[1.8] max-w-[42rem]"
                         >
-                            <div className="h-px w-24 bg-white/30 origin-center" />
+                            <p>
+                                <strong className="font-semibold text-foreground">Bandu Manamperi</strong> is a Sri Lankan
+                                contemporary artist whose multidisciplinary practice spans
+                                performance, sculpture, drawing, photography, video, and
+                                installation. His work explores identity, memory, conflict, and
+                                cultural transformation, often drawing from Sri Lanka&apos;s
+                                history, archaeology, and lived social experience.
+                            </p>
+                            <p>
+                                A founding member and Vice Chairman of{" "}
+                                <strong className="font-semibold text-foreground">
+                                    Theertha International Artists&apos; Collective
+                                </strong>, Manamperi has played an important role in shaping
+                                contemporary art practice in Sri Lanka and connecting it with
+                                wider international conversations. His work has been presented
+                                across South Asia, Europe, Australia, and beyond.
+                            </p>
                         </motion.div>
 
-                        {/* Description */}
-                        <motion.p
-                            className="text-lg sm:text-xl md:text-2xl text-white/70 max-w-3xl mx-auto font-light leading-relaxed"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, delay: 0.6, ease: "easeOut" }}
-                        >
-                            Contemporary Sri Lankan Artist
-                        </motion.p>
-
-                        <motion.p
-                            className="text-sm sm:text-base md:text-lg text-white/50 max-w-2xl mx-auto font-light leading-relaxed"
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, delay: 0.8, ease: "easeOut" }}
-                        >
-                            Performance · Installation · Drawing
-                        </motion.p>
                     </div>
+
+                    {/* ── Right: portrait (contained, vertically centred) ── */}
+                    <motion.div
+                        variants={item}
+                        className="hidden lg:flex lg:items-center lg:justify-center"
+                    >
+                        <div className="relative w-[300px] xl:w-[360px] aspect-[3/4] overflow-hidden">
+                            <Image
+                                src="/IMG_8614.JPG"
+                                alt="Bandu Manamperi"
+                                fill
+                                className="object-cover grayscale"
+                                priority
+                                sizes="360px"
+                            />
+                        </div>
+                    </motion.div>
+
                 </div>
-            </div>
+            </motion.div>
         </section>
     );
 };

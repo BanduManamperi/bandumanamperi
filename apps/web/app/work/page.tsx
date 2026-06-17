@@ -11,12 +11,6 @@ const workCategories = [
         image: "/JBP06256.jpg",
     },
     {
-        title: "Exhibitions",
-        description: "Current and past solo and group exhibitions",
-        link: "/exhibitions",
-        image: "/Numbed.jpg",
-    },
-    {
         title: "Performances",
         description: "Live art performances and interventions",
         link: "/performances",
@@ -32,8 +26,8 @@ const workCategories = [
 
 const Work = () => {
     return (
-        <div className="min-h-screen bg-background">
-            <main className="pt-24 md:pt-32 pb-24">
+        <div className="min-h-full bg-background">
+            <main className="pt-12 md:pt-16 pb-24">
                 <div className="max-w-[1900px] mx-auto px-6 lg:px-12">
                     {/* Header */}
                     <div className="text-center mb-16">
@@ -46,7 +40,7 @@ const Work = () => {
                     </div>
 
                     {/* Navigation Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 lg:gap-12">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                         {workCategories.map((category, index) => (
                             <Link
                                 key={category.title}

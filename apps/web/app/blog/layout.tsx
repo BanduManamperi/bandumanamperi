@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { ScrollablePanel } from "@/components/scrollable-panel";
 
 export const metadata: Metadata = {
     title: "Blog",
@@ -10,11 +11,6 @@ export const metadata: Metadata = {
     },
 };
 
-export default function BlogLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return <>{children}</>;
+export default function BlogLayout({ children }: { children: React.ReactNode }) {
+    return <ScrollablePanel>{children}</ScrollablePanel>
 }
-

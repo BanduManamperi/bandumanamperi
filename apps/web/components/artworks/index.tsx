@@ -231,7 +231,7 @@ export default function ArtworksPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center pt-24">
+            <div className="min-h-full flex items-center justify-center pt-12">
                 <div className="text-center">
                     <p className="text-muted-foreground">Loading artworks...</p>
                 </div>
@@ -240,7 +240,7 @@ export default function ArtworksPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-full bg-background">
             <main className="pb-24">
                 <div className="max-w-7xl mx-auto px-6">
                     {/* Header */}

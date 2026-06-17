@@ -67,7 +67,7 @@ const ExhibitionDetailPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center pt-24">
+            <div className="min-h-full flex items-center justify-center pt-12">
                 <p className="text-muted-foreground">Loading exhibition...</p>
             </div>
         );
@@ -75,7 +75,7 @@ const ExhibitionDetailPage = () => {
 
     if (!exhibition) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center pt-24">
+            <div className="min-h-full flex flex-col items-center justify-center pt-12">
                 <p className="text-muted-foreground mb-4">Exhibition not found.</p>
                 <Link
                     href="/exhibitions"
@@ -91,8 +91,8 @@ const ExhibitionDetailPage = () => {
     const scheduleLabel = getExhibitionScheduleLabel(scheduleStatus);
 
     return (
-        <div className="min-h-screen bg-background">
-            <main className="pt-24 md:pt-32 pb-24">
+        <div className="min-h-full bg-background">
+            <main className="pt-12 md:pt-16 pb-24">
                 <div className="max-w-7xl mx-auto px-6 lg:px-12">
                     {/* Back Navigation */}
                     <Link

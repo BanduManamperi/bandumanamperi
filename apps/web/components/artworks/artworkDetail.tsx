@@ -73,7 +73,7 @@ export default function ArtworkDetail({ slug }: ArtworkDetailProps) {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-full flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-muted-foreground">Loading artwork...</p>
                 </div>
@@ -83,7 +83,7 @@ export default function ArtworkDetail({ slug }: ArtworkDetailProps) {
 
     if (!artwork) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-full flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-muted-foreground mb-4">Artwork not found</p>
                     <Link
@@ -131,7 +131,7 @@ export default function ArtworkDetail({ slug }: ArtworkDetailProps) {
     };
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-full bg-background">
             <main className="pb-24">
                 <div className="max-w-7xl mx-auto px-6">
                     {/* Back Button */}

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Lora, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteHeader } from "@/components/site/site-header";
+import { Navbar } from "@/components/navBar/navbar";
+import { HorizontalScroll } from "@/components/horizontal-scroll";
 import { Toaster } from "@/components/ui/sonner";
-import Footer from "@/components/footer/footer";
 import Provider from "@/components/provider";
 
 export const revalidate = 60;
@@ -77,7 +77,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <Provider>
         <body
-          className={`${lora.variable} ${playfairDisplay.variable} font-serif antialiased`}
+          className={`${lora.variable} ${playfairDisplay.variable} font-serif antialiased overflow-hidden`}
         >
           <ThemeProvider
             attribute="class"
@@ -85,12 +85,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SiteHeader />
-            <main>
+            <HorizontalScroll>
               {children}
-            </main>
-            <Footer />
+            </HorizontalScroll>
             <Toaster />
+            <Navbar />
           </ThemeProvider>
         </body>
       </Provider>
