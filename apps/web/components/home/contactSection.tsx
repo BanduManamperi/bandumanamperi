@@ -45,7 +45,7 @@ const ContactSection = () => {
 
     return (
         <section id="contact" className="h-full flex items-center bg-background">
-            <div className="max-w-7xl mx-auto w-full px-8 lg:px-20 py-12">
+            <div className="w-full px-10 md:px-20 lg:px-32 xl:px-44 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24 items-start">
 
                     {/* ── Left: headline + contact details ── */}
@@ -54,10 +54,7 @@ const ContactSection = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-                            Get in Touch
-                        </p>
-                        <h2 className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,6vw,6rem)] font-normal leading-none tracking-tight text-foreground mb-8">
+                        <h2 className="font-heading text-[clamp(2rem,3.5vw,3rem)] font-bold leading-none tracking-tight text-foreground mb-8">
                             Contact
                         </h2>
 

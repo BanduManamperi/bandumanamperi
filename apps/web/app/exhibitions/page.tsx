@@ -13,6 +13,7 @@ import {
     getExhibitionYear,
 } from "@bandumanamperi/types";
 import posthog from "posthog-js";
+import { motion } from "framer-motion";
 
 const ExhibitionsPage = () => {
     const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -23,7 +24,7 @@ const ExhibitionsPage = () => {
         const loadExhibitions = async () => {
             setLoading(true);
             try {
-                const response = await fetch('/api/exhibitions');
+                const response = await fetch("/api/exhibitions");
                 if (response.ok) {
                     const data = await response.json();
                     setExhibitions(data);
@@ -43,193 +44,182 @@ const ExhibitionsPage = () => {
 
     const getTypeLabel = (type: string) => {
         switch (type.toLowerCase()) {
-            case "solo":
-                return "Solo Exhibition";
-            case "group":
-                return "Group Exhibition";
-            case "online":
-                return "Online Exhibition";
-            default:
-                return "Exhibition";
+            case "solo": return "Solo";
+            case "group": return "Group";
+            case "online": return "Online";
+            default: return "Exhibition";
         }
     };
 
-    const getExhibitionYearFromSchedule = (exhibition: Exhibition) =>
-        getExhibitionYear(exhibition);
-
-    // PostHog: Track filter changes
     const handleFilterChange = (newFilter: typeof filter) => {
         setFilter(newFilter);
-        posthog.capture('exhibition_filtered', {
+        posthog.capture("exhibition_filtered", {
             filter_type: newFilter,
-            results_count: newFilter === "all" ? exhibitions.length : exhibitions.filter(ex => ex.type === newFilter).length,
+            results_count: newFilter === "all"
+                ? exhibitions.length
+                : exhibitions.filter((ex) => ex.type === newFilter).length,
         });
     };
 
-    // PostHog: Track exhibition click
     const handleExhibitionClick = (exhibition: Exhibition) => {
-        posthog.capture('exhibition_clicked', {
+        posthog.capture("exhibition_clicked", {
             exhibition_name: exhibition.name,
             exhibition_type: exhibition.type,
             exhibition_venue: exhibition.venue,
-            exhibition_year: getExhibitionYearFromSchedule(exhibition),
+            exhibition_year: getExhibitionYear(exhibition),
             artworks_count: exhibition.artworks.length,
         });
     };
 
     return (
-        <div className="min-h-full bg-background">
-            <main className="pt-12 md:pt-16 pb-24">
-                <div className="max-w-[1900px] mx-auto px-6 lg:px-12">
-                    {/* Header */}
-                    <div className="mb-16">
-                        <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">
-                            Exhibition History
-                        </p>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
-                            Exhibitions
-                        </h1>
-                        <p className="text-muted-foreground max-w-3xl text-lg font-light leading-relaxed">
-                            A curated selection of solo and group exhibitions spanning international venues,
-                            showcasing works that explore identity, performance, and contemporary artistic practice.
-                        </p>
-                    </div>
+        <div className="flex flex-row h-full w-max flex-shrink-0">
 
-                    {/* Filter Buttons */}
-                    <div className="mb-12 flex flex-wrap gap-3">
-                        {[
-                            { value: "all", label: "All Exhibitions" },
-                            { value: "solo", label: "Solo" },
-                            { value: "group", label: "Group" },
-                            { value: "online", label: "Online" },
-                        ].map((item) => (
-                            <button
-                                key={item.value}
-                                onClick={() => handleFilterChange(item.value as typeof filter)}
-                                className={`
-                                    px-6 py-2.5 text-sm font-light tracking-wide
-                                    border border-border/40 rounded-none
-                                    transition-all duration-300
-                                    ${filter === item.value
-                                        ? "bg-foreground text-background"
-                                        : "bg-transparent text-muted-foreground hover:text-foreground hover:border-foreground/60"
-                                    }
-                                `}
-                            >
-                                {item.label}
-                            </button>
-                        ))}
-                    </div>
+            {/* ── Panel 1: Intro ── */}
+            <div
+                id="panel-exhibitions"
+                data-panel=""
+                data-panel-label="Exhibitions"
+                className="w-screen flex-shrink-0 h-full overflow-hidden flex items-center"
+            >
+                <motion.div
+                    className="w-full px-10 md:px-20 lg:px-32 xl:px-44"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <h1 className="font-heading text-[clamp(2rem,3.5vw,3rem)] font-black uppercase tracking-[-0.03em] text-foreground">
+                        Exhibitions
+                    </h1>
 
-                    {/* Exhibitions Grid */}
+                    <div className="mt-6 h-px w-10 bg-foreground/15" />
+
+                    <p className="mt-6 text-[0.9375rem] text-muted-foreground font-light leading-[1.8] max-w-[38rem]">
+                        Across solo presentations and collaborative group projects, Manamperi's
+                        exhibitions have occupied galleries, alternative spaces, and public sites
+                        from Colombo to Copenhagen. Each context reshapes the work — the same
+                        gesture meaning differently in different rooms, different latitudes,
+                        different histories. What follows is a record of those encounters: places
+                        where art and audience met, briefly, and were both altered.
+                    </p>
+
+                    <p className="mt-4 text-xs text-muted-foreground/40 font-light">
+                        {loading ? "" : `${exhibitions.length} exhibitions`}
+                    </p>
+                </motion.div>
+            </div>
+
+            {/* ── Panel 2: Exhibition list ── */}
+            <div
+                id="panel-exhibitions-list"
+                data-panel=""
+                data-panel-label="All Exhibitions"
+                className="w-screen flex-shrink-0 h-full overflow-hidden flex flex-col"
+            >
+                {/* Header + filters */}
+                <div className="px-10 md:px-20 lg:px-32 xl:px-44 pt-10 pb-6 shrink-0">
+                    <div className="flex items-baseline justify-between">
+                        <div>
+                            <h2 className="font-heading text-[clamp(2rem,3.5vw,3rem)] font-bold leading-none tracking-tight text-foreground">
+                                All Exhibitions
+                            </h2>
+                            {!loading && (
+                                <p className="text-xs text-muted-foreground/50 mt-1">
+                                    {filteredExhibitions.length}{" "}
+                                    {filteredExhibitions.length === 1 ? "exhibition" : "exhibitions"}
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex gap-1">
+                            {(["all", "solo", "group", "online"] as const).map((f) => (
+                                <button
+                                    key={f}
+                                    onClick={() => handleFilterChange(f)}
+                                    className={`text-[9px] tracking-widest uppercase px-3 py-1.5 transition-colors duration-200 ${
+                                        filter === f
+                                            ? "bg-foreground text-background"
+                                            : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                                >
+                                    {f === "all" ? "All" : f}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Scrollable list */}
+                <div
+                    className="flex-1 overflow-y-auto overflow-x-hidden px-10 md:px-20 lg:px-32 xl:px-44 pb-16"
+                    style={{ scrollbarWidth: "none" } as React.CSSProperties}
+                >
                     {loading ? (
-                        <div className="text-center py-20">
-                            <p className="text-muted-foreground">Loading exhibitions...</p>
-                        </div>
+                        <p className="text-sm text-muted-foreground">Loading…</p>
                     ) : filteredExhibitions.length === 0 ? (
-                        <div className="text-center py-20">
-                            <p className="text-muted-foreground">No exhibitions found.</p>
-                        </div>
+                        <p className="text-sm text-muted-foreground">No exhibitions found.</p>
                     ) : (
-                        <div className="space-y-16">
+                        <div>
                             {filteredExhibitions.map((exhibition, index) => {
                                 const slug = generateExhibitionSlug(
                                     exhibition.name,
-                                    getExhibitionYearFromSchedule(exhibition)
+                                    getExhibitionYear(exhibition)
                                 );
                                 const scheduleStatus = getExhibitionScheduleStatus(exhibition);
                                 const scheduleLabel = getExhibitionScheduleLabel(scheduleStatus);
+                                const imageUrl =
+                                    getExhibitionImageUrl(exhibition.coverImage) ||
+                                    getArtworkImageUrl(exhibition.artworks[0]?.thumbnail_path ?? null) ||
+                                    getArtworkImageUrl(exhibition.artworks[0]?.imageUrl ?? null) ||
+                                    PLACEHOLDERS.exhibition.url;
+
                                 return (
                                     <Link
-                                        key={exhibition.id ?? `${exhibition.name}-${exhibition.venue}-${exhibition.startDate}-${exhibition.dates}`}
+                                        key={exhibition.id ?? `${exhibition.name}-${index}`}
                                         href={`/exhibitions/${slug}`}
-                                        className="block group animate-fade-in"
-                                        style={{ animationDelay: `${index * 0.1}s` }}
+                                        className="group flex items-center gap-6 py-5 border-b border-foreground/[0.08] hover:border-foreground/20 transition-colors duration-300"
                                         onClick={() => handleExhibitionClick(exhibition)}
                                     >
-                                        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start cursor-pointer">
-                                            {/* Image */}
-                                            <div
-                                                className={`relative overflow-hidden bg-card aspect-[4/3] ${index % 2 === 0 ? "md:order-1" : "md:order-2"
-                                                    }`}
-                                            >
-                                                <Image
-                                                    src={
-                                                        getExhibitionImageUrl(exhibition.coverImage) ||
-                                                        getArtworkImageUrl(exhibition.artworks[0]?.thumbnail_path ?? null) ||
-                                                        getArtworkImageUrl(exhibition.artworks[0]?.imageUrl ?? null) ||
-                                                        PLACEHOLDERS.exhibition.url
-                                                    }
-                                                    alt={exhibition.name}
-                                                    fill
-                                                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                                />
-                                            </div>
-
-                                            {/* Content */}
-                                            <div
-                                                className={`flex flex-col justify-center space-y-4 ${index % 2 === 0 ? "md:order-2" : "md:order-1"
-                                                    }`}
-                                            >
-                                                {/* Type Badge */}
-                                                <div className="inline-flex flex-wrap gap-2">
-                                                    <span className="text-xs tracking-widest uppercase text-muted-foreground border border-border/40 px-3 py-1">
-                                                        {getTypeLabel(exhibition.type)}
-                                                    </span>
-                                                    {scheduleStatus !== "past" && (
-                                                        <span className="text-xs tracking-widest uppercase text-foreground border border-border px-3 py-1">
-                                                            {scheduleLabel}
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* Title & Year */}
-                                                <h2 className="text-3xl md:text-4xl font-light group-hover:text-muted-foreground transition-colors duration-300">
-                                                    {exhibition.name}
-                                                </h2>
-
-                                                {/* Meta Information */}
-                                                <div className="space-y-2 text-muted-foreground font-light">
-                                                    <p className="text-lg">{formatExhibitionSchedule(exhibition)}</p>
-                                                    <p>{exhibition.venue}</p>
-                                                    {exhibition.curator && (
-                                                        <p className="text-sm">
-                                                            Curated by {exhibition.curator}
-                                                        </p>
-                                                    )}
-                                                </div>
-
-                                                {/* Description */}
-                                                {exhibition.about && (
-                                                    <p className="text-muted-foreground leading-relaxed pt-2">
-                                                        {exhibition.about}
-                                                    </p>
-                                                )}
-
-                                                {/* Artworks Count */}
-                                                {exhibition.artworks.length > 0 && (
-                                                    <p className="text-sm text-muted-foreground pt-2">
-                                                        {exhibition.artworks.length} {exhibition.artworks.length === 1 ? 'artwork' : 'artworks'}
-                                                    </p>
-                                                )}
-                                            </div>
+                                        {/* Thumbnail */}
+                                        <div className="relative w-16 h-12 flex-shrink-0 overflow-hidden bg-muted">
+                                            <Image
+                                                src={imageUrl}
+                                                alt={exhibition.name}
+                                                fill
+                                                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                                sizes="64px"
+                                            />
                                         </div>
 
-                                        {/* Divider */}
-                                        {index < filteredExhibitions.length - 1 && (
-                                            <div className="mt-16 border-b border-border/20" />
-                                        )}
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-baseline gap-3">
+                                                <h3 className="font-heading text-sm font-bold uppercase tracking-tight text-foreground truncate group-hover:text-muted-foreground transition-colors duration-300">
+                                                    {exhibition.name}
+                                                </h3>
+                                                {scheduleStatus !== "past" && (
+                                                    <span className="text-[9px] tracking-widest uppercase text-foreground/50 flex-shrink-0">
+                                                        {scheduleLabel}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-muted-foreground/60 mt-0.5">
+                                                {formatExhibitionSchedule(exhibition)} · {exhibition.venue}
+                                            </p>
+                                        </div>
+
+                                        {/* Type */}
+                                        <span className="text-[9px] tracking-widest uppercase text-muted-foreground/40 flex-shrink-0">
+                                            {getTypeLabel(exhibition.type)}
+                                        </span>
                                     </Link>
-                                )
+                                );
                             })}
                         </div>
                     )}
                 </div>
-            </main>
+            </div>
+
         </div>
     );
 };
 
 export default ExhibitionsPage;
-

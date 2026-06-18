@@ -9,7 +9,7 @@ const AboutSection = () => {
                 <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
                     <div className="order-2 md:order-1">
                         <p className="text-2xl font-bold mb-4">About</p>
-                        <h2 className="text-6xl mb-8">The Artist</h2>
+                        <h2 className="font-heading text-6xl mb-8">The Artist</h2>
                         <div className="space-y-6 text-muted-foreground font-light leading-relaxed">
                             <p>
                                 <strong className="font-bold">Bandu Manamperi</strong> , an artist whose work transcends traditional boundaries to explore themes of identity, conflict, and the complexities of

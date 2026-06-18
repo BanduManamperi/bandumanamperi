@@ -67,7 +67,7 @@ const ContactSection = () => {
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 <div className="max-w-3xl mx-auto text-center mb-16">
                     <span className="section-title text-gallery-gray inline-block">Get in Touch</span>
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-4">
+                    <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-4">
                         Connect With Bandu
                     </h2>
                     <p className="text-gallery-gray">
@@ -81,7 +81,7 @@ const ContactSection = () => {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
                     <div className="md:col-span-2 space-y-8">
                         <div className="animate-fade-in">
-                            <h3 className="text-xl font-serif mb-2">Contact Information</h3>
+                            <h3 className="font-heading text-xl mb-2">Contact Information</h3>
                             <p className="text-gallery-gray mb-6">
                                 Feel free to reach out through any of the following channels:
                             </p>

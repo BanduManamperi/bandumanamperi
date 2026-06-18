@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { ScrollablePanel } from "@/components/scrollable-panel";
 
 export const metadata: Metadata = {
     title: 'Artworks',
@@ -7,5 +6,5 @@ export const metadata: Metadata = {
 }
 
 export default function ArtworksLayout({ children }: { children: React.ReactNode }) {
-    return <ScrollablePanel>{children}</ScrollablePanel>
+    return <>{children}</>
 }

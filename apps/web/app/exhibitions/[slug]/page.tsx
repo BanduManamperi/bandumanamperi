@@ -117,7 +117,7 @@ const ExhibitionDetailPage = () => {
 
                     {/* Exhibition Title & Meta */}
                     <div className="mb-12">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
+                        <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-light mb-6">
                             {exhibition.name}
                         </h1>
                         <div className="space-y-2 text-lg text-muted-foreground font-light">
@@ -151,7 +151,7 @@ const ExhibitionDetailPage = () => {
                     {/* Exhibition Description */}
                     {exhibition.about && (
                         <div className="max-w-3xl mb-16">
-                            <h2 className="text-2xl font-light mb-6">About the Exhibition</h2>
+                            <h2 className="font-heading text-2xl font-light mb-6">About the Exhibition</h2>
                             <div className="prose prose-lg text-muted-foreground leading-relaxed">
                                 <p>{exhibition.about}</p>
                             </div>
@@ -161,7 +161,7 @@ const ExhibitionDetailPage = () => {
                     {/* Exhibition Images */}
                     {exhibition.exhibitionImages && exhibition.exhibitionImages.length > 0 && (
                         <div className="mb-16">
-                            <h2 className="text-2xl font-light mb-8">Exhibition Views</h2>
+                            <h2 className="font-heading text-2xl font-light mb-8">Exhibition Views</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {exhibition.exhibitionImages.map((imagePath, index) => {
                                     const imageUrl = getExhibitionImageUrl(imagePath);
@@ -189,7 +189,7 @@ const ExhibitionDetailPage = () => {
                     {/* Featured Works */}
                     {exhibition.artworks && exhibition.artworks.length > 0 && (
                         <div>
-                            <h2 className="text-2xl font-light mb-8">
+                            <h2 className="font-heading text-2xl font-light mb-8">
                                 Featured Works
                                 <span className="text-muted-foreground text-lg ml-3">
                                     ({exhibition.artworks.length})
@@ -223,7 +223,7 @@ const ExhibitionDetailPage = () => {
                                                 </div>
                                             </div>
                                             <div className="mt-4">
-                                                <h3 className="font-light text-lg text-foreground group-hover:text-muted-foreground transition-colors">
+                                                <h3 className="font-heading font-light text-lg text-foreground group-hover:text-muted-foreground transition-colors">
                                                     {artwork.title || "Untitled"}
                                                 </h3>
                                                 {artwork.year && (

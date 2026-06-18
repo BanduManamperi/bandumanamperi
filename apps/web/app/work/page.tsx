@@ -32,7 +32,7 @@ const Work = () => {
                     {/* Header */}
                     <div className="text-center mb-16">
                         <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">Explore</p>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-4">Work</h1>
+                        <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl mb-4">Work</h1>
                         <p className="text-muted-foreground max-w-2xl mx-auto mt-6">
                             Discover the full breadth of artistic practice spanning paintings,
                             performances, and exhibitions across international venues.
@@ -58,7 +58,7 @@ const Work = () => {
                                     />
                                 </div>
                                 <div className="mt-6 text-center">
-                                    <h2 className="font-serif text-2xl text-foreground group-hover:text-primary transition-colors">
+                                    <h2 className="font-heading text-2xl text-foreground group-hover:text-primary transition-colors">
                                         {category.title}
                                     </h2>
                                     <p className="text-sm text-muted-foreground mt-2">

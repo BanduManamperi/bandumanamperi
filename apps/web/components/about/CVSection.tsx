@@ -75,7 +75,7 @@ function SectionBlock({
 }) {
     return (
         <div id={id} className="scroll-mt-36">
-            <h3 className="font-serif text-2xl text-foreground mb-8 pb-4 border-b border-border">
+            <h3 className="font-heading text-2xl font-bold tracking-tight text-foreground mb-8 pb-4 border-b border-border">
                 {title}
             </h3>
             {children}

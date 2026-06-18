@@ -41,12 +41,9 @@ const Home = async () => {
                 <VerticalScrollPanel id="panel-background" label="Background">
                     <div className="min-h-full bg-background">
                         <main className="pt-16 md:pt-24 pb-24">
-                            <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                            <div className="w-full px-10 md:px-20 lg:px-32 xl:px-44">
                                 <div className="text-center mb-16">
-                                    <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">
-                                        A Little About Me
-                                    </p>
-                                    <h2 className="text-4xl md:text-5xl font-serif mb-4">
+                                    <h2 className="font-heading text-[clamp(2rem,3.5vw,3rem)] font-bold leading-none tracking-tight text-foreground mb-4">
                                         Background in Art
                                     </h2>
                                 </div>

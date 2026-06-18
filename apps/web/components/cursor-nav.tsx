@@ -3,10 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
-// Elements where the arrow cursor should stand down (so links/buttons/forms and
-// read-heavy panels behave normally and clicks there don't navigate).
-const INTERACTIVE =
-    'a, button, input, textarea, select, label, [role="button"], [data-no-cursor-nav], [data-no-cursor-nav] *'
+// px from each edge that activates the nav cursor
+const EDGE_ZONE = 80
 
 type Props = {
     canPrev: boolean
@@ -16,7 +14,7 @@ type Props = {
 }
 
 export function CursorNav({ canPrev, canNext, onPrev, onNext }: Props) {
-    const [enabled, setEnabled] = useState(false) // only on fine pointers (desktop)
+    const [enabled, setEnabled] = useState(false)
     const [visible, setVisible] = useState(false)
     const [dir, setDir] = useState<"left" | "right">("right")
 
@@ -25,7 +23,6 @@ export function CursorNav({ canPrev, canNext, onPrev, onNext }: Props) {
     const target = useRef({ x: 0, y: 0 })
     const down = useRef<{ x: number; y: number } | null>(null)
 
-    // Detect a precise pointer; bail entirely on touch devices.
     useEffect(() => {
         const mq = window.matchMedia("(pointer: fine)")
         const update = () => setEnabled(mq.matches)
@@ -52,11 +49,19 @@ export function CursorNav({ canPrev, canNext, onPrev, onNext }: Props) {
 
         const onMove = (e: PointerEvent) => {
             target.current = { x: e.clientX, y: e.clientY }
-            const overInteractive = !!(e.target as Element | null)?.closest(INTERACTIVE)
-            const side = e.clientX > window.innerWidth / 2 ? "right" : "left"
-            setDir(side)
-            const canGo = side === "right" ? canNext : canPrev
-            setVisible(!overInteractive && canGo)
+
+            const inLeftZone = e.clientX <= EDGE_ZONE
+            const inRightZone = e.clientX >= window.innerWidth - EDGE_ZONE
+
+            if (inLeftZone && canPrev) {
+                setDir("left")
+                setVisible(true)
+            } else if (inRightZone && canNext) {
+                setDir("right")
+                setVisible(true)
+            } else {
+                setVisible(false)
+            }
         }
 
         const onDown = (e: PointerEvent) => {
@@ -64,13 +69,14 @@ export function CursorNav({ canPrev, canNext, onPrev, onNext }: Props) {
         }
 
         const onClick = (e: MouseEvent) => {
-            if ((e.target as Element | null)?.closest(INTERACTIVE)) return
             const d = down.current
-            // Ignore drags / text selection.
             if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 10) return
-            const side = e.clientX > window.innerWidth / 2 ? "right" : "left"
-            if (side === "right" && canNext) onNext()
-            else if (side === "left" && canPrev) onPrev()
+
+            const inLeftZone = e.clientX <= EDGE_ZONE
+            const inRightZone = e.clientX >= window.innerWidth - EDGE_ZONE
+
+            if (inLeftZone && canPrev) onPrev()
+            else if (inRightZone && canNext) onNext()
         }
 
         const onLeave = () => setVisible(false)
@@ -91,13 +97,10 @@ export function CursorNav({ canPrev, canNext, onPrev, onNext }: Props) {
         }
     }, [enabled, canPrev, canNext, onPrev, onNext])
 
-    // Hide the native cursor only while our arrow is active over navigable space.
     useEffect(() => {
         if (!enabled) return
         document.body.style.cursor = visible ? "none" : ""
-        return () => {
-            document.body.style.cursor = ""
-        }
+        return () => { document.body.style.cursor = "" }
     }, [visible, enabled])
 
     if (!enabled) return null
@@ -106,14 +109,14 @@ export function CursorNav({ canPrev, canNext, onPrev, onNext }: Props) {
         <div
             ref={elRef}
             aria-hidden
-            className={`pointer-events-none fixed left-0 top-0 z-[9990] flex h-16 w-16 items-center justify-center rounded-full border border-foreground/15 bg-background/40 text-foreground backdrop-blur-md transition-[opacity,scale] duration-200 ${
+            className={`pointer-events-none fixed left-0 top-0 z-[9990] flex h-12 w-12 items-center justify-center rounded-full border border-foreground/15 bg-background/60 text-foreground backdrop-blur-md transition-[opacity,scale] duration-200 ${
                 visible ? "scale-100 opacity-100" : "scale-75 opacity-0"
             }`}
         >
             {dir === "right" ? (
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-4 w-4" />
             ) : (
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-4 w-4" />
             )}
         </div>
     )

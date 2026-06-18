@@ -24,7 +24,7 @@ const Footer = () => {
 
                     {/* Navigation */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
                             Navigation
                         </h3>
                         <nav className="flex flex-col space-y-3">
@@ -57,7 +57,7 @@ const Footer = () => {
 
                     {/* Social */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
                             Connect
                         </h3>
                         <nav className="flex flex-col space-y-3">
@@ -95,7 +95,7 @@ const Footer = () => {
 
                     {/* Contact Info */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
                             Contact
                         </h3>
                         <div className="flex flex-col space-y-3 text-sm">

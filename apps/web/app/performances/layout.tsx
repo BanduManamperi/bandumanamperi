@@ -1,6 +1,4 @@
 import { Metadata } from "next";
-import { ScrollablePanel } from "@/components/scrollable-panel";
-
 export const metadata: Metadata = {
     title: "Performances",
     description: "Explore performance art works by Bandu Manamperi. Ephemeral explorations of identity, body, and transformation through live intervention.",
@@ -12,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function PerformancesLayout({ children }: { children: React.ReactNode }) {
-    return <ScrollablePanel>{children}</ScrollablePanel>
+    return <>{children}</>
 }

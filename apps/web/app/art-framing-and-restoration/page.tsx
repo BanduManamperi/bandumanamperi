@@ -12,13 +12,13 @@ export default function ArtRestorationPage() {
             <p className="text-sm tracking-widest uppercase text-muted-foreground mb-6">
                 Professional Services
             </p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-6">
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl mb-6">
                 Art Framing &amp; Restoration
             </h1>
             <p className="text-muted-foreground max-w-xl font-light leading-relaxed mb-10">
                 Specialized restoration, conservation, and custom framing services. This page is currently being prepared.
             </p>
-            <p className="text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-foreground mb-12">
+            <p className="font-heading text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-foreground mb-12">
                 Coming Soon
             </p>
             <Link

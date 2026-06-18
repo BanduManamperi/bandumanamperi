@@ -31,11 +31,11 @@ export default function About() {
             {/* ── Panel 1: Artistic Practice ── */}
             <div id="panel-practice" data-panel data-panel-label="Practice" className={panel}>
                 <section className="h-full flex items-center bg-background">
-                    <div className="max-w-7xl mx-auto w-full px-8 lg:px-20 py-12">
+                    <div className="w-full px-10 md:px-20 lg:px-32 xl:px-44 py-12">
                         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
                             Get to Know
                         </p>
-                        <h1 className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,6vw,5.5rem)] font-normal leading-none tracking-tight text-foreground">
+                        <h1 className="font-heading text-[clamp(2.5rem,6vw,5.5rem)] font-normal leading-none tracking-tight text-foreground">
                             Artistic Practice
                         </h1>
 
@@ -44,7 +44,7 @@ export default function About() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
                             {practice.map((p) => (
                                 <div key={p.title}>
-                                    <h2 className="font-serif text-xl lg:text-2xl text-foreground mb-4">
+                                    <h2 className="font-heading text-xl lg:text-2xl text-foreground mb-4">
                                         {p.title}
                                     </h2>
                                     <p className="text-sm text-muted-foreground font-light leading-relaxed">
@@ -66,7 +66,7 @@ export default function About() {
                                 <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">
                                     Background
                                 </p>
-                                <h2 className="text-4xl md:text-5xl font-serif mb-4">
+                                <h2 className="font-heading text-4xl md:text-5xl mb-4">
                                     Curriculum Vitae
                                 </h2>
                             </div>

@@ -70,7 +70,7 @@ const ContactPage = () => {
                         <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">
                             Get in Touch
                         </p>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
+                        <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-light mb-6">
                             Contact
                         </h1>
                         <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-light leading-relaxed">
@@ -82,7 +82,7 @@ const ContactPage = () => {
                         {/* Contact Information */}
                         <div className="md:col-span-2 space-y-12">
                             <div>
-                                <h2 className="text-2xl font-light mb-8">Information</h2>
+                                <h2 className="font-heading text-2xl font-light mb-8">Information</h2>
                                 <div className="space-y-6">
                                     <div className="flex items-start gap-4">
                                         <Mail className="w-5 h-5 text-muted-foreground mt-1 flex-shrink-0" />
@@ -130,7 +130,7 @@ const ContactPage = () => {
 
                             {/* Studio Hours */}
                             <div>
-                                <h3 className="text-lg font-light mb-4">Studio Hours</h3>
+                                <h3 className="font-heading text-lg font-light mb-4">Studio Hours</h3>
                                 <div className="space-y-2 text-sm text-muted-foreground">
                                     <p>Monday - Friday: 10:00 AM - 6:00 PM</p>
                                     <p>Saturday: By Appointment</p>
@@ -140,7 +140,7 @@ const ContactPage = () => {
 
                             {/* Social Links */}
                             <div>
-                                <h3 className="text-lg font-light mb-4">Follow</h3>
+                                <h3 className="font-heading text-lg font-light mb-4">Follow</h3>
                                 <div className="flex gap-4">
                                     <a 
                                         href="#" 
@@ -168,7 +168,7 @@ const ContactPage = () => {
                         <div className="md:col-span-3">
                             {CONTACT_FORM_ENABLED ? (
                             <>
-                            <h2 className="text-2xl font-light mb-8">Send a Message</h2>
+                            <h2 className="font-heading text-2xl font-light mb-8">Send a Message</h2>
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
                                     <label htmlFor="name" className="block text-xs tracking-widest uppercase text-muted-foreground mb-2">

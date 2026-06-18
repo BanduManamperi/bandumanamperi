@@ -29,8 +29,7 @@ const HeroSection = () => {
                     <div className="min-w-0">
                         <motion.h1
                             variants={item}
-                            className="text-[clamp(2.75rem,5.5vw,5rem)] font-black leading-[0.88] tracking-[-0.03em] uppercase text-foreground"
-                            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
+                            className="font-heading text-[clamp(6rem,3.5vw,8rem)] leading-[0.88] tracking-[-0.03em] text-foreground"
                         >
                             Bandu
                             <br />

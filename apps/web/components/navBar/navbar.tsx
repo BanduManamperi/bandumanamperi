@@ -28,6 +28,25 @@ const workNavItems = [
     { label: "Art Restoration", href: "/art-framing-and-restoration" },
 ]
 
+const artworksNavItems = [
+    { label: "Home", href: "/" },
+    { label: "Intro", panelId: "panel-artworks" },
+    { label: "Collections", panelId: "panel-artworks-collections" },
+    { label: "Works", panelId: "panel-artworks-grid" },
+]
+
+const performancesNavItems = [
+    { label: "Home", href: "/" },
+    { label: "Intro", panelId: "panel-performances" },
+    { label: "Works", panelId: "panel-performances-works" },
+]
+
+const exhibitionsNavItems = [
+    { label: "Home", href: "/" },
+    { label: "Intro", panelId: "panel-exhibitions" },
+    { label: "Exhibitions", panelId: "panel-exhibitions-list" },
+]
+
 export function Navbar() {
     const pathname = usePathname()
     const router = useRouter()
@@ -39,18 +58,28 @@ export function Navbar() {
 
     const isWorkPage =
         pathname === "/work" ||
-        pathname === "/artworks" ||
-        pathname === "/exhibitions" ||
-        pathname === "/performances" ||
         pathname === "/art-framing-and-restoration"
 
-    const currentNavItems = isWorkPage ? workNavItems : navItems
+    const isArtworksPage = pathname === "/artworks"
+    const isPerformancesPage = pathname === "/performances"
+    const isExhibitionsPage = pathname === "/exhibitions"
+
+    const currentNavItems = isArtworksPage
+        ? artworksNavItems
+        : isPerformancesPage
+        ? performancesNavItems
+        : isExhibitionsPage
+        ? exhibitionsNavItems
+        : isWorkPage
+        ? workNavItems
+        : navItems
+
+    const isPanelPage = pathname === "/" || isArtworksPage || isPerformancesPage || isExhibitionsPage
 
     const handlePanelClick = (panelId: string) => {
-        if (pathname === "/") {
+        if (isPanelPage) {
             goToPanel(panelId)
         } else {
-            // Navigate home, then HorizontalScroll picks up the hash to scroll.
             router.push(`/#${panelId}`)
         }
     }
@@ -71,7 +100,7 @@ export function Navbar() {
                     {currentNavItems.map((item) => {
                         if ("panelId" in item && item.panelId) {
                             const isActive =
-                                pathname === "/" && activePanelId === item.panelId
+                                isPanelPage && activePanelId === item.panelId
 
                             return (
                                 <button

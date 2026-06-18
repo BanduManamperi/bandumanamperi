@@ -57,7 +57,7 @@ const IntroAnimation = () => {
                             transition={{ duration: 0.8, ease: "easeInOut" }}
                             className="text-center"
                         >
-                            <h1 className="text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] tracking-tight font-light text-foreground">
+                            <h1 className="font-heading text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] tracking-tight font-light text-foreground">
                                 Bandu Manamperi
                             </h1>
                         </motion.div>

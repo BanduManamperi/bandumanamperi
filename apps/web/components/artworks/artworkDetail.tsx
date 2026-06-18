@@ -193,7 +193,7 @@ export default function ArtworkDetail({ slug }: ArtworkDetailProps) {
                             {/* Title and Year */}
                             <div className="mb-8">
                                 {!isPlaceholderTitle(artwork.title) && (
-                                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-4">
+                                    <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl mb-4">
                                         {artwork.title || "Untitled"}
                                     </h1>
                                 )}

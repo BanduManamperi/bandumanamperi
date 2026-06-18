@@ -95,7 +95,7 @@ const FeaturedWorks: React.FC<FeaturedWorksProps> = ({ artworks: propArtworks })
             <section id="work" className="h-full flex flex-col justify-center py-10 bg-secondary/30 overflow-y-hidden">
                 <div className="max-w-7xl mx-auto px-6 lg:px-12">
                     <div className="text-center mb-16">
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">Featured Work</h2>
+                        <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold mb-4">Featured Work</h2>
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                             A selection of recent works exploring identity, body, and social constructs.
                         </p>
@@ -124,7 +124,7 @@ const FeaturedWorks: React.FC<FeaturedWorksProps> = ({ artworks: propArtworks })
                                 <div className="mt-4 flex justify-between items-start">
                                     <div>
                                         {!isPlaceholderTitle(work.title) && (
-                                            <h3 className="text-lg font-semibold text-foreground">{work.title}</h3>
+                                            <h3 className="font-heading text-lg font-semibold text-foreground">{work.title}</h3>
                                         )}
                                         {work.medium && (
                                             <p className="text-sm text-muted-foreground">{work.medium}</p>
@@ -184,7 +184,7 @@ const FeaturedWorks: React.FC<FeaturedWorksProps> = ({ artworks: propArtworks })
                         </div>
                         <div className="text-primary-foreground text-center lg:text-left shrink-0">
                             {!isPlaceholderTitle(selectedWork.title) && (
-                                <h3 className="text-3xl font-semibold mb-2">{selectedWork.title}</h3>
+                                <h3 className="font-heading text-3xl font-semibold mb-2">{selectedWork.title}</h3>
                             )}
                             {selectedWork.year && (
                                 <p className="text-primary-foreground/70 mb-1">{selectedWork.year}</p>

@@ -30,8 +30,8 @@ export function ContactFormUnavailable({
     >
       <h2
         className={cn(
-          "text-2xl font-light mb-4",
-          gallery ? "font-serif text-white" : ""
+          "font-heading text-2xl font-light mb-4",
+          gallery ? "text-white" : ""
         )}
       >
         {title}

@@ -75,7 +75,7 @@ const BlogPage = () => {
                         <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">
                             Insights & Stories
                         </p>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-6">
+                        <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-light mb-6">
                             Blog
                         </h1>
                         <p className="text-muted-foreground max-w-2xl mx-auto text-lg font-light leading-relaxed">
@@ -154,7 +154,7 @@ const BlogPage = () => {
                                         </div>
 
                                         {/* Title */}
-                                        <h2 className="text-xl md:text-2xl font-light leading-tight group-hover:text-muted-foreground transition-colors duration-300">
+                                        <h2 className="font-heading text-xl md:text-2xl font-light leading-tight group-hover:text-muted-foreground transition-colors duration-300">
                                             {post.title}
                                         </h2>
 
@@ -200,7 +200,7 @@ const BlogPage = () => {
             </main>
             {/* Coming Soon overlay */}
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/70 backdrop-blur-md">
-                <p className="text-3xl md:text-4xl font-light tracking-[0.2em] uppercase text-foreground">
+                <p className="font-heading text-3xl md:text-4xl font-light tracking-[0.2em] uppercase text-foreground">
                     Coming Soon
                 </p>
             </div>
