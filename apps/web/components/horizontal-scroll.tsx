@@ -11,6 +11,11 @@ const easeInOutCubic = (t: number): number =>
 export function HorizontalScroll({ children }: { children: React.ReactNode }) {
     const ref = useRef<HTMLDivElement>(null)
     const lockedRef = useRef(false)
+    // true only while a scroll animation is in flight
+    const animatingRef = useRef(false)
+    // pending "momentum settled" timer; while wheel/inertia events keep arriving
+    // this is continuously rescheduled so we don't advance again mid-flick
+    const settleTimerRef = useRef<number | null>(null)
     // tracks where we ARE (or heading), not read from scrollLeft during animation
     const currentPanelRef = useRef(0)
     const rafRef = useRef<number | null>(null)
@@ -59,7 +64,9 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
         rafRef.current = requestAnimationFrame(step)
     }, [])
 
-    const goTo = useCallback((index: number) => {
+    // managed = true means the caller (the wheel handler) owns unlocking via the
+    // momentum settle timer, so we don't release on a fixed delay mid-flick.
+    const goTo = useCallback((index: number, managed = false) => {
         const el = ref.current
         if (!el) return
         const pw = el.clientWidth
@@ -69,19 +76,30 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
         if (clamped === currentPanelRef.current && el.scrollLeft === clamped * pw) return
 
         lockedRef.current = true
+        animatingRef.current = true
         currentPanelRef.current = clamped
         setActiveIndex(clamped)
         animateTo(clamped * pw, () => {
-            setTimeout(() => { lockedRef.current = false }, 80)
+            animatingRef.current = false
+            if (managed) {
+                // only release if momentum has already stopped; otherwise the
+                // settle timer will release once events go quiet
+                if (settleTimerRef.current == null) lockedRef.current = false
+            } else {
+                setTimeout(() => { lockedRef.current = false }, 80)
+            }
         })
     }, [animateTo])
 
-    const goHome = useCallback(() => {
+    const goHome = useCallback((managed = false) => {
         const el = ref.current
         if (el) el.scrollLeft = 0
         lockedRef.current = true
+        animatingRef.current = false
         routerRef.current.push("/")
-        setTimeout(() => { lockedRef.current = false }, 500)
+        if (!managed) {
+            setTimeout(() => { lockedRef.current = false }, 500)
+        }
     }, [])
 
     const goPrev = useCallback(() => {
@@ -168,11 +186,30 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
         }
         el.addEventListener("scroll", onScroll, { passive: true })
 
+        const SETTLE_MS = 150
+
         const onWheel = (e: WheelEvent) => {
+            // Vertically-scrollable subpages (ScrollablePanel) own their wheel
+            // events — don't preventDefault or it kills their native scrolling.
+            const target = e.target
+            if (target instanceof Element && target.closest("[data-vscroll]")) {
+                return
+            }
+
             e.preventDefault()
-            if (lockedRef.current) return
 
             const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+
+            // Every wheel/inertia event reschedules the "settled" check. While a
+            // hard flick's momentum keeps firing events, this timer never elapses,
+            // so we can't advance a second time until the gesture truly stops.
+            if (settleTimerRef.current != null) clearTimeout(settleTimerRef.current)
+            settleTimerRef.current = window.setTimeout(() => {
+                settleTimerRef.current = null
+                if (!animatingRef.current) lockedRef.current = false
+            }, SETTLE_MS)
+
+            if (lockedRef.current) return
             if (Math.abs(raw) < 3) return
 
             const pw = el.clientWidth
@@ -185,12 +222,13 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
             if (next === currentPanelRef.current) {
                 // Overscrolling left from the first panel of a sub-page → go home.
                 if (dir < 0 && currentPanelRef.current === 0 && pathnameRef.current !== "/") {
-                    goHome()
+                    lockedRef.current = true
+                    goHome(true)
                 }
                 return
             }
 
-            goTo(next)
+            goTo(next, true)
         }
         el.addEventListener("wheel", onWheel, { passive: false })
 
@@ -214,6 +252,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
             el.removeEventListener("wheel", onWheel)
             window.removeEventListener("keydown", onKey)
             if (rafRef.current) cancelAnimationFrame(rafRef.current)
+            if (settleTimerRef.current != null) clearTimeout(settleTimerRef.current)
         }
     }, [goTo, goHome, goNext, goPrev])
 

@@ -4,7 +4,7 @@ import ContactSection from './contactSection'
 import IntroAnimation from './introAnimation'
 import { UpcomingEventsSection } from './upcomingEventsSection'
 import { WorkSection } from './workSection'
-import { CVSection } from '@/components/about/CVSection'
+import { BackgroundSection } from './backgroundSection'
 import { VerticalScrollPanel } from '@/components/vertical-scroll-panel'
 import { getUpcomingExhibitions, getExhibitions } from '@/lib/actions/exhibitions'
 
@@ -33,25 +33,14 @@ const Home = async () => {
                 </div>
 
                 {events.length > 0 && (
-                    <div id="panel-upcoming" data-panel data-panel-label="Events" className={panel}>
+                    <VerticalScrollPanel id="panel-upcoming" label="Events">
                         <UpcomingEventsSection exhibitions={events} />
-                    </div>
+                    </VerticalScrollPanel>
                 )}
 
-                <VerticalScrollPanel id="panel-background" label="Background">
-                    <div className="min-h-full bg-background">
-                        <main className="pt-16 md:pt-24 pb-24">
-                            <div className="w-full px-10 md:px-20 lg:px-32 xl:px-44">
-                                <div className="text-center mb-16">
-                                    <h2 className="font-heading text-[clamp(2rem,3.5vw,3rem)] font-bold leading-none tracking-tight text-foreground mb-4">
-                                        Background in Art
-                                    </h2>
-                                </div>
-                                <CVSection />
-                            </div>
-                        </main>
-                    </div>
-                </VerticalScrollPanel>
+                <div id="panel-background" data-panel data-panel-label="Background" className={panel}>
+                    <BackgroundSection />
+                </div>
 
                 <div id="panel-contact" data-panel data-panel-label="Contact" className={panel}>
                     <ContactSection />

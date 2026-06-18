@@ -7,6 +7,7 @@
 export function ScrollablePanel({ children }: { children: React.ReactNode }) {
     return (
         <div
+            data-vscroll
             className="w-screen h-full flex-shrink-0 overflow-y-auto overflow-x-hidden"
             onWheel={(e) => e.stopPropagation()}
         >

@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
 import type { Exhibition } from "@/lib/actions/exhibitions";
 import {
     formatExhibitionSchedule,
     getExhibitionScheduleStatus,
+    getExhibitionScheduleLabel,
     getExhibitionYear,
-    getHomepageEventLabel,
+    type ExhibitionScheduleStatus,
 } from "@bandumanamperi/types";
 import {
     generateExhibitionSlug,
@@ -22,131 +22,151 @@ interface UpcomingEventsSectionProps {
     exhibitions: Exhibition[];
 }
 
-export function UpcomingEventsSection({ exhibitions }: UpcomingEventsSectionProps) {
-    const [activeIndex, setActiveIndex] = useState(0);
+function statusDotClass(status: ExhibitionScheduleStatus): string {
+    switch (status) {
+        case "ongoing":
+            return "bg-emerald-500";
+        case "upcoming":
+            return "bg-amber-500";
+        default:
+            return "bg-muted-foreground/40";
+    }
+}
 
+export function UpcomingEventsSection({ exhibitions }: UpcomingEventsSectionProps) {
     if (exhibitions.length === 0) return null;
 
-    const active = exhibitions[activeIndex];
-    const activeImageUrl =
-        getExhibitionImageUrl(active.coverImage) || PLACEHOLDERS.exhibition.url;
-    const activeScheduleLabel = getHomepageEventLabel(
-        getExhibitionScheduleStatus(active)
+    const featured = exhibitions[0];
+    const rest = exhibitions.slice(1);
+
+    const featuredStatus = getExhibitionScheduleStatus(featured);
+    const featuredLabel = getExhibitionScheduleLabel(featuredStatus);
+    const featuredImage =
+        getExhibitionImageUrl(featured.coverImage) || PLACEHOLDERS.exhibition.url;
+    const featuredSlug = generateExhibitionSlug(
+        featured.name,
+        getExhibitionYear(featured)
     );
+    const featuredMeta = [
+        formatExhibitionSchedule(featured),
+        featured.venue,
+    ]
+        .filter(Boolean)
+        .join(" · ");
 
     return (
-        <section id="upcoming" className="h-full flex bg-background overflow-hidden">
+        <section className="min-h-full bg-background">
+            <div className="w-full max-w-[1100px] mx-auto px-10 md:px-20 lg:px-28 py-14 lg:py-20">
 
-            {/* ── Left: list ── */}
-            <div className="flex flex-col justify-center px-10 md:px-20 lg:px-32 xl:px-44 py-10 flex-1 min-w-0 overflow-y-auto">
+                {/* ── Eyebrow ── */}
+                <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-8">
+                    Events
+                </p>
 
-                {/* Header */}
+                {/* ── Featured exhibition ── */}
                 <motion.div
-                    className="flex items-baseline justify-between mb-8"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
                 >
-                    <h2 className="font-heading text-[clamp(2rem,3.5vw,3rem)] font-bold leading-none tracking-tight text-foreground">
-                        Exhibitions
+                    <div className="inline-flex items-center gap-2 mb-4">
+                        <span className={`h-2 w-2 rounded-full ${statusDotClass(featuredStatus)}`} />
+                        <span className="text-xs uppercase tracking-[0.2em] text-foreground">
+                            {featuredLabel}
+                        </span>
+                    </div>
+
+                    <h2 className="font-heading text-[clamp(2.25rem,4.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-foreground max-w-3xl">
+                        {featured.name}
                     </h2>
+
+                    {featuredMeta && (
+                        <p className="mt-4 text-base text-muted-foreground font-light">
+                            {featuredMeta}
+                        </p>
+                    )}
+
+                    {/* Hero image */}
                     <Link
-                        href="/exhibitions"
-                        className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group shrink-0"
+                        href={`/exhibitions/${featuredSlug}`}
+                        className="group mt-8 block relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-muted"
                     >
-                        View all
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                        <Image
+                            src={featuredImage}
+                            alt={featured.name}
+                            fill
+                            className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
+                            sizes="(max-width: 1024px) 90vw, 1100px"
+                            priority
+                        />
+                    </Link>
+
+                    <Link
+                        href={`/exhibitions/${featuredSlug}`}
+                        className="group mt-6 inline-flex items-center gap-2 text-sm tracking-wide text-foreground border-b border-foreground/40 pb-1 hover:border-foreground transition-colors"
+                    >
+                        View exhibition
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                 </motion.div>
 
-                {/* Exhibition list */}
-                <motion.div
-                    className="border-t border-border/40"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.15 }}
-                >
-                    {exhibitions.map((exhibition, index) => {
-                        const slug = generateExhibitionSlug(
-                            exhibition.name,
-                            getExhibitionYear(exhibition)
-                        );
-                        const schedule = formatExhibitionSchedule(exhibition);
-                        const isActive = activeIndex === index;
-
-                        return (
-                            <Link
-                                key={exhibition.id ?? `${exhibition.name}-${index}`}
-                                href={`/exhibitions/${slug}`}
-                                onMouseEnter={() => setActiveIndex(index)}
-                                className="group flex items-baseline justify-between gap-6 py-4 border-b border-border/40 transition-colors"
-                            >
-                                <div className="flex items-baseline gap-4 min-w-0">
-                                    <span className={`text-[11px] tabular-nums shrink-0 transition-colors duration-300 ${isActive ? "text-foreground" : "text-foreground/20"}`}>
-                                        {String(index + 1).padStart(2, "0")}
-                                    </span>
-                                    <div className="min-w-0">
-                                        <h3 className={`font-heading text-lg lg:text-xl font-bold leading-tight tracking-tight truncate transition-colors duration-300 ${isActive ? "text-foreground" : "text-foreground/40 group-hover:text-foreground/70"}`}>
-                                            {exhibition.name}
-                                        </h3>
-                                        <p className={`text-xs font-light mt-0.5 truncate transition-colors duration-300 ${isActive ? "text-muted-foreground" : "text-muted-foreground/40"}`}>
-                                            {[exhibition.venue, schedule].filter(Boolean).join(" · ")}
-                                        </p>
-                                    </div>
-                                </div>
-                                <ArrowRight className={`w-3.5 h-3.5 shrink-0 transition-all duration-300 ${isActive ? "text-foreground translate-x-0" : "text-foreground/20 -translate-x-1 group-hover:translate-x-0 group-hover:text-foreground/50"}`} />
-                            </Link>
-                        );
-                    })}
-                </motion.div>
-            </div>
-
-            {/* ── Right: live preview ── */}
-            <div className="hidden lg:block relative w-[42%] xl:w-[45%] shrink-0 mr-10 md:mr-20 lg:mr-32 xl:mr-44 my-10">
-                <AnimatePresence mode="wait">
+                {/* ── More exhibitions ── */}
+                {rest.length > 0 && (
                     <motion.div
-                        key={activeIndex}
-                        className="absolute inset-0"
+                        className="mt-16 pt-10 border-t border-border"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        transition={{ duration: 0.5, delay: 0.15 }}
                     >
-                        <Image
-                            src={activeImageUrl}
-                            alt={active.name}
-                            fill
-                            className="object-cover grayscale"
-                            sizes="45vw"
-                            priority
-                        />
-                        {/* Gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        <div className="flex items-baseline justify-between mb-2">
+                            <h3 className="font-heading text-2xl font-bold tracking-tight text-foreground">
+                                More exhibitions
+                            </h3>
+                            <Link
+                                href="/exhibitions"
+                                className="group inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                View all
+                                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                            </Link>
+                        </div>
+
+                        <div>
+                            {rest.map((exhibition, index) => {
+                                const slug = generateExhibitionSlug(
+                                    exhibition.name,
+                                    getExhibitionYear(exhibition)
+                                );
+                                const year = getExhibitionYear(exhibition);
+
+                                return (
+                                    <Link
+                                        key={exhibition.id ?? `${exhibition.name}-${index}`}
+                                        href={`/exhibitions/${slug}`}
+                                        className="group flex items-baseline gap-5 py-4 border-b border-border transition-colors"
+                                    >
+                                        <span className="text-xs tabular-nums text-muted-foreground/70 w-12 shrink-0">
+                                            {year || "—"}
+                                        </span>
+                                        <p className="flex-1 min-w-0 text-foreground leading-snug truncate">
+                                            <span className="font-heading italic text-lg">
+                                                {exhibition.name}
+                                            </span>
+                                            {exhibition.venue && (
+                                                <span className="text-muted-foreground font-light">
+                                                    {" "}— {exhibition.venue}
+                                                </span>
+                                            )}
+                                        </p>
+                                        <ArrowUpRight className="w-4 h-4 shrink-0 text-muted-foreground/40 transition-all duration-300 group-hover:text-foreground group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </motion.div>
-                </AnimatePresence>
+                )}
 
-                {/* Active exhibition info overlay */}
-                <div className="absolute bottom-10 left-8 right-8">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={activeIndex}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">
-                                {activeScheduleLabel}
-                            </p>
-                            <p className="text-white font-light text-sm">
-                                {active.venue}
-                            </p>
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
             </div>
-
         </section>
     );
 }
