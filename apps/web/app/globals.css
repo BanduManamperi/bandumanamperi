@@ -129,8 +129,16 @@
   body {
     @apply bg-background text-foreground font-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Scroll-snap only on touch devices — desktop uses the JS rAF animation */
+@media (pointer: coarse) {
+  #main-scroll {
+    scroll-snap-type: x mandatory;
+  }
+  [data-panel] {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 
