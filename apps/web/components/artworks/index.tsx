@@ -94,6 +94,8 @@ function Lightbox({ works, index, onClose, onStep }: { works: any[]; index: numb
                             fill
                             sizes="100vw"
                             className="object-contain"
+                            placeholder="blur"
+                            blurDataURL={PLACEHOLDERS.artwork.blurDataURL}
                             priority
                         />
                     </motion.div>
@@ -689,6 +691,8 @@ export default function ArtworksPage() {
                                                     fill
                                                     className="object-contain"
                                                     sizes="(max-width: 768px) 100vw, 80vw"
+                                                    placeholder="blur"
+                                                    blurDataURL={PLACEHOLDERS.artwork.blurDataURL}
                                                     priority
                                                 />
                                             </div>
@@ -782,12 +786,17 @@ export default function ArtworksPage() {
                                             onClick={() => { if (!moved.current) goTo(i); }}
                                             aria-label={artwork.title ?? `Work ${i + 1}`}
                                             aria-current={isActive}
-                                            className={`relative flex-shrink-0 overflow-hidden rounded-[3px] bg-muted transition-all duration-200 ${
+                                            className={`relative flex-shrink-0 overflow-hidden rounded-[3px] bg-muted w-12 h-16 origin-center transition-[transform,opacity] duration-200 ease-out ${
                                                 isActive
-                                                    ? "w-16 h-[84px] ring-2 ring-foreground opacity-100"
-                                                    : "w-12 h-16 opacity-50 hover:opacity-85"
+                                                    ? "scale-[1.32] ring-2 ring-foreground opacity-100 z-10"
+                                                    : "scale-100 opacity-50 hover:opacity-85"
                                             }`}
-                                            style={{ scrollSnapAlign: "center" }}
+                                            style={{
+                                                scrollSnapAlign: "center",
+                                                // Only promote the few thumbs that actually animate, to
+                                                // avoid allocating a compositor layer per artwork.
+                                                willChange: Math.abs(i - activeIndex) <= 1 ? "transform" : undefined,
+                                            }}
                                         >
                                             <Image
                                                 src={src}

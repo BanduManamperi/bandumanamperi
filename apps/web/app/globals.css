@@ -142,6 +142,22 @@
   }
 }
 
+/* Hint the compositor that this element's scroll position changes often, so
+   the programmatic horizontal scroll stays on the fast path. */
+#main-scroll {
+  will-change: scroll-position;
+}
+
+/* Skip the layout/paint cost of panels that are scrolled offscreen. The
+   reserved intrinsic size keeps the horizontal scroll math (scrollWidth /
+   panel offsets) correct while the contents aren't rendered. */
+@media (pointer: fine) {
+  [data-panel] {
+    content-visibility: auto;
+    contain-intrinsic-size: 100vw 100dvh;
+  }
+}
+
 /* Hide scrollbar on horizontal scroll container */
 .overflow-x-auto::-webkit-scrollbar {
   display: none;
