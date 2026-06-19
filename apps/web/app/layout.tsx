@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Lora, Playfair_Display, Bodoni_Moda } from "next/font/google";
+import { Lora, Playfair_Display, Bodoni_Moda, Montserrat } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navBar/navbar";
@@ -23,6 +23,11 @@ const bodoniModa = Bodoni_Moda({
   variable: "--font-bodoni",
   subsets: ["latin"],
   style: ["normal", "italic"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -83,7 +88,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <Provider>
         <body
-          className={`${lora.variable} ${playfairDisplay.variable} ${bodoniModa.variable} font-serif antialiased overflow-hidden`}
+          className={`${lora.variable} ${playfairDisplay.variable} ${bodoniModa.variable} ${montserrat.variable} font-sans antialiased overflow-hidden`}
         >
           <ThemeProvider
             attribute="class"

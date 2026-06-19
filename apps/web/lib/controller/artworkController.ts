@@ -1,91 +1,54 @@
-import { downloadMedia, listArtworksService, getArtworkBySlugService, ArtworkFilters } from "@/lib/services/artworkservice";
+import { supabase } from "@/lib/supabase/client";
+import { listArtworksService, listFeaturedArtworksService, getArtworkBySlugService, ArtworkFilters } from "@/lib/services/artworkservice";
 
+function getPublicUrl(path: string | null | undefined): string | null {
+    if (!path) return null;
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const { data } = supabase.storage.from("artworks").getPublicUrl(path);
+    return data.publicUrl || null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function processArtwork(artwork: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updatedMedia = (Array.isArray(artwork.media) ? artwork.media : []).map((mediaPath: any) => ({
+        path: mediaPath,
+        url: getPublicUrl(mediaPath),
+    }));
+
+    const thumbnailUrl =
+        getPublicUrl(artwork.thumbnail_path) ||
+        updatedMedia[0]?.url ||
+        null;
+
+    return { ...artwork, media: updatedMedia, thumbnail_url: thumbnailUrl };
+}
 
 export async function listArtworksController(filters?: ArtworkFilters) {
     try {
         const result = await listArtworksService(filters);
-        // console.log(result, "raw result from listArtworksService");
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const processedResults = await Promise.all(result.map(async (artwork: any) => {
-            // Process media array
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let updatedMedia: any[] = [];
-            if (artwork.media && Array.isArray(artwork.media) && artwork.media.length > 0) {
-                updatedMedia = await Promise.all(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    artwork.media.map(async (mediaPath: any) => {
-                        if (mediaPath) {
-                            const mediaUrl = await downloadMedia(mediaPath);
-                            return { path: mediaPath, url: mediaUrl?.url.href };
-                        }
-                        return { path: mediaPath };
-                    })
-                );
-            }
-
-            // Determine thumbnail: use thumbnail_path if exists, otherwise use first media item
-            let thumbnailUrl: string | null = null;
-            if (artwork.thumbnail_path) {
-                const thumbnailResult = await downloadMedia(artwork.thumbnail_path);
-                thumbnailUrl = thumbnailResult?.url.href || null;
-            } else if (updatedMedia.length > 0 && updatedMedia[0].url) {
-                thumbnailUrl = updatedMedia[0].url;
-            }
-
-            return {
-                ...artwork,
-                media: updatedMedia,
-                thumbnail_url: thumbnailUrl
-            };
-        }));
-
-        // console.log(processedResults, "processed result in listArtworksController");
-        return processedResults;
+        return result.map(processArtwork);
     } catch (error) {
         console.error("Error in listArtworksController:", error);
-        throw error;
+        return [];
+    }
+}
+
+export async function getFeaturedArtworksController() {
+    try {
+        const result = await listFeaturedArtworksService();
+        return result.map(processArtwork);
+    } catch (error) {
+        console.error("Error in getFeaturedArtworksController:", error);
+        return [];
     }
 }
 
 export async function getArtworkBySlugController(slugOrId: string) {
     try {
         const artwork = await getArtworkBySlugService(slugOrId);
-
-        if (!artwork) {
-            return null;
-        }
-
-        // Process media array
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let updatedMedia: any[] = [];
-        if (artwork.media && Array.isArray(artwork.media) && artwork.media.length > 0) {
-            updatedMedia = await Promise.all(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                artwork.media.map(async (mediaPath: any) => {
-                    if (mediaPath) {
-                        const mediaUrl = await downloadMedia(mediaPath);
-                        return { path: mediaPath, url: mediaUrl?.url.href };
-                    }
-                    return { path: mediaPath };
-                })
-            );
-        }
-
-        // Determine thumbnail: use thumbnail_path if exists, otherwise use first media item
-        let thumbnailUrl: string | null = null;
-        if (artwork.thumbnail_path) {
-            const thumbnailResult = await downloadMedia(artwork.thumbnail_path);
-            thumbnailUrl = thumbnailResult?.url.href || null;
-        } else if (updatedMedia.length > 0 && updatedMedia[0].url) {
-            thumbnailUrl = updatedMedia[0].url;
-        }
-
-        return {
-            ...artwork,
-            media: updatedMedia,
-            thumbnail_url: thumbnailUrl
-        };
+        if (!artwork) return null;
+        return processArtwork(artwork);
     } catch (error) {
         console.error("Error in getArtworkBySlugController:", error);
         return null;

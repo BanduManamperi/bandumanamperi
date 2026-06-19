@@ -87,14 +87,7 @@ export function Navbar() {
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-end justify-center pb-4">
             <div
-                className="flex items-center justify-center px-6 py-2.5 rounded-full shadow-lg shadow-black/[0.08]"
-                style={{
-                    background: "rgba(250,250,250,0.72)",
-                    backdropFilter: "blur(40px) saturate(200%) brightness(1.05)",
-                    WebkitBackdropFilter: "blur(40px) saturate(200%) brightness(1.05)",
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    boxShadow: "0 2px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
-                }}
+                className="flex items-center justify-center px-6 py-2.5 rounded-full backdrop-blur-xl bg-background/75 border border-border/50 shadow-lg shadow-black/[0.06] dark:shadow-black/30"
             >
                 <div className="flex items-center gap-4 lg:gap-6">
                     {currentNavItems.map((item) => {

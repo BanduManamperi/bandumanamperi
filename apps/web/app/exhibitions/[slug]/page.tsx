@@ -2,251 +2,127 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Exhibition } from "@/lib/actions/exhibitions";
-import { generateSlugFromTitle } from "@/lib/utils";
-import { getExhibitionImageUrl, getArtworkImageUrl, generateExhibitionSlug } from "@/lib/utils/supabase-storage";
-import { PLACEHOLDERS } from "@/lib/utils/image-placeholders";
+import { getExhibitionImageUrl, generateExhibitionSlug } from "@/lib/utils/supabase-storage";
 import {
-    formatExhibitionSchedule,
-    getExhibitionScheduleLabel,
     getExhibitionScheduleStatus,
     getExhibitionYear,
 } from "@bandumanamperi/types";
+import { VerticalScrollPanel } from "@/components/vertical-scroll-panel";
+import { ExhibitionDetail, type ExhibitionDetailData, type ExhibitionStatus } from "@/components/exhibitions/exhibition-detail";
 
-const ExhibitionDetailPage = () => {
+const ARTIST_BLURB =
+    "Bandu Manamperi is a Sri Lankan contemporary artist working across performance, sculpture, drawing, and installation, and a founding member and Vice Chairman of Theertha International Artists' Collective. His work has been shown across South Asia, Europe, and Australia.";
+
+function mapExhibition(ex: Exhibition): ExhibitionDetailData {
+    const scheduleStatus = getExhibitionScheduleStatus(ex);
+    const status: ExhibitionStatus =
+        scheduleStatus === "ongoing" ? "on-view" :
+        scheduleStatus === "upcoming" ? "upcoming" : "past";
+
+    const typeLabel =
+        ex.type === "solo" ? "Solo Exhibition" :
+        ex.type === "group" ? "Group Exhibition" : "Online Exhibition";
+
+    // Venue field may encode "Venue Name · Street Address"
+    const venueParts = ex.venue.split(" · ");
+    const venue = venueParts[0]?.trim() ?? ex.venue;
+    const address = venueParts[1]?.trim() ?? "";
+
+    // Split about text into paragraphs (double-newline or single-newline)
+    const aboutParagraphs = ex.about
+        ? ex.about.split(/\n\n|\n/).map(p => p.trim()).filter(Boolean)
+        : [];
+
+    // Reception from startTime/endTime if they exist
+    const reception =
+        ex.startTime && ex.endTime
+            ? { date: ex.startDate, start: ex.startTime, end: ex.endTime }
+            : undefined;
+
+    return {
+        title: ex.name,
+        status,
+        type: typeLabel,
+        startDate: ex.startDate,
+        endDate: ex.endDate ?? ex.startDate,
+        reception,
+        venue,
+        address,
+        curatedBy: ex.curator || undefined,
+        coverImage: getExhibitionImageUrl(ex.coverImage) ?? undefined,
+        coverAlt: ex.name,
+        about: aboutParagraphs,
+        artist: {
+            name: "Bandu Manamperi",
+            blurb: ARTIST_BLURB,
+            backgroundHref: "/#panel-background",
+        },
+        timezone: "Asia/Colombo",
+    };
+}
+
+export default function ExhibitionDetailPage() {
     const params = useParams();
     const slug = params.slug as string;
     const [exhibition, setExhibition] = useState<Exhibition | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const loadExhibition = async () => {
+        if (!slug) return;
+        const load = async () => {
             setLoading(true);
             try {
-                const response = await fetch('/api/exhibitions');
-                if (response.ok) {
-                    const exhibitions: Exhibition[] = await response.json();
-
-                    // Find exhibition by matching slug
-                    const found = exhibitions.find(ex => {
-                        const exSlug = generateExhibitionSlug(
-                            ex.name,
-                            getExhibitionYear(ex)
-                        );
-                        return exSlug === slug;
-                    });
-
-                    setExhibition(found || null);
+                const res = await fetch("/api/exhibitions");
+                if (res.ok) {
+                    const all: Exhibition[] = await res.json();
+                    const found = all.find(ex =>
+                        generateExhibitionSlug(ex.name, getExhibitionYear(ex)) === slug
+                    );
+                    setExhibition(found ?? null);
                 }
-            } catch (error) {
-                console.error("Error loading exhibition:", error);
+            } catch (err) {
+                console.error("Error loading exhibition:", err);
             }
             setLoading(false);
         };
-
-        if (slug) {
-            loadExhibition();
-        }
+        load();
     }, [slug]);
-
-    const getTypeLabel = (type: string) => {
-        switch (type.toLowerCase()) {
-            case "solo":
-                return "Solo Exhibition";
-            case "group":
-                return "Group Exhibition";
-            case "online":
-                return "Online Exhibition";
-            default:
-                return "Exhibition";
-        }
-    };
 
     if (loading) {
         return (
-            <div className="min-h-full flex items-center justify-center pt-12">
-                <p className="text-muted-foreground">Loading exhibition...</p>
-            </div>
+            <VerticalScrollPanel label="Exhibition">
+                <div className="min-h-full flex items-center justify-center">
+                    <p className="font-heading text-sm text-muted-foreground tracking-widest uppercase">
+                        Loading…
+                    </p>
+                </div>
+            </VerticalScrollPanel>
         );
     }
 
     if (!exhibition) {
         return (
-            <div className="min-h-full flex flex-col items-center justify-center pt-12">
-                <p className="text-muted-foreground mb-4">Exhibition not found.</p>
-                <Link
-                    href="/exhibitions"
-                    className="text-sm tracking-widest uppercase text-foreground hover:text-muted-foreground transition-colors"
-                >
-                    Back to Exhibitions
-                </Link>
-            </div>
+            <VerticalScrollPanel label="Exhibition">
+                <div className="min-h-full flex flex-col items-start justify-center px-10 md:px-20 lg:px-32 xl:px-44">
+                    <p className="font-heading text-muted-foreground mb-6">Exhibition not found.</p>
+                    <Link
+                        href="/exhibitions"
+                        className="group inline-flex items-center gap-2 text-sm text-foreground border-b border-foreground/40 pb-0.5 hover:border-foreground transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        All exhibitions
+                    </Link>
+                </div>
+            </VerticalScrollPanel>
         );
     }
 
-    const scheduleStatus = getExhibitionScheduleStatus(exhibition);
-    const scheduleLabel = getExhibitionScheduleLabel(scheduleStatus);
-
     return (
-        <div className="min-h-full bg-background">
-            <main className="pt-12 md:pt-16 pb-24">
-                <div className="max-w-7xl mx-auto px-6 lg:px-12">
-                    {/* Back Navigation */}
-                    <Link
-                        href="/exhibitions"
-                        className="inline-flex items-center gap-2 text-sm tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors mb-12"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Exhibitions
-                    </Link>
-
-                    {/* Exhibition Type Badge */}
-                    <div className="mb-6 flex flex-wrap gap-2">
-                        <span className="inline-block text-xs tracking-widest uppercase text-muted-foreground border border-border/40 px-3 py-1">
-                            {getTypeLabel(exhibition.type)}
-                        </span>
-                        {scheduleStatus !== "past" && (
-                            <span className="inline-block text-xs tracking-widest uppercase text-foreground border border-border px-3 py-1">
-                                {scheduleLabel}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Exhibition Title & Meta */}
-                    <div className="mb-12">
-                        <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-light mb-6">
-                            {exhibition.name}
-                        </h1>
-                        <div className="space-y-2 text-lg text-muted-foreground font-light">
-                            <p>{formatExhibitionSchedule(exhibition)}</p>
-                            <p>{exhibition.venue}</p>
-                            {exhibition.curator && (
-                                <p className="text-base">Curated by {exhibition.curator}</p>
-                            )}
-                            {exhibition.otherArtists && (
-                                <p className="text-base">
-                                    Featured Artists: {exhibition.otherArtists}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Hero Image */}
-                    {exhibition.coverImage && getExhibitionImageUrl(exhibition.coverImage) && (
-                        <div className="relative w-full aspect-[16/9] mb-16 overflow-hidden bg-card">
-                            <Image
-                                src={getExhibitionImageUrl(exhibition.coverImage)!}
-                                alt={exhibition.name}
-                                fill
-                                className="object-cover"
-                                sizes="100vw"
-                                priority
-                            />
-                        </div>
-                    )}
-
-                    {/* Exhibition Description */}
-                    {exhibition.about && (
-                        <div className="max-w-3xl mb-16">
-                            <h2 className="font-heading text-2xl font-light mb-6">About the Exhibition</h2>
-                            <div className="prose prose-lg text-muted-foreground leading-relaxed">
-                                <p>{exhibition.about}</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Exhibition Images */}
-                    {exhibition.exhibitionImages && exhibition.exhibitionImages.length > 0 && (
-                        <div className="mb-16">
-                            <h2 className="font-heading text-2xl font-light mb-8">Exhibition Views</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {exhibition.exhibitionImages.map((imagePath, index) => {
-                                    const imageUrl = getExhibitionImageUrl(imagePath);
-                                    if (!imageUrl) return null;
-
-                                    return (
-                                        <div
-                                            key={index}
-                                            className="relative w-full aspect-[4/3] overflow-hidden bg-card"
-                                        >
-                                            <Image
-                                                src={imageUrl}
-                                                alt={`Exhibition view ${index + 1}`}
-                                                fill
-                                                className="object-cover"
-                                                sizes="(max-width: 768px) 100vw, 50vw"
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Featured Works */}
-                    {exhibition.artworks && exhibition.artworks.length > 0 && (
-                        <div>
-                            <h2 className="font-heading text-2xl font-light mb-8">
-                                Featured Works
-                                <span className="text-muted-foreground text-lg ml-3">
-                                    ({exhibition.artworks.length})
-                                </span>
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {exhibition.artworks.map((artwork) => {
-                                    const thumbnailUrl =
-                                        getArtworkImageUrl(artwork.thumbnail_path ?? null) ||
-                                        getArtworkImageUrl(artwork.imageUrl) ||
-                                        PLACEHOLDERS.artwork.url;
-
-                                    const artworkSlug = artwork.slug ||
-                                        (artwork.title ? generateSlugFromTitle(artwork.title) : artwork.id);
-
-                                    return (
-                                        <Link
-                                            key={artwork.id}
-                                            href={`/artworks/${artworkSlug}`}
-                                            className="group"
-                                        >
-                                            <div className="overflow-hidden bg-card">
-                                                <div className="relative w-full aspect-[4/5] overflow-hidden bg-muted">
-                                                    <Image
-                                                        src={thumbnailUrl}
-                                                        alt={artwork.title || "Artwork"}
-                                                        fill
-                                                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="mt-4">
-                                                <h3 className="font-heading font-light text-lg text-foreground group-hover:text-muted-foreground transition-colors">
-                                                    {artwork.title || "Untitled"}
-                                                </h3>
-                                                {artwork.year && (
-                                                    <p className="text-sm text-muted-foreground mt-1">
-                                                        {artwork.year}
-                                                    </p>
-                                                )}
-                                                {artwork.medium && (
-                                                    <p className="text-sm text-muted-foreground mt-1">
-                                                        {artwork.medium}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </main>
-        </div>
+        <VerticalScrollPanel label="Exhibition">
+            <ExhibitionDetail exhibition={mapExhibition(exhibition)} />
+        </VerticalScrollPanel>
     );
-};
-
-export default ExhibitionDetailPage;
+}

@@ -5,7 +5,6 @@ import IntroAnimation from './introAnimation'
 import { UpcomingEventsSection } from './upcomingEventsSection'
 import { WorkSection } from './workSection'
 import { BackgroundSection } from './backgroundSection'
-import { VerticalScrollPanel } from '@/components/vertical-scroll-panel'
 import { getUpcomingExhibitions, getExhibitions } from '@/lib/actions/exhibitions'
 
 const Home = async () => {
@@ -33,9 +32,9 @@ const Home = async () => {
                 </div>
 
                 {events.length > 0 && (
-                    <VerticalScrollPanel id="panel-upcoming" label="Events">
+                    <div id="panel-upcoming" data-panel data-panel-label="Events" className={panel}>
                         <UpcomingEventsSection exhibitions={events} />
-                    </VerticalScrollPanel>
+                    </div>
                 )}
 
                 <div id="panel-background" data-panel data-panel-label="Background" className={panel}>
@@ -43,7 +42,11 @@ const Home = async () => {
                 </div>
 
                 <div id="panel-contact" data-panel data-panel-label="Contact" className={panel}>
-                    <ContactSection />
+                    <ContactSection nowShowing={
+                        events[0]?.endDate
+                            ? { name: events[0].name, endDate: events[0].endDate }
+                            : undefined
+                    } />
                 </div>
 
             </div>

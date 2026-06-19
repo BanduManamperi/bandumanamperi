@@ -32,7 +32,7 @@ export function WorkSection() {
 
             {/* ── Header strip ── */}
             <motion.div
-                className="flex items-end justify-between gap-8 px-10 md:px-20 lg:px-32 xl:px-44 pt-10 pb-5 shrink-0"
+                className="px-10 md:px-20 lg:px-32 xl:px-44 pt-10 pb-5 shrink-0"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -48,13 +48,6 @@ export function WorkSection() {
                         media to confront identity, conflict, and memory.
                     </p>
                 </div>
-                <Link
-                    href="/work"
-                    className="inline-flex shrink-0 items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group mb-2"
-                >
-                    Explore all
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                </Link>
             </motion.div>
 
             {/* ── Image grid — fills remaining height ── */}

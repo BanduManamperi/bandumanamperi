@@ -52,6 +52,7 @@ export interface ArtworkFilters {
     availability?: string;
     tags?: string[];
     search?: string;
+    featured?: boolean;
 }
 
 export async function listArtworksService(filters?: ArtworkFilters): Promise<Artwork[]> {
@@ -79,6 +80,9 @@ export async function listArtworksService(filters?: ArtworkFilters): Promise<Art
         if (filters?.search) {
             query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
         }
+        if (filters?.featured !== undefined) {
+            query = query.eq('featured', filters.featured);
+        }
 
         // Order by sort_order first, then created_at
         query = query.order('sort_order', { ascending: true, nullsFirst: false })
@@ -97,6 +101,10 @@ export async function listArtworksService(filters?: ArtworkFilters): Promise<Art
         console.error("Error in listArtworksService:", error);
         return [];
     }
+}
+
+export async function listFeaturedArtworksService(): Promise<Artwork[]> {
+    return listArtworksService({ featured: true, status: 'published' });
 }
 
 // Get single artwork by slug or id

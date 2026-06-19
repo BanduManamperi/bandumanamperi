@@ -23,13 +23,20 @@ const HeroSection = () => {
                 initial="hidden"
                 animate="show"
             >
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-6 xl:gap-6 lg:items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-24 lg:items-center">
 
                     {/* ── Left: identity + bio ── */}
                     <div className="min-w-0">
+                        <motion.p
+                            variants={item}
+                            className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-6"
+                        >
+                            About
+                        </motion.p>
+
                         <motion.h1
                             variants={item}
-                            className="font-heading text-[clamp(6rem,3.5vw,8rem)] leading-[0.88] tracking-[-0.03em] text-foreground"
+                            className="font-heading text-[clamp(3rem,5vw,5rem)] leading-[1] tracking-[-0.02em] text-foreground"
                         >
                             Bandu
                             <br />
@@ -38,25 +45,25 @@ const HeroSection = () => {
 
                         <motion.div
                             variants={item}
-                            className="mt-7 h-px w-10 bg-foreground/15"
+                            className="mt-6 h-px w-10 bg-foreground/15"
                             aria-hidden
                         />
 
                         <motion.div
                             variants={item}
-                            className="mt-6 space-y-4 text-[0.9375rem] text-muted-foreground font-light leading-[1.8] max-w-[42rem]"
+                            className="mt-6 space-y-5"
                         >
-                            <p>
-                                <strong className="font-semibold text-foreground">Bandu Manamperi</strong> is a Sri Lankan
+                            <p className="text-base text-foreground/75 font-light leading-[1.9]">
+                                <strong className="font-medium text-foreground">Bandu Manamperi</strong> is a Sri Lankan
                                 contemporary artist whose multidisciplinary practice spans
                                 performance, sculpture, drawing, photography, video, and
                                 installation. His work explores identity, memory, conflict, and
                                 cultural transformation, often drawing from Sri Lanka&apos;s
                                 history, archaeology, and lived social experience.
                             </p>
-                            <p>
+                            <p className="text-base text-foreground/75 font-light leading-[1.9]">
                                 A founding member and Vice Chairman of{" "}
-                                <strong className="font-semibold text-foreground">
+                                <strong className="font-medium text-foreground">
                                     Theertha International Artists&apos; Collective
                                 </strong>, Manamperi has played an important role in shaping
                                 contemporary art practice in Sri Lanka and connecting it with
@@ -64,22 +71,21 @@ const HeroSection = () => {
                                 across South Asia, Europe, Australia, and beyond.
                             </p>
                         </motion.div>
-
                     </div>
 
-                    {/* ── Right: portrait (contained, vertically centred) ── */}
+                    {/* ── Right: portrait ── */}
                     <motion.div
                         variants={item}
                         className="hidden lg:flex lg:items-center lg:justify-center"
                     >
-                        <div className="relative w-[300px] xl:w-[360px] aspect-[3/4] overflow-hidden">
+                        <div className="relative w-full max-w-sm aspect-[3/4] overflow-hidden rounded-sm">
                             <Image
                                 src="/IMG_8614.JPG"
                                 alt="Bandu Manamperi"
                                 fill
                                 className="object-cover grayscale"
                                 priority
-                                sizes="360px"
+                                sizes="(max-width: 1280px) 40vw, 480px"
                             />
                         </div>
                     </motion.div>
