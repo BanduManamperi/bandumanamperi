@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { CVSection } from "@/components/about/CVSection";
 import { VerticalScrollPanel } from "@/components/vertical-scroll-panel";
+import { getCVData } from "@/lib/data/cv";
 
 export const metadata: Metadata = {
     title: 'About | Bandu Manamperi',
@@ -22,7 +23,8 @@ const practice = [
     },
 ];
 
-export default function About() {
+export default async function About() {
+    const cvData = await getCVData();
     const panel = "w-screen flex-shrink-0 h-full overflow-hidden";
 
     return (
@@ -70,7 +72,7 @@ export default function About() {
                                     Curriculum Vitae
                                 </h2>
                             </div>
-                            <CVSection />
+                            <CVSection cvData={cvData} />
                         </div>
                     </main>
                 </div>

@@ -1,7 +1,8 @@
 /**
  * Curriculum Vitae data for Bandu Manamperi
- * TODO: Replace this with CMS/database queries when implementing backend
+ * Static fallback data. getCVData() fetches live data from Supabase (cv_entries table).
  */
+import { createClient } from '@/lib/supabase/server'
 
 export interface CVEntry {
     year: string;
@@ -672,11 +673,62 @@ export const cvData: CVData = {
         },
     ],
 
-    awards: [
-        // TODO: populate from CMS
-    ],
-
-    publicCollections: [
-        // TODO: populate from CMS
-    ],
+    awards: [],
+    publicCollections: [],
 };
+
+// ── Live data from Supabase ───────────────────────────────────────────────────
+
+type DBRow = {
+    id: string;
+    section: string;
+    year: string;
+    title: string;
+    subtitle: string | null;
+    sort_order: number;
+};
+
+function rowsToEntries(rows: DBRow[]): CVEntry[] {
+    return rows.map((r) => ({
+        year: r.year,
+        title: r.title,
+        subtitle: r.subtitle ?? undefined,
+    }));
+}
+
+function rowsToCollections(rows: DBRow[]): CVCollection[] {
+    return rows.map((r) => ({ name: r.title }));
+}
+
+/**
+ * Fetches CV data from Supabase. Falls back to static cvData on error.
+ * Call this in server components / page.tsx files.
+ */
+export async function getCVData(): Promise<CVData> {
+    try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from('cv_entries')
+            .select('id, section, year, title, subtitle, sort_order')
+            .order('sort_order', { ascending: true });
+
+        if (error || !data || data.length === 0) return cvData;
+
+        const rows = data as DBRow[];
+        const bySection = (s: string) => rows.filter((r) => r.section === s);
+
+        return {
+            education: rowsToEntries(bySection('education')),
+            workExperienceCurrent: rowsToEntries(bySection('work_current')),
+            workExperiencePast: rowsToEntries(bySection('work_past')),
+            soloExhibitions: rowsToEntries(bySection('solo_exhibitions')),
+            groupExhibitions: rowsToEntries(bySection('group_exhibitions')),
+            workshopsResidencies: rowsToEntries(bySection('workshops_residencies')),
+            invitedLectures: rowsToEntries(bySection('invited_lectures')),
+            awards: rowsToEntries(bySection('awards')),
+            publicCollections: rowsToCollections(bySection('public_collections')),
+        };
+    } catch {
+        return cvData;
+    }
+}

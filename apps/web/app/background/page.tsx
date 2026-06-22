@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CVSection } from "@/components/about/CVSection";
+import { getCVData } from "@/lib/data/cv";
 
 export const metadata: Metadata = {
     title: "Background | Bandu Manamperi",
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
         "Full background of Bandu Manamperi — education, exhibitions, work experience, workshops, residencies, and invited lectures.",
 };
 
-export default function BackgroundPage() {
+export default async function BackgroundPage() {
+    const cvData = await getCVData();
     return (
         <div data-no-cursor-nav className="min-h-full bg-background">
 
@@ -36,7 +38,7 @@ export default function BackgroundPage() {
                             Curriculum Vitae
                         </h1>
                     </div>
-                    <CVSection />
+                    <CVSection cvData={cvData} />
                 </div>
             </main>
         </div>

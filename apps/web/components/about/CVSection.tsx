@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { cvData, CVEntry } from '@/lib/data/cv';
+import { CVData, CVEntry } from '@/lib/data/cv';
 import { cn } from '@/lib/utils';
 
 const NAV_SECTIONS = [
@@ -108,7 +108,7 @@ function getScrollParent(node: HTMLElement | null): HTMLElement | null {
     return null;
 }
 
-export function CVSection() {
+export function CVSection({ cvData }: { cvData: CVData }) {
     const [activeSection, setActiveSection] = useState('education');
 
     useEffect(() => {
