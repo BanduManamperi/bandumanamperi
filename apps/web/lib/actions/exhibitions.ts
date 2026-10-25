@@ -13,6 +13,18 @@ import {
 
 const STANDALONE_EXHIBITIONS_TABLE = "standalone_exhibitions"
 
+/**
+ * How the public site decides two entries are the same show: same name and
+ * opening date. Looser than the shared identity key (which the CMS needs exact,
+ * to edit the right history entry), so a venue spelled differently or a
+ * mistyped end date on one artwork doesn't split a show in two.
+ */
+function displayKey(exhibition: Exhibition): string {
+    if (!exhibition.startDate) return getExhibitionIdentityKey(exhibition)
+    const name = exhibition.name.trim().replace(/\s+/g, " ").toLowerCase()
+    return `${name}|${exhibition.startDate}`
+}
+
 interface StandaloneExhibitionRow {
     id: string
     name: string
@@ -157,7 +169,7 @@ export async function getExhibitions(): Promise<Exhibition[]> {
 
         exhibitions.forEach((exhibition) => {
             const mapped = mapExhibitionFromHistory(exhibition, artwork)
-            const key = getExhibitionIdentityKey(mapped)
+            const key = displayKey(mapped)
 
             if (exhibitionsMap.has(key)) {
                 const existing = exhibitionsMap.get(key)!
@@ -174,16 +186,17 @@ export async function getExhibitions(): Promise<Exhibition[]> {
     const standaloneRows = await fetchPublishedStandaloneExhibitions(supabase)
     for (const row of standaloneRows) {
         const mapped = rowToExhibition(row)
-        const key = getExhibitionIdentityKey(mapped)
+        const key = displayKey(mapped)
         if (exhibitionsMap.has(key)) {
+            // The standalone record is the authoritative description of the
+            // show; artwork histories only contribute which works were in it.
             const existing = exhibitionsMap.get(key)!
-            if (mapped.highlightOnHomepage) {
-                existing.highlightOnHomepage = true
-            }
-            if (mapped.id) {
-                existing.id = mapped.id
-                existing.isStandalone = true
-            }
+            exhibitionsMap.set(key, {
+                ...mapped,
+                isStandalone: true,
+                artworks: existing.artworks,
+                highlightOnHomepage: Boolean(existing.highlightOnHomepage || mapped.highlightOnHomepage),
+            })
         } else {
             exhibitionsMap.set(key, mapped)
         }

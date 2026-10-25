@@ -1,143 +1,137 @@
-import { Artwork } from '@/lib/types/artwork'
+import { cache } from "react";
+import { createClient } from "@/lib/supabase/server";
+import { withoutDashes } from "@/lib/text";
 
-/**
- * Sample artwork data
- * TODO: Replace this with database queries when implementing backend
- * Example: const artworks = await fetchArtworksFromDatabase()
- */
-export const sampleArtworks: Artwork[] = [
-    {
-        id: '1',
-        title: 'Bandaged Body',
-        year: 2022,
-        medium: 'Performance Art',
-        size: 'Variable dimensions',
-        category: 'performance',
-        series: 'Body & Identity',
-        description: 'A powerful exploration of identity and physical constraints through performance.',
-        imageUrl: '/IMG_8614.JPG',
-        imageAlt: 'Bandaged Body performance artwork',
-        slug: 'bandaged-body',
-        featured: true,
-    },
-    {
-        id: '2',
-        title: 'Instant Nirvana Private Limited',
-        year: 2023,
-        medium: 'Sculpture',
-        size: '120 × 80 × 60 cm',
-        category: 'sculpture',
-        series: 'Consumerism & Spirituality',
-        description: 'A thought-provoking sculpture examining contemporary spirituality and consumerism.',
-        imageUrl: '/IMG_8614.JPG',
-        imageAlt: 'Instant Nirvana Private Limited sculpture',
-        slug: 'instant-nirvana',
-        featured: true,
-    },
-    {
-        id: '3',
-        title: 'Numbed',
-        year: 2022,
-        medium: 'Sculpture',
-        size: '100 × 100 × 50 cm',
-        category: 'sculpture',
-        series: 'Emotional States',
-        description: 'An exploration of emotional states and human condition through sculptural form.',
-        imageUrl: '/IMG_8614.JPG',
-        imageAlt: 'Numbed sculpture',
-        slug: 'numbed',
-        featured: true,
-    },
-    {
-        id: '4',
-        title: 'Iron Man',
-        year: 2022,
-        medium: 'Performance Art',
-        size: 'Variable dimensions',
-        category: 'performance',
-        series: 'Body & Identity',
-        description: 'A performance piece examining strength, vulnerability, and transformation.',
-        imageUrl: '/IMG_8614.JPG',
-        imageAlt: 'Iron Man performance artwork',
-        slug: 'iron-man',
-        featured: true,
-    },
-    {
-        id: '5',
-        title: 'The Last Supper',
-        year: 2022,
-        medium: 'Performance Art',
-        size: 'Variable dimensions',
-        category: 'performance',
-        series: 'Cultural Dialogues',
-        imageUrl: '/IMG_8614.JPG',
-        imageAlt: 'The Last Supper performance artwork',
-        slug: 'the-last-supper',
-        featured: true,
-        description: 'A performance piece examining cultural narratives and collective memory.',
-    },
-    {
-        id: '6',
-        title: 'Dissolution',
-        year: 2023,
-        medium: 'Mixed Media',
-        size: '150 × 100 cm',
-        category: 'painting',
-        series: 'Emotional States',
-        imageUrl: '/IMG_8614.JPG',
-        imageAlt: 'Dissolution artwork',
-        slug: 'dissolution',
-        featured: true,
-        description: 'Mixed media work exploring the fragmentation and dissolution of self.',
-    },
-]
+/** How many of the most recently added works /artworks shows; the rest live in /archive. */
+export const LATEST_COUNT = 15;
 
-/**
- * Get featured artworks
- * This function can be easily replaced with a database query later
- */
-export async function getFeaturedArtworks(): Promise<Artwork[]> {
-    // TODO: Replace with actual database query
-    // Example: return await db.artworks.findMany({ where: { featured: true } })
-    return sampleArtworks.filter(artwork => artwork.featured).slice(0, 6)
+export type CatalogueEntry = {
+    id: string;
+    /** Position in order of entry, oldest first. Stable as long as works aren't deleted. */
+    number: number;
+    /** "038": the number as printed. */
+    label: string;
+    href: string;
+    title: string;
+    isUntitled: boolean;
+    /** The original file name when the title is only a camera file name (archival "Ref."). */
+    sourceRef: string | null;
+    /** Year as given, or null when undated. */
+    year: string | null;
+    /** "2022" or "n.d." */
+    date: string;
+    medium: string | null;
+    series: string | null;
+    category: string | null;
+    dimensions: string | null;
+    description: string | null;
+    images: string[];
+    /** Where the work sits: among the latest works or in the archive. */
+    shelf: "latest" | "archive";
+};
+
+type ArtworkRow = {
+    id: string;
+    title: string | null;
+    slug: string | null;
+    year: string | null;
+    medium: string | null;
+    series: string | null;
+    category: string | null;
+    description: string | null;
+    width: number | null;
+    height: number | null;
+    depth: number | null;
+    unit: string | null;
+    media: string[] | null;
+    thumbnail_path: string | null;
+    sort_order: number | null;
+    created_at: string;
+};
+
+const CAMERA_FILE = /^IMG[_\s-]?\d*$/i;
+
+function clean(value: string | null | undefined): string | null {
+    const v = value?.trim();
+    return v ? withoutDashes(v) : null;
+}
+
+function formatDimensions(r: ArtworkRow): string | null {
+    const sides = [r.height, r.width, r.depth].filter((n): n is number => typeof n === "number" && n > 0);
+    if (sides.length < 2) return null;
+    return `${sides.join(" × ")} ${r.unit ?? "cm"}`;
 }
 
 /**
- * Get all artworks
- * This function can be easily replaced with a database query later
+ * Every published work, newest first, numbered in order of entry.
+ * Cached per request so the list, archive and detail pages share one query.
  */
-export async function getAllArtworks(): Promise<Artwork[]> {
-    // TODO: Replace with actual database query
-    // Example: return await db.artworks.findMany()
-    return sampleArtworks
-}
+export const getCatalogue = cache(async (): Promise<CatalogueEntry[]> => {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("artworks")
+        .select("id, title, slug, year, medium, series, category, description, width, height, depth, unit, media, thumbnail_path, sort_order, created_at")
+        .eq("status", "published")
+        .order("created_at", { ascending: true });
 
-/**
- * Get artwork by slug
- * This function can be easily replaced with a database query later
- */
-export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {
-    // TODO: Replace with actual database query
-    // Example: return await db.artworks.findUnique({ where: { slug } })
-    return sampleArtworks.find(artwork => artwork.slug === slug) || null
-}
+    if (error || !data) {
+        console.error("Error loading catalogue:", error);
+        return [];
+    }
 
-/**
- * Get artworks by IDs
- * This function can be easily replaced with a database query later
- */
-export async function getArtworksByIds(ids: string[]): Promise<Artwork[]> {
-    // TODO: Replace with actual database query
-    // Example: return await db.artworks.findMany({ where: { id: { in: ids } } })
-    return sampleArtworks.filter(artwork => ids.includes(artwork.id))
-}
+    const publicUrl = (path: string) =>
+        path.startsWith("http") ? path : supabase.storage.from("artworks").getPublicUrl(path).data.publicUrl;
 
-/**
- * Get artworks by category
- * This function can be easily replaced with a database query later
- */
-export async function getArtworksByCategory(category: Artwork['category']): Promise<Artwork[]> {
-    // TODO: Replace with actual database query
-    // Example: return await db.artworks.findMany({ where: { category } })
-    return sampleArtworks.filter(artwork => artwork.category === category)
+    const numbered = (data as ArtworkRow[]).map((r, i) => {
+        const rawTitle = r.title?.trim() ?? "";
+        const isUntitled = !rawTitle || CAMERA_FILE.test(rawTitle);
+        const paths = [...(r.media ?? [])];
+        if (r.thumbnail_path && !paths.includes(r.thumbnail_path)) paths.unshift(r.thumbnail_path);
+        const year = clean(r.year);
+
+        return {
+            id: r.id,
+            number: i + 1,
+            label: String(i + 1).padStart(3, "0"),
+            href: `/artworks/${r.slug || r.id}`,
+            title: isUntitled ? "Untitled" : withoutDashes(rawTitle),
+            isUntitled,
+            sourceRef: isUntitled && rawTitle ? rawTitle : null,
+            year,
+            date: year ?? "n.d.",
+            medium: clean(r.medium),
+            series: clean(r.series),
+            category: clean(r.category),
+            dimensions: formatDimensions(r),
+            description: clean(r.description),
+            images: paths.map(publicUrl),
+            sortOrder: r.sort_order ?? 0,
+        };
+    });
+
+    // Newest first; a curator-set sort_order (lower first) still wins over recency.
+    const ordered = numbered.sort((a, b) => a.sortOrder - b.sortOrder || b.number - a.number);
+
+    return ordered.map((entry, i) => {
+        const { sortOrder, ...rest } = entry;
+        void sortOrder;
+        return { ...rest, shelf: i < LATEST_COUNT ? "latest" : "archive" };
+    });
+});
+
+/** One work plus its neighbours on the same shelf, for previous/next links. */
+export async function getCatalogueEntry(slugOrId: string) {
+    const catalogue = await getCatalogue();
+    const entry = catalogue.find((e) => e.id === slugOrId || e.href === `/artworks/${slugOrId}`);
+    if (!entry) return null;
+
+    const shelf = catalogue.filter((e) => e.shelf === entry.shelf);
+    const i = shelf.indexOf(entry);
+    return {
+        entry,
+        previous: shelf[i - 1] ?? null,
+        next: shelf[i + 1] ?? null,
+        position: i + 1,
+        shelfSize: shelf.length,
+    };
 }

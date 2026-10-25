@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { Spread, rightPageBleed } from "@/components/sheet/spread";
 
 const categories = [
     {
@@ -11,85 +11,93 @@ const categories = [
         description: "Paintings, mixed media, and works on paper",
         link: "/artworks",
         image: "/JBP06256.jpg",
+        alt: "A large ink work on paper by Bandu Manamperi",
     },
     {
         title: "Performances",
         description: "Live art performances and interventions",
         link: "/performances",
         image: "/Bandaged_Body_1.jpg",
+        alt: "Bandu Manamperi performing Bandaged Body",
     },
     {
-        title: "Art Framing, Restoration, and Conservation",
-        description: "Art framing and restoration of artworks and sculptures",
+        title: "Framing, restoration, and conservation",
+        description: "Framing and restoration of paintings and sculpture",
         link: "/art-framing-and-restoration",
         image: "/IMG_8614.JPG",
+        alt: "Bandu Manamperi working in his studio",
     },
 ];
 
-export function WorkSection() {
+export function WorkSection({ index = 2, headingLevel = "h2" }: { index?: number; headingLevel?: "h1" | "h2" }) {
+    const Heading = headingLevel;
+    const [active, setActive] = useState(0);
+    const current = categories[active];
+
     return (
-        <section className="h-full flex flex-col bg-background overflow-hidden">
+        <Spread section="Work" index={index}>
+            <div className="h-full">
+                <div className="grid min-h-full grid-cols-1 gap-y-8 py-6 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)] lg:py-8">
 
-            {/* ── Header strip ── */}
-            <motion.div
-                className="px-10 md:px-20 lg:px-32 xl:px-44 pt-10 pb-5 shrink-0"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-            >
-                <div className="max-w-2xl">
-                    <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">Explore</p>
-                    <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl text-foreground">
-                        Work
-                    </h2>
-                    <div className="mt-4 h-px w-10 bg-foreground/15" />
-                    <p className="mt-4 text-sm text-muted-foreground font-light leading-relaxed">
-                        Performance, installation, and drawing — a practice that moves across
-                        media to confront identity, conflict, and memory.
-                    </p>
+                    {/* Left page: contents */}
+                    <div className="flex min-w-0 flex-col lg:col-span-5 lg:h-full xl:col-span-4">
+                        <Heading
+                            className="font-display text-[clamp(3rem,4.8vw,6rem)] font-light leading-[0.95] tracking-[-0.02em] text-foreground"
+                        >
+                            Work
+                        </Heading>
+                        <p className="mt-6 max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80">
+                            A practice that moves across media to confront identity, conflict,
+                            and memory, alongside a long working life in the care of other
+                            people&apos;s art.
+                        </p>
+
+                        <ul className="mt-8 border-t border-border lg:mt-auto">
+                            {categories.map((cat, i) => (
+                                <li key={cat.link} className="border-b border-border">
+                                    <Link
+                                        href={cat.link}
+                                        onMouseEnter={() => setActive(i)}
+                                        onFocus={() => setActive(i)}
+                                        aria-current={active === i ? "true" : undefined}
+                                        className="group block py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                    >
+                                        <span
+                                            className={`block text-[1.375rem] font-light leading-tight transition-colors ${active === i ? "text-foreground" : "text-foreground/45"}`}
+                                        >
+                                            {cat.title}
+                                        </span>
+                                        <span className="mt-1 block text-[0.75rem] text-muted-foreground">
+                                            {cat.description}
+                                        </span>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Right page: the selected discipline */}
+                    <figure className={rightPageBleed}>
+                        <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1">
+                            {categories.map((cat, i) => (
+                                <Image
+                                    key={cat.image}
+                                    src={cat.image}
+                                    alt={i === active ? cat.alt : ""}
+                                    aria-hidden={i !== active}
+                                    fill
+                                    className={`object-cover transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-0"}`}
+                                    sizes="(min-width: 1280px) 64vw, (min-width: 1024px) 56vw, 100vw"
+                                />
+                            ))}
+                        </div>
+                        <figcaption className="mt-2 text-[0.6875rem] text-muted-foreground">
+                            {current.title}
+                        </figcaption>
+                    </figure>
+
                 </div>
-            </motion.div>
-
-            {/* ── Image grid — fills remaining height ── */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10 px-10 md:px-20 lg:px-32 xl:px-44 pb-12 lg:pb-16 min-h-0">
-                {categories.map((cat, i) => (
-                    <motion.div
-                        key={cat.title}
-                        className="relative overflow-hidden rounded-2xl"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.8, delay: i * 0.1 }}
-                    >
-                        <Link href={cat.link} className="group block h-full">
-                            {/* Full-height image */}
-                            <Image
-                                src={cat.image}
-                                alt={cat.title}
-                                fill
-                                className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 ease-in-out"
-                                sizes="(max-width: 768px) 50vw, 25vw"
-                            />
-
-                            {/* Gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-
-                            {/* Content — pinned to bottom */}
-                            <div className="absolute bottom-0 left-0 right-0 p-5 lg:p-7 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
-                                <h3 className="font-heading text-white text-xl lg:text-2xl font-bold uppercase leading-tight tracking-[-0.02em] mb-1">
-                                    {cat.title}
-                                </h3>
-                                <p className="text-white/60 text-xs font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    {cat.description}
-                                </p>
-                                <span className="inline-flex items-center gap-1 mt-2 text-[10px] uppercase tracking-widest text-white/50 group-hover:text-white/80 transition-colors duration-300">
-                                    View <ArrowRight className="w-3 h-3" />
-                                </span>
-                            </div>
-                        </Link>
-                    </motion.div>
-                ))}
             </div>
-
-        </section>
+        </Spread>
     );
 }

@@ -2,97 +2,91 @@
 
 import React from "react";
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
+import { Spread, rightPageBleed } from "@/components/sheet/spread";
 
-const container: Variants = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.1 } },
-};
-
-const item: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: "easeOut" } },
-};
+// Facts set like the project data on a portfolio page.
+// TODO(human): curate these 3-4 facts; this is the first thing a curator scans.
+const facts = [
+    { label: "Based in", value: "Colombo, Sri Lanka" },
+    { label: "Collective", value: "Theertha International Artists' Collective, founding member and Vice Chairman" },
+    { label: "Education", value: "MA Archaeology, PGIAR. BFA Sculpture, University of Kelaniya" },
+];
 
 const HeroSection = () => {
+    const reduce = useReducedMotion();
+
     return (
-        <section className="h-full flex items-center bg-background">
-            <motion.div
-                className="w-full px-10 md:px-20 lg:px-32 xl:px-44"
-                variants={container}
-                initial="hidden"
-                animate="show"
-            >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-24 lg:items-center">
+        <Spread section="About" index={1}>
+            <div className="h-full">
+                <div className="grid min-h-full grid-cols-1 gap-y-8 py-6 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)] lg:py-8">
 
-                    {/* ── Left: identity + bio ── */}
-                    <div className="min-w-0">
-                        <motion.p
-                            variants={item}
-                            className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-6"
-                        >
-                            About
-                        </motion.p>
-
-                        <motion.h1
-                            variants={item}
-                            className="font-heading text-[clamp(3rem,5vw,5rem)] leading-[1] tracking-[-0.02em] text-foreground"
+                    {/* Left page: name, bio, facts */}
+                    <motion.div
+                        className="flex min-w-0 flex-col lg:col-span-5 lg:h-full lg:overflow-y-auto xl:col-span-4"
+                        initial={reduce ? false : { opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <h1
+                            className="font-display text-[clamp(3rem,4.8vw,6rem)] font-light leading-[0.95] tracking-[-0.02em] text-foreground"
                         >
                             Bandu
                             <br />
                             Manamperi
-                        </motion.h1>
+                        </h1>
 
-                        <motion.div
-                            variants={item}
-                            className="mt-6 h-px w-10 bg-foreground/15"
-                            aria-hidden
-                        />
+                        <p className="mt-6 max-w-[34rem] text-[0.9375rem] leading-[1.6] text-foreground/80 xl:mt-8">
+                            A Sri Lankan artist whose practice moves between performance,
+                            sculpture, drawing, photography, video, and installation. His work
+                            deals with identity, memory, conflict, and cultural change, drawing
+                            on Sri Lanka&apos;s history and archaeology. It has been shown across
+                            South Asia, Europe, Australia, and beyond.
+                        </p>
 
-                        <motion.div
-                            variants={item}
-                            className="mt-6 space-y-5"
+                        <dl className="mt-8 grid max-w-[34rem] grid-cols-[5.5rem_1fr] gap-x-4 gap-y-2 text-[0.75rem] leading-[1.5] lg:mt-auto lg:pt-6">
+                            {facts.map((f) => (
+                                <React.Fragment key={f.label}>
+                                    <dt className="text-muted-foreground">{f.label}</dt>
+                                    <dd className="text-foreground">{f.value}</dd>
+                                </React.Fragment>
+                            ))}
+                        </dl>
+
+                        <Link
+                            href="/background"
+                            className="mt-6 self-start text-[0.8125rem] text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
                         >
-                            <p className="text-base text-foreground/75 font-light leading-[1.9]">
-                                <strong className="font-medium text-foreground">Bandu Manamperi</strong> is a Sri Lankan
-                                contemporary artist whose multidisciplinary practice spans
-                                performance, sculpture, drawing, photography, video, and
-                                installation. His work explores identity, memory, conflict, and
-                                cultural transformation, often drawing from Sri Lanka&apos;s
-                                history, archaeology, and lived social experience.
-                            </p>
-                            <p className="text-base text-foreground/75 font-light leading-[1.9]">
-                                A founding member and Vice Chairman of{" "}
-                                <strong className="font-medium text-foreground">
-                                    Theertha International Artists&apos; Collective
-                                </strong>, Manamperi has played an important role in shaping
-                                contemporary art practice in Sri Lanka and connecting it with
-                                wider international conversations. His work has been presented
-                                across South Asia, Europe, Australia, and beyond.
-                            </p>
-                        </motion.div>
-                    </div>
-
-                    {/* ── Right: portrait ── */}
-                    <motion.div
-                        variants={item}
-                        className="hidden lg:flex lg:items-center lg:justify-center"
-                    >
-                        <div className="relative w-full max-w-sm aspect-[3/4] overflow-hidden rounded-sm">
-                            <Image
-                                src="/IMG_8614.JPG"
-                                alt="Bandu Manamperi"
-                                fill
-                                className="object-cover grayscale"
-                                priority
-                                sizes="(max-width: 1280px) 40vw, 480px"
-                            />
-                        </div>
+                            Read the full CV
+                        </Link>
                     </motion.div>
 
+                    {/* Right page: the artist at work */}
+                    <figure className={rightPageBleed}>
+                        <motion.div
+                            className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1"
+                            initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
+                            animate={{ clipPath: "inset(0 0% 0 0)" }}
+                            transition={{ duration: 1.1, ease: [0.65, 0, 0.35, 1] }}
+                        >
+                            <Image
+                                src="/IMG_8614.JPG"
+                                alt="Bandu Manamperi drawing on tissue paper laid over a large work in his studio"
+                                fill
+                                priority
+                                className="object-cover object-[30%_40%]"
+                                sizes="(min-width: 1280px) 64vw, (min-width: 1024px) 56vw, 100vw"
+                            />
+                        </motion.div>
+                        <figcaption className="mt-2 text-[0.6875rem] text-muted-foreground">
+                            In the studio, drawing on tissue over a work in progress
+                        </figcaption>
+                    </figure>
+
                 </div>
-            </motion.div>
-        </section>
+            </div>
+        </Spread>
     );
 };
 

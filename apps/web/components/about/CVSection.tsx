@@ -19,15 +19,15 @@ const PREVIEW_COUNT = 7;
 function EntryRow({ entry, italic = false }: { entry: CVEntry; italic?: boolean }) {
     return (
         <div className="flex gap-6 py-3.5 border-b border-border/40 last:border-0">
-            <span className="text-muted-foreground font-light w-24 shrink-0 text-sm tabular-nums leading-relaxed">
+            <span className="text-muted-foreground w-24 shrink-0 text-sm tabular-nums leading-relaxed">
                 {entry.year}
             </span>
             <div className="min-w-0">
-                <p className={cn('text-foreground font-light text-sm leading-relaxed', italic && 'italic')}>
+                <p className={cn('text-foreground text-sm leading-relaxed', italic && 'italic')}>
                     {entry.title}
                 </p>
                 {entry.subtitle && (
-                    <p className="text-muted-foreground text-xs font-light mt-0.5 leading-relaxed">
+                    <p className="text-muted-foreground text-xs mt-0.5 leading-relaxed">
                         {entry.subtitle}
                     </p>
                 )}
@@ -74,8 +74,8 @@ function SectionBlock({
     children: React.ReactNode;
 }) {
     return (
-        <div id={id} className="scroll-mt-36">
-            <h3 className="font-heading text-2xl font-bold tracking-tight text-foreground mb-8 pb-4 border-b border-border">
+        <div id={id} className="scroll-mt-8">
+            <h3 className="font-display text-[1.75rem] font-light leading-tight text-foreground mb-6 pb-3 border-b border-border">
                 {title}
             </h3>
             {children}
@@ -87,7 +87,7 @@ function SectionBlock({
 
 function SubLabel({ children }: { children: React.ReactNode }) {
     return (
-        <p className="text-xs tracking-widest uppercase text-muted-foreground mb-3">
+        <p className="text-[0.75rem] text-muted-foreground mb-2">
             {children}
         </p>
     );
@@ -157,7 +157,7 @@ export function CVSection({ cvData }: { cvData: CVData }) {
     return (
         <>
             {/* Mobile sticky nav */}
-            <div className="lg:hidden sticky top-20 z-10 bg-background/95 backdrop-blur-sm border-b border-border mb-10 -mx-6 px-6">
+            <div className="lg:hidden sticky top-0 z-10 bg-background border-b border-border mb-10 -mx-[var(--sheet-pad)] px-[var(--sheet-pad)]">
                 <div className="flex gap-6 overflow-x-auto py-3 scrollbar-none">
                     {NAV_SECTIONS.map(({ id, label }) => (
                         <button
@@ -180,7 +180,7 @@ export function CVSection({ cvData }: { cvData: CVData }) {
             <div className="flex gap-16">
                 {/* Sticky sidebar */}
                 <aside className="hidden lg:block w-40 shrink-0">
-                    <nav className="sticky top-36 space-y-0.5">
+                    <nav className="sticky top-8 space-y-0.5">
                         {NAV_SECTIONS.map(({ id, label }) => {
                             const isActive = activeSection === id;
                             return (
@@ -268,7 +268,7 @@ export function CVSection({ cvData }: { cvData: CVData }) {
                                 {cvData.publicCollections.map((c, i) => (
                                     <li
                                         key={i}
-                                        className="text-muted-foreground font-light text-sm pl-4 border-l-2 border-primary/30"
+                                        className="text-foreground/80 text-sm pl-4 border-l border-border"
                                     >
                                         {c.name}
                                     </li>

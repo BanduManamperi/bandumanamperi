@@ -2,12 +2,15 @@
 
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { ArrowRight, Mail, Phone, MapPin, Facebook, Instagram, ExternalLink } from "lucide-react";
+import Image from "next/image";
 import posthog from "posthog-js";
 import { CONTACT_FORM_ENABLED } from "@/lib/contact-form";
-import { motion } from "framer-motion";
+import { Spread, rightPageBleed } from "@/components/sheet/spread";
 
 interface ContactSectionProps {
+    /** Spread position, so page numbers stay sequential when Events is hidden. */
+    index: number;
+    headingLevel?: "h1" | "h2";
     nowShowing?: {
         name: string;
         endDate: string;
@@ -30,7 +33,8 @@ function formatEndDate(iso: string) {
     return `${d} ${MONTHS_SHORT[m - 1]}`;
 }
 
-const ContactSection = ({ nowShowing }: ContactSectionProps) => {
+const ContactSection = ({ index, headingLevel = "h2", nowShowing }: ContactSectionProps) => {
+    const Heading = headingLevel;
     const [formData, setFormData] = useState({ name: "", email: "", enquiry: "", message: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,214 +66,117 @@ const ContactSection = ({ nowShowing }: ContactSectionProps) => {
         }
     };
 
+    const field =
+        "w-full border-0 border-b border-border bg-transparent px-0 py-2 text-[0.9375rem] text-foreground focus:border-foreground focus:outline-none focus:ring-0 transition-colors";
+    const fieldLabel = "block text-[0.75rem] text-muted-foreground";
+    const textLink =
+        "text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+    const trackSocial = (platform: string) =>
+        posthog.capture("social_link_clicked", { platform, source: "homepage_contact_section" });
+
     return (
-        <section id="contact" className="h-full flex items-center bg-background overflow-hidden">
-            <div className="w-full px-10 md:px-20 lg:px-32 xl:px-44 py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <Spread section="Contact" index={index}>
+            <div id="contact" className="h-full">
+                <div className="grid min-h-full grid-cols-1 gap-y-10 py-6 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)] lg:py-8">
 
-                    {/* ── Left: info ── */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-4">
-                            Get in touch
-                        </p>
-
-                        <h2 className="font-heading text-[clamp(3rem,6vw,5rem)] font-bold leading-none tracking-tight text-foreground">
+                    {/* Left page: how to reach him */}
+                    <div className="flex min-w-0 flex-col lg:col-span-5 lg:h-full lg:overflow-y-auto xl:col-span-4">
+                        <Heading
+                            className="font-display text-[clamp(3rem,4.8vw,6rem)] font-light leading-[0.95] tracking-[-0.02em] text-foreground"
+                        >
                             Contact
-                        </h2>
+                        </Heading>
 
-                        <p className="mt-6 text-base text-muted-foreground font-light leading-relaxed max-w-sm">
-                            For exhibitions, commissions, framing and restoration, or a studio visit — I'd be glad to hear from you.
+                        <p className="mt-6 max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80">
+                            For exhibitions, commissions, framing and restoration, or a studio
+                            visit, I&rsquo;d be glad to hear from you.
                         </p>
 
-                        {/* Contact rows */}
-                        <div className="mt-8 border-t border-border">
-                            <a
-                                href="mailto:bandumanamperi@yahoo.com"
-                                className="group flex items-start gap-4 py-4 border-b border-border hover:text-foreground transition-colors"
-                            >
-                                <Mail className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                        <dl className="mt-8 grid max-w-[30rem] grid-cols-[6.5rem_1fr] gap-x-4 gap-y-3 text-[0.8125rem] leading-[1.5] lg:mt-auto">
+                            <dt className="text-muted-foreground">Email</dt>
+                            <dd><a href="mailto:bandumanamperi@yahoo.com" className={textLink}>bandumanamperi@yahoo.com</a></dd>
+
+                            <dt className="text-muted-foreground">Phone</dt>
+                            <dd><a href="tel:+94773672789" className={textLink}>+94 77 367 2789</a> <span className="text-muted-foreground">(WhatsApp)</span></dd>
+
+                            <dt className="text-muted-foreground">Studio</dt>
+                            <dd className="text-foreground">Bandaragama, Sri Lanka</dd>
+
+                            <dt className="text-muted-foreground">Elsewhere</dt>
+                            <dd className="flex flex-wrap gap-x-4 gap-y-1">
+                                <a href="https://www.instagram.com/bandu_manamperi/" target="_blank" rel="noopener noreferrer" className={textLink} onClick={() => trackSocial("instagram")}>Instagram</a>
+                                <a href="https://www.facebook.com/bandu.manamperi" target="_blank" rel="noopener noreferrer" className={textLink} onClick={() => trackSocial("facebook")}>Facebook</a>
+                                <a href="https://theertha.org/artists/bandu-manamperi/" target="_blank" rel="noopener noreferrer" className={textLink} onClick={() => trackSocial("theertha_collective")}>Theertha</a>
+                            </dd>
+
+                            {nowShowing && (
+                                <>
+                                    <dt className="text-muted-foreground">Now showing</dt>
+                                    <dd className="text-foreground">
+                                        {nowShowing.name}, until {formatEndDate(nowShowing.endDate)}
+                                    </dd>
+                                </>
+                            )}
+                        </dl>
+                    </div>
+
+                    {/* Right page: the message form, or a performance still while the form is off */}
+                    {CONTACT_FORM_ENABLED ? (
+                        <div className="flex min-w-0 flex-col justify-end lg:col-span-7 lg:h-full xl:col-span-8">
+                            <form onSubmit={handleSubmit} className="grid max-w-[44rem] grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
                                 <div>
-                                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-0.5">Email</p>
-                                    <p className="text-sm text-foreground">bandumanamperi@yahoo.com</p>
+                                    <label htmlFor="name" className={fieldLabel}>Name</label>
+                                    <input id="name" name="name" value={formData.name} onChange={handleChange} required className={field} />
                                 </div>
-                            </a>
-                            <a
-                                href="tel:+94773672789"
-                                className="group flex items-start gap-4 py-4 border-b border-border hover:text-foreground transition-colors"
-                            >
-                                <Phone className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
                                 <div>
-                                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-0.5">Phone & WhatsApp</p>
-                                    <p className="text-sm text-foreground">+94 77 367 2789</p>
+                                    <label htmlFor="email" className={fieldLabel}>Email</label>
+                                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required className={field} />
                                 </div>
-                            </a>
-                            <div className="flex items-start gap-4 py-4 border-b border-border">
-                                <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                                <div>
-                                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-0.5">Studio</p>
-                                    <p className="text-sm text-foreground">Bandaragama, Sri Lanka</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Now showing pill */}
-                        {nowShowing && (
-                            <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
-                                <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0" />
-                                <span className="text-muted-foreground">Now showing:</span>
-                                <span className="font-medium text-foreground">{nowShowing.name}</span>
-                                <span className="text-muted-foreground">until {formatEndDate(nowShowing.endDate)}</span>
-                            </div>
-                        )}
-
-                        {/* Social links */}
-                        <div className="mt-6 flex items-center gap-5">
-                            <a
-                                href="https://www.facebook.com/bandu.manamperi"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                                onClick={() => posthog.capture("social_link_clicked", { platform: "facebook", source: "homepage_contact_section" })}
-                                aria-label="Facebook"
-                            >
-                                <Facebook className="w-4 h-4" />
-                            </a>
-                            <a
-                                href="https://www.instagram.com/bandu_manamperi/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                                onClick={() => posthog.capture("social_link_clicked", { platform: "instagram", source: "homepage_contact_section" })}
-                                aria-label="Instagram"
-                            >
-                                <Instagram className="w-4 h-4" />
-                            </a>
-                            <a
-                                href="https://theertha.org/artists/bandu-manamperi/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                                onClick={() => posthog.capture("social_link_clicked", { platform: "theertha_collective", source: "homepage_contact_section" })}
-                            >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                                Theertha
-                            </a>
-                        </div>
-                    </motion.div>
-
-                    {/* ── Right: form ── */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.15 }}
-                        className="bg-card rounded-2xl p-8"
-                    >
-                        <h3 className="font-heading text-2xl font-semibold text-foreground mb-6">
-                            Send a message
-                        </h3>
-
-                        {CONTACT_FORM_ENABLED ? (
-                            <form onSubmit={handleSubmit} className="space-y-5">
-                                {/* Name */}
-                                <div>
-                                    <label htmlFor="name" className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                                        Name
-                                    </label>
-                                    <input
-                                        id="name"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full h-11 rounded-lg bg-muted border border-transparent px-4 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-border transition-colors"
-                                    />
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label htmlFor="email" className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                                        Email
-                                    </label>
-                                    <input
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full h-11 rounded-lg bg-muted border border-transparent px-4 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-border transition-colors"
-                                    />
-                                </div>
-
-                                {/* Enquiry */}
-                                <div>
-                                    <label htmlFor="enquiry" className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                                        Enquiry
-                                    </label>
-                                    <select
-                                        id="enquiry"
-                                        name="enquiry"
-                                        value={formData.enquiry}
-                                        onChange={handleChange}
-                                        className="w-full h-11 rounded-lg bg-muted border border-transparent px-4 text-sm text-foreground focus:outline-none focus:border-border transition-colors appearance-none cursor-pointer"
-                                    >
-                                        <option value="" disabled>Exhibition · Commission · Framing · Press</option>
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="enquiry" className={fieldLabel}>About</label>
+                                    <select id="enquiry" name="enquiry" value={formData.enquiry} onChange={handleChange} className={`${field} cursor-pointer appearance-none`}>
+                                        <option value="" disabled>Choose a topic</option>
                                         {ENQUIRY_OPTIONS.map(opt => (
                                             <option key={opt} value={opt}>{opt}</option>
                                         ))}
                                     </select>
                                 </div>
-
-                                {/* Message */}
-                                <div>
-                                    <label htmlFor="message" className="block text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                                        Message
-                                    </label>
-                                    <textarea
-                                        id="message"
-                                        name="message"
-                                        value={formData.message}
-                                        onChange={handleChange}
-                                        required
-                                        rows={4}
-                                        className="w-full rounded-lg bg-muted border border-transparent px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-border transition-colors resize-none"
-                                    />
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="message" className={fieldLabel}>Message</label>
+                                    <textarea id="message" name="message" value={formData.message} onChange={handleChange} required rows={5} className={`${field} resize-none`} />
                                 </div>
-
-                                {/* Submit */}
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full h-12 rounded-lg bg-foreground text-background text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
-                                >
-                                    {isSubmitting ? "Sending…" : (
-                                        <>
-                                            Send message
-                                            <ArrowRight className="w-4 h-4" />
-                                        </>
-                                    )}
-                                </button>
+                                <div className="sm:col-span-2">
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="h-11 rounded-[2px] bg-foreground px-6 text-[0.8125rem] text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                                    >
+                                        {isSubmitting ? "Sending…" : "Send message"}
+                                    </button>
+                                </div>
                             </form>
-                        ) : (
-                            <div className="space-y-4 text-sm text-muted-foreground">
-                                <p>The message form is not yet available.</p>
-                                <p>
-                                    Please reach out directly at{" "}
-                                    <a href="mailto:bandumanamperi@yahoo.com" className="text-foreground underline underline-offset-2">
-                                        bandumanamperi@yahoo.com
-                                    </a>
-                                </p>
+                        </div>
+                    ) : (
+                        <figure className={rightPageBleed}>
+                            <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1">
+                                <Image
+                                    src="/Iron Man.jpg"
+                                    alt="Bandu Manamperi ironing a white cloth on a street in front of the Old Parliament building in Colombo"
+                                    fill
+                                    className="object-cover"
+                                    sizes="(min-width: 1280px) 64vw, (min-width: 1024px) 56vw, 100vw"
+                                />
                             </div>
-                        )}
-                    </motion.div>
+                            <figcaption className="mt-2 text-[0.6875rem] text-muted-foreground">
+                                Iron Man, performance
+                            </figcaption>
+                        </figure>
+                    )}
 
                 </div>
             </div>
-        </section>
+        </Spread>
     );
 };
 

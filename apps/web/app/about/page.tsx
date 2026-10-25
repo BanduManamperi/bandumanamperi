@@ -1,83 +1,71 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import { CVSection } from "@/components/about/CVSection";
-import { VerticalScrollPanel } from "@/components/vertical-scroll-panel";
 import { getCVData } from "@/lib/data/cv";
+import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPageBleed } from "@/components/sheet/spread";
+import { DocumentSheet } from "@/components/sheet/document-sheet";
+import { body, caption, display, heading } from "@/components/sheet/type";
 
 export const metadata: Metadata = {
-    title: 'About | Bandu Manamperi',
-    description: 'About Bandu Manamperi - Biography, artistic practice, and curriculum vitae',
-}
+    title: "About",
+    description: "About Bandu Manamperi: biography, artistic practice, and curriculum vitae",
+};
 
 const practice = [
     {
-        title: "Performance Art",
-        body: "Manamperi's performance works engage directly with audiences, creating intimate and often challenging encounters that address themes of vulnerability, identity, and social critique.",
+        title: "Performance",
+        body: "Manamperi's performance works engage directly with audiences, creating intimate and often challenging encounters that address vulnerability, identity, and social critique.",
     },
     {
-        title: "Drawings & Installations",
-        body: "Through drawings and installations, he explores the intersection of personal narrative and collective memory, using minimalist aesthetics to convey complex emotional landscapes.",
+        title: "Drawing and installation",
+        body: "Through drawing and installation he explores where personal narrative meets collective memory, using spare means to carry complex emotional landscapes.",
     },
     {
-        title: "Mixed Media",
-        body: "His diverse use of materials reflects a commitment to experimentation, combining traditional techniques with contemporary approaches to create visually striking and conceptually rich works.",
+        title: "Mixed media",
+        body: "His range of materials reflects a commitment to experiment, joining traditional techniques with contemporary approaches.",
     },
 ];
 
 export default async function About() {
     const cvData = await getCVData();
-    const panel = "w-screen flex-shrink-0 h-full overflow-hidden";
 
     return (
-        <div className="flex flex-row h-full w-max flex-shrink-0">
-
-            {/* ── Panel 1: Artistic Practice ── */}
-            <div id="panel-practice" data-panel data-panel-label="Practice" className={panel}>
-                <section className="h-full flex items-center bg-background">
-                    <div className="w-full px-10 md:px-20 lg:px-32 xl:px-44 py-12">
-                        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
-                            Get to Know
-                        </p>
-                        <h1 className="font-heading text-[clamp(2.5rem,6vw,5.5rem)] font-normal leading-none tracking-tight text-foreground">
-                            Artistic Practice
-                        </h1>
-
-                        <div className="w-12 h-px bg-foreground/20 my-8" />
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
+        <SpreadRow>
+            <SpreadPanel id="panel-practice" label="Practice" section="About" index={1}>
+                <SpreadGrid>
+                    <div className={leftPage}>
+                        <h1 className={display}>Practice</h1>
+                        <div className="mt-8 max-w-[30rem] space-y-6 lg:mt-auto">
                             {practice.map((p) => (
-                                <div key={p.title}>
-                                    <h2 className="font-heading text-xl lg:text-2xl text-foreground mb-4">
-                                        {p.title}
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground font-light leading-relaxed">
-                                        {p.body}
-                                    </p>
-                                </div>
+                                <section key={p.title}>
+                                    <h2 className={heading}>{p.title}</h2>
+                                    <p className={`mt-2 ${body}`}>{p.body}</p>
+                                </section>
                             ))}
                         </div>
                     </div>
-                </section>
-            </div>
-
-            {/* ── Panel 2: Curriculum Vitae (scrolls vertically) ── */}
-            <VerticalScrollPanel label="CV">
-                <div className="min-h-full bg-background">
-                    <main className="pt-16 md:pt-24 pb-24">
-                        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-                            <div className="text-center mb-16">
-                                <p className="text-sm tracking-widest uppercase text-muted-foreground mb-4">
-                                    Background
-                                </p>
-                                <h2 className="font-heading text-4xl md:text-5xl mb-4">
-                                    Curriculum Vitae
-                                </h2>
-                            </div>
-                            <CVSection cvData={cvData} />
+                    <figure className={rightPageBleed}>
+                        <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1 grayscale">
+                            <Image
+                                src="/Numbed.jpg"
+                                alt="Four life-size figures suspended in a white gallery"
+                                fill
+                                priority
+                                className="object-cover"
+                                sizes="(min-width: 1280px) 64vw, (min-width: 1024px) 56vw, 100vw"
+                            />
                         </div>
-                    </main>
-                </div>
-            </VerticalScrollPanel>
+                        <figcaption className={`mt-2 ${caption}`}>Numbed, installation</figcaption>
+                    </figure>
+                </SpreadGrid>
+            </SpreadPanel>
 
-        </div>
+            <DocumentSheet id="panel-cv" section="About, curriculum vitae" handoff>
+                <div className="mx-auto max-w-[72rem] pt-8 lg:pt-12">
+                    <h2 className={`mb-12 ${display}`}>Curriculum vitae</h2>
+                    <CVSection cvData={cvData} />
+                </div>
+            </DocumentSheet>
+        </SpreadRow>
     );
 }

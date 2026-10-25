@@ -1,9 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, MapPin, CalendarPlus } from "lucide-react";
+import { Facts, body, caption, heading, textLink, title } from "@/components/sheet/type";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                               */
@@ -28,6 +25,8 @@ export interface ExhibitionDetailData {
     curatedBy?: string;
     coverImage?: string;
     coverAlt?: string;
+    /** Installation views and other photographs of the show. */
+    images: string[];
     about: string[];
     artist: {
         name: string;
@@ -55,12 +54,12 @@ function formatDateRange(startISO: string, endISO: string) {
     const a = parts(startISO);
     const b = parts(endISO);
     if (a.y !== b.y) {
-        return `${a.d} ${MONTHS[a.m]} ${a.y} – ${b.d} ${MONTHS[b.m]} ${b.y}`;
+        return `${a.d} ${MONTHS[a.m]} ${a.y} to ${b.d} ${MONTHS[b.m]} ${b.y}`;
     }
     if (a.m === b.m) {
-        return `${a.d} – ${b.d} ${MONTHS[b.m]} ${b.y}`;
+        return `${a.d} to ${b.d} ${MONTHS[b.m]} ${b.y}`;
     }
-    return `${a.d} ${MONTHS[a.m]} – ${b.d} ${MONTHS[b.m]} ${b.y}`;
+    return `${a.d} ${MONTHS[a.m]} to ${b.d} ${MONTHS[b.m]} ${b.y}`;
 }
 
 function formatTime(hhmm: string) {
@@ -72,7 +71,7 @@ function formatTime(hhmm: string) {
 
 function formatReception(r: NonNullable<ExhibitionDetailData["reception"]>) {
     const { d, m, y } = parts(r.date);
-    return `${d} ${MONTHS[m]} ${y}, ${formatTime(r.start)} – ${formatTime(r.end)}`;
+    return `${d} ${MONTHS[m]} ${y}, ${formatTime(r.start)} to ${formatTime(r.end)}`;
 }
 
 function buildDirectionsUrl(venue: string, address: string) {
@@ -100,185 +99,122 @@ function buildCalendarUrl(ex: ExhibitionDetailData) {
 }
 
 const STATUS: Record<ExhibitionStatus, { label: string; dot: string }> = {
-    "on-view": { label: "Now on view", dot: "bg-emerald-500 dark:bg-emerald-400" },
-    upcoming:  { label: "Upcoming",    dot: "bg-amber-500 dark:bg-amber-400" },
-    past:      { label: "Past",        dot: "bg-muted-foreground/40" },
+    "on-view": { label: "Now on view", dot: "bg-emerald-600" },
+    upcoming: { label: "Upcoming", dot: "bg-amber-600" },
+    past: { label: "Past", dot: "bg-muted-foreground/50" },
 };
-
-/* ------------------------------------------------------------------ */
-/*  Small presentational pieces                                         */
-/* ------------------------------------------------------------------ */
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="grid grid-cols-[110px_1fr] gap-x-4 py-3 border-b border-border last:border-b-0">
-            <dt className="text-xs uppercase tracking-[0.08em] text-muted-foreground self-start pt-0.5">
-                {label}
-            </dt>
-            <dd className="text-sm text-foreground">{value}</dd>
-        </div>
-    );
-}
-
-const sectionLabel = "text-xs uppercase tracking-[0.2em] text-muted-foreground";
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                           */
 /* ------------------------------------------------------------------ */
 
+// Laid out for a document sheet: the record and cover side by side, then the
+// reading text, then the installation views.
 export function ExhibitionDetail({ exhibition }: { exhibition: ExhibitionDetailData }) {
     const status = STATUS[exhibition.status];
-    const dateRange = formatDateRange(exhibition.startDate, exhibition.endDate);
+    const showVisitLinks = exhibition.status !== "past";
 
     return (
-        <article className="min-h-full bg-background pb-24">
-            <div className="px-10 md:px-20 lg:px-32 xl:px-44 pt-16">
+        <article className="mx-auto max-w-[72rem] pt-8 lg:pt-12">
+            <div className="grid grid-cols-1 gap-y-8 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)]">
+                <div className="flex flex-col lg:col-span-5">
+                    <p className="flex items-center gap-2 text-[0.75rem] text-foreground">
+                        <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} aria-hidden />
+                        {status.label}, {exhibition.type.toLowerCase()}
+                    </p>
+                    <h1 className={`mt-4 ${title}`}>{exhibition.title}</h1>
+                    {exhibition.dek && <p className={`mt-5 ${body}`}>{exhibition.dek}</p>}
 
-                {/* Back */}
-                <Link
-                    href="/exhibitions"
-                    className="group inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-12"
-                >
-                    <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-                    All exhibitions
-                </Link>
+                    <Facts
+                        className="mt-8 lg:mt-auto lg:pt-8"
+                        labelWidth="6rem"
+                        items={[
+                            { label: "Dates", value: formatDateRange(exhibition.startDate, exhibition.endDate) },
+                            { label: "Reception", value: exhibition.reception ? formatReception(exhibition.reception) : null },
+                            { label: "Venue", value: exhibition.venue },
+                            { label: "Address", value: exhibition.address },
+                            { label: "Curated by", value: exhibition.curatedBy },
+                        ]}
+                    />
 
-                <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                >
-                    {/* Status + type */}
-                    <div className="inline-flex items-center gap-2.5 mb-4">
-                        <span className={`h-2 w-2 rounded-full ${status.dot}`} />
-                        <span className="font-heading text-xs uppercase tracking-[0.2em] text-foreground">
-                            {status.label}
-                        </span>
-                        <span className="text-muted-foreground/30 mx-0.5">·</span>
-                        <span className="font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            {exhibition.type}
-                        </span>
-                    </div>
-
-                    {/* Title */}
-                    <h1 className="font-heading text-[clamp(2.5rem,5vw,4.5rem)] font-bold leading-[1.05] tracking-tight text-foreground max-w-4xl">
-                        {exhibition.title}
-                    </h1>
-
-                    {/* Dek */}
-                    {exhibition.dek && (
-                        <p className="mt-5 font-heading text-lg font-light leading-relaxed text-muted-foreground max-w-2xl">
-                            {exhibition.dek}
+                    {showVisitLinks && (
+                        <p className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[0.8125rem]">
+                            <a href={buildDirectionsUrl(exhibition.venue, exhibition.address)} target="_blank" rel="noopener noreferrer" className={textLink}>
+                                Get directions
+                            </a>
+                            <a href={buildCalendarUrl(exhibition)} target="_blank" rel="noopener noreferrer" className={textLink}>
+                                Add to calendar
+                            </a>
                         </p>
                     )}
+                </div>
 
-                    {/* Hero image */}
-                    {exhibition.coverImage && (
-                        <div className="mt-10 relative w-full aspect-[16/9] overflow-hidden rounded-xl bg-muted">
+                {exhibition.coverImage && (
+                    <figure className="order-first lg:order-none lg:col-span-7">
+                        <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)]">
                             <Image
                                 src={exhibition.coverImage}
                                 alt={exhibition.coverAlt ?? exhibition.title}
                                 fill
-                                sizes="(max-width: 1024px) 100vw, 80vw"
-                                className="object-cover"
                                 priority
+                                sizes="(min-width: 1024px) 56vw, 100vw"
+                                className="object-cover"
                             />
                         </div>
-                    )}
-
-                    {/* Body: reading column + detail rail */}
-                    <div className="mt-14 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 lg:gap-16 items-start">
-
-                        {/* Main reading column */}
-                        <div>
-                            {exhibition.about.length > 0 && (
-                                <section>
-                                    <p className={`${sectionLabel} mb-5`}>About the exhibition</p>
-                                    <div className="space-y-5">
-                                        {exhibition.about.map((para, i) => (
-                                            <p key={i} className="text-sm leading-[1.75] text-foreground/80">
-                                                {para}
-                                            </p>
-                                        ))}
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* About the artist */}
-                            <section className="mt-12 rounded-xl bg-muted/50 p-6 md:p-7">
-                                <p className={`${sectionLabel} mb-3`}>About the artist</p>
-                                <p className="text-sm leading-[1.7] text-foreground/80">
-                                    {exhibition.artist.blurb}
-                                </p>
-                                <Link
-                                    href={exhibition.artist.backgroundHref}
-                                    className="group mt-4 inline-flex items-center gap-2 text-sm tracking-wide text-foreground border-b border-foreground/80 pb-0.5 w-fit hover:border-foreground transition-colors"
-                                >
-                                    Read full background
-                                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                                </Link>
-                            </section>
-                        </div>
-
-                        {/* Detail rail */}
-                        <aside className="lg:sticky lg:top-16">
-                            <dl className="border-t border-border">
-                                <DetailRow label="Dates" value={dateRange} />
-                                {exhibition.reception && (
-                                    <DetailRow label="Reception" value={formatReception(exhibition.reception)} />
-                                )}
-                                <DetailRow label="Venue" value={exhibition.venue} />
-                                {exhibition.address && (
-                                    <DetailRow label="Address" value={exhibition.address} />
-                                )}
-                                {exhibition.curatedBy && (
-                                    <DetailRow label="Curated by" value={exhibition.curatedBy} />
-                                )}
-                            </dl>
-
-                            <div className="mt-6 flex flex-col gap-3">
-                                <a
-                                    href={buildDirectionsUrl(exhibition.venue, exhibition.address)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center gap-2 text-sm text-foreground border border-border rounded-lg px-4 py-2.5 hover:bg-muted transition-colors"
-                                >
-                                    <MapPin className="w-4 h-4" />
-                                    Get directions
-                                </a>
-                                <a
-                                    href={buildCalendarUrl(exhibition)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center gap-2 text-sm text-foreground border border-border rounded-lg px-4 py-2.5 hover:bg-muted transition-colors"
-                                >
-                                    <CalendarPlus className="w-4 h-4" />
-                                    Add to calendar
-                                </a>
-                            </div>
-                        </aside>
-                    </div>
-
-                    {/* Footer nav */}
-                    <div className="mt-20 pt-8 border-t border-border flex items-center justify-between">
-                        <Link
-                            href="/exhibitions"
-                            className="group inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-                            All exhibitions
-                        </Link>
-                        <Link
-                            href="/"
-                            className="group inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            Home
-                            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </Link>
-                    </div>
-
-                </motion.div>
+                        <figcaption className={`mt-2 ${caption}`}>{exhibition.title}, {exhibition.venue}</figcaption>
+                    </figure>
+                )}
             </div>
+
+            <div className="mt-16 grid grid-cols-1 gap-y-12 border-t border-border pt-10 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)]">
+                {exhibition.about.length > 0 && (
+                    <section className="lg:col-span-7">
+                        <h2 className={heading}>About the exhibition</h2>
+                        <div className="mt-5 max-w-[38rem] space-y-4">
+                            {exhibition.about.map((para, i) => (
+                                <p key={i} className={body}>
+                                    {para}
+                                </p>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                <section className="lg:col-span-4 lg:col-start-9">
+                    <h2 className={heading}>About the artist</h2>
+                    <p className={`mt-5 ${body}`}>{exhibition.artist.blurb}</p>
+                    <Link href={exhibition.artist.backgroundHref} className={`mt-4 inline-block text-[0.8125rem] ${textLink}`}>
+                        Read the full CV
+                    </Link>
+                </section>
+            </div>
+
+            {exhibition.images.length > 0 && (
+                <section className="mt-16 border-t border-border pt-10">
+                    <h2 className={heading}>Installation views</h2>
+                    <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-2">
+                        {exhibition.images.map((src, i) => (
+                            <figure key={src}>
+                                <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)]">
+                                    <Image src={src} alt={`${exhibition.title}, view ${i + 1}`} fill className="object-cover" sizes="(min-width: 768px) 40vw, 100vw" />
+                                </div>
+                                <figcaption className={`mt-2 ${caption}`}>
+                                    View {i + 1} of {exhibition.images.length}
+                                </figcaption>
+                            </figure>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            <nav aria-label="Exhibitions" className="mt-16 flex justify-between border-t border-border pt-6 text-[0.8125rem]">
+                <Link href="/exhibitions" className={textLink}>
+                    All exhibitions
+                </Link>
+                <Link href="/" className={textLink}>
+                    Home
+                </Link>
+            </nav>
         </article>
     );
 }

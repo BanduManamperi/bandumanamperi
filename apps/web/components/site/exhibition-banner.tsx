@@ -41,7 +41,7 @@ function ExhibitionBannerItem({ exhibition }: { exhibition: Exhibition }) {
                 </span>
                 {exhibition.venue && (
                     <span className="hidden md:inline text-sm font-light text-muted-foreground truncate">
-                        — {exhibition.venue}
+                        {exhibition.venue}
                     </span>
                 )}
                 <span className="hidden lg:inline text-sm font-light text-muted-foreground/70 shrink-0">

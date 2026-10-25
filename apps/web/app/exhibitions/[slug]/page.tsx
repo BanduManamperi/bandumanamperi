@@ -1,16 +1,9 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Exhibition } from "@/lib/actions/exhibitions";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getExhibitions, type Exhibition } from "@/lib/actions/exhibitions";
 import { getExhibitionImageUrl, generateExhibitionSlug } from "@/lib/utils/supabase-storage";
-import {
-    getExhibitionScheduleStatus,
-    getExhibitionYear,
-} from "@bandumanamperi/types";
-import { VerticalScrollPanel } from "@/components/vertical-scroll-panel";
+import { getExhibitionScheduleStatus, getExhibitionYear } from "@bandumanamperi/types";
+import { DocumentSheet } from "@/components/sheet/document-sheet";
 import { ExhibitionDetail, type ExhibitionDetailData, type ExhibitionStatus } from "@/components/exhibitions/exhibition-detail";
 
 const ARTIST_BLURB =
@@ -54,75 +47,44 @@ function mapExhibition(ex: Exhibition): ExhibitionDetailData {
         curatedBy: ex.curator || undefined,
         coverImage: getExhibitionImageUrl(ex.coverImage) ?? undefined,
         coverAlt: ex.name,
+        images: (ex.exhibitionImages ?? []).map((path) => getExhibitionImageUrl(path)).filter((u): u is string => Boolean(u)),
         about: aboutParagraphs,
         artist: {
             name: "Bandu Manamperi",
             blurb: ARTIST_BLURB,
-            backgroundHref: "/#panel-background",
+            backgroundHref: "/background",
         },
         timezone: "Asia/Colombo",
     };
 }
 
-export default function ExhibitionDetailPage() {
-    const params = useParams();
-    const slug = params.slug as string;
-    const [exhibition, setExhibition] = useState<Exhibition | null>(null);
-    const [loading, setLoading] = useState(true);
+interface PageProps {
+    params: Promise<{ slug: string }>;
+}
 
-    useEffect(() => {
-        if (!slug) return;
-        const load = async () => {
-            setLoading(true);
-            try {
-                const res = await fetch("/api/exhibitions");
-                if (res.ok) {
-                    const all: Exhibition[] = await res.json();
-                    const found = all.find(ex =>
-                        generateExhibitionSlug(ex.name, getExhibitionYear(ex)) === slug
-                    );
-                    setExhibition(found ?? null);
-                }
-            } catch (err) {
-                console.error("Error loading exhibition:", err);
-            }
-            setLoading(false);
-        };
-        load();
-    }, [slug]);
+async function findExhibition(slug: string) {
+    const all = await getExhibitions();
+    return all.find((ex) => generateExhibitionSlug(ex.name, getExhibitionYear(ex)) === slug) ?? null;
+}
 
-    if (loading) {
-        return (
-            <VerticalScrollPanel label="Exhibition">
-                <div className="min-h-full flex items-center justify-center">
-                    <p className="font-heading text-sm text-muted-foreground tracking-widest uppercase">
-                        Loading…
-                    </p>
-                </div>
-            </VerticalScrollPanel>
-        );
-    }
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const exhibition = await findExhibition((await params).slug);
+    if (!exhibition) return { title: "Exhibition not found" };
+    const cover = getExhibitionImageUrl(exhibition.coverImage);
+    return {
+        title: exhibition.name,
+        description: exhibition.about?.slice(0, 160) || `${exhibition.name}, ${exhibition.venue}.`,
+        openGraph: { title: `${exhibition.name} | Bandu Manamperi`, images: cover ? [cover] : undefined },
+    };
+}
 
-    if (!exhibition) {
-        return (
-            <VerticalScrollPanel label="Exhibition">
-                <div className="min-h-full flex flex-col items-start justify-center px-10 md:px-20 lg:px-32 xl:px-44">
-                    <p className="font-heading text-muted-foreground mb-6">Exhibition not found.</p>
-                    <Link
-                        href="/exhibitions"
-                        className="group inline-flex items-center gap-2 text-sm text-foreground border-b border-foreground/40 pb-0.5 hover:border-foreground transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        All exhibitions
-                    </Link>
-                </div>
-            </VerticalScrollPanel>
-        );
-    }
+export default async function ExhibitionDetailPage({ params }: PageProps) {
+    const exhibition = await findExhibition((await params).slug);
+    if (!exhibition) notFound();
 
     return (
-        <VerticalScrollPanel label="Exhibition">
+        <DocumentSheet section={`Exhibitions, ${getExhibitionYear(exhibition)}`}>
             <ExhibitionDetail exhibition={mapExhibition(exhibition)} />
-        </VerticalScrollPanel>
+        </DocumentSheet>
     );
 }

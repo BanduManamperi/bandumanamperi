@@ -1,32 +1,54 @@
 import { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
+import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPage } from "@/components/sheet/spread";
+import { Facts, TextLink, body, caption, display } from "@/components/sheet/type";
 
 export const metadata: Metadata = {
-    title: 'Art Framing & Restoration | Bandu Manamperi',
-    description: 'Professional art framing, restoration and conservation services by Bandu Manamperi.',
+    title: "Art Framing & Restoration",
+    description: "Professional art framing, restoration and conservation services by Bandu Manamperi.",
 };
 
 export default function ArtRestorationPage() {
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-            <p className="text-sm tracking-widest uppercase text-muted-foreground mb-6">
-                Professional Services
-            </p>
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl mb-6">
-                Art Framing &amp; Restoration
-            </h1>
-            <p className="text-muted-foreground max-w-xl font-light leading-relaxed mb-10">
-                Specialized restoration, conservation, and custom framing services. This page is currently being prepared.
-            </p>
-            <p className="font-heading text-2xl md:text-3xl font-light tracking-[0.2em] uppercase text-foreground mb-12">
-                Coming Soon
-            </p>
-            <Link
-                href="/contact"
-                className="text-sm tracking-widest uppercase border border-border px-8 py-3 text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
-            >
-                Get in Touch
-            </Link>
-        </div>
+        <SpreadRow>
+            <SpreadPanel id="panel-framing" label="Framing and restoration" section="Framing and restoration" index={1}>
+                <SpreadGrid>
+                    <div className={leftPage}>
+                        <h1 className={display}>Framing and restoration</h1>
+                        <p className={`mt-6 max-w-[30rem] ${body}`}>
+                            Restoration, conservation, and custom framing for paintings, works on
+                            paper, and sculpture. Manamperi is trained in the conservation of murals
+                            and paintings, and in stone conservation through UNESCO. A fuller page
+                            is being prepared; in the meantime, get in touch about a piece.
+                        </p>
+                        <Facts
+                            className="mt-8 max-w-[30rem] lg:mt-auto"
+                            labelWidth="6.5rem"
+                            items={[
+                                { label: "Services", value: "Restoration, conservation, custom framing" },
+                                { label: "Works", value: "Paintings, works on paper, sculpture, frames" },
+                                { label: "Studio", value: "Bandaragama, Sri Lanka" },
+                            ]}
+                        />
+                        <TextLink href="/contact" className="mt-6 self-start text-[0.8125rem]">
+                            Ask about a piece
+                        </TextLink>
+                    </div>
+                    <figure className={rightPage}>
+                        <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1">
+                            <Image
+                                src="/IMG_8614.JPG"
+                                alt="Bandu Manamperi working over tissue paper in his studio"
+                                fill
+                                priority
+                                className="object-cover object-[30%_40%]"
+                                sizes="(min-width: 1280px) 64vw, (min-width: 1024px) 56vw, 100vw"
+                            />
+                        </div>
+                        <figcaption className={`mt-2 ${caption}`}>In the studio</figcaption>
+                    </figure>
+                </SpreadGrid>
+            </SpreadPanel>
+        </SpreadRow>
     );
 }

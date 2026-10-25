@@ -3,6 +3,7 @@
  * Static fallback data. getCVData() fetches live data from Supabase (cv_entries table).
  */
 import { createClient } from '@/lib/supabase/server'
+import { withoutDashes } from "@/lib/text";
 
 export interface CVEntry {
     year: string;
@@ -30,7 +31,7 @@ export const cvData: CVData = {
     education: [
         {
             year: "2024",
-            title: "Advanced Stone Conservation Programme — UNESCO",
+            title: "Advanced Stone Conservation Programme, UNESCO",
         },
         {
             year: "2013",
@@ -48,7 +49,7 @@ export const cvData: CVData = {
         },
         {
             year: "2000",
-            title: "Bachelor of Fine Arts — BFA (Sculpture)",
+            title: "Bachelor of Fine Arts, BFA (Sculpture)",
             subtitle: "Institute of Aesthetic Studies, University of Kelaniya, Sri Lanka",
         },
     ],
@@ -65,21 +66,21 @@ export const cvData: CVData = {
             subtitle: "Colombo Performance Art Platform (co-founded with Dr. G. R. Constantine)",
         },
         {
-            year: "2020–Present",
-            title: "Member — Colombo Resource Panel 'Our Stories' Project",
+            year: "2020 to Present",
+            title: "Member, Colombo Resource Panel 'Our Stories' Project",
             subtitle: "The Asia Foundation in collaboration with Theertha",
         },
         {
-            year: "2005–Present",
-            title: "Chief Coordinator — Travelling Art Education Exhibition",
+            year: "2005 to Present",
+            title: "Chief Coordinator, Travelling Art Education Exhibition",
             subtitle: "Theertha International Artists' Collective (curated by Prof. Jagath Weerasinghe)",
         },
         {
-            year: "2015–present",
+            year: "2015 to present",
             title: "Supervisor, undergraduate students on thesis related to performance art and visual art in Sri Lanka",
         },
         {
-            year: "2013–present",
+            year: "2013 to present",
             title: "Lecturing in Museology, Diploma in Museology course",
             subtitle: "Postgraduate Institute of Archaeology, Colombo, Sri Lanka",
         },
@@ -87,43 +88,43 @@ export const cvData: CVData = {
 
     workExperiencePast: [
         {
-            year: "2010–2014",
-            title: "Research Administrator for Prof. Jagath Weerasinghe — Sethu Samuddram Community Art Project",
+            year: "2010 to 2014",
+            title: "Research Administrator for Prof. Jagath Weerasinghe, Sethu Samuddram Community Art Project",
             subtitle: "Theertha International Artists Collective of Sri Lanka and 1ShanthiRoad artists' organization, Bangalore, India",
         },
         {
-            year: "2010–2014",
-            title: "Chief Coordinator, Chief Project Manager and Training Instructor — Let's Take a Walk Contemporary Art Project",
+            year: "2010 to 2014",
+            title: "Chief Coordinator, Chief Project Manager and Training Instructor, Let's Take a Walk Contemporary Art Project",
             subtitle: "Theertha International Artists' Collective, Sri Lanka",
         },
         {
-            year: "2002–2014",
-            title: "Resource person for Art Teacher Training Workshops — Theertha ArtLab",
+            year: "2002 to 2014",
+            title: "Resource person for Art Teacher Training Workshops, Theertha ArtLab",
             subtitle: "In collaboration with Zonal Education Offices in Dehiattakandiya, Kegalle, Aludeniya, Kandy, Samanthurai, Akkaraipattu, Kalmunei, Polonnaruwa, Anuradhapura",
         },
         {
-            year: "2007–2013",
-            title: "Chief project manager and teacher training instructor — Art as a Third Channel project",
+            year: "2007 to 2013",
+            title: "Chief project manager and teacher training instructor, Art as a Third Channel project",
             subtitle: "In collaboration with Zonal Education Offices in Matara, Balangoda, Kandy, Akurassa",
         },
         {
-            year: "2007–2010",
-            title: "Chief Coordinator — \"Ape Gam Palatha\" (In Our Village Area) project",
+            year: "2007 to 2010",
+            title: "Chief Coordinator, \"Ape Gam Palatha\" (In Our Village Area) project",
             subtitle: "Theertha International Artists' Collective, curated by Prof. Jagath Weerasinghe, Colombo, Sri Lanka",
         },
         {
-            year: "2007–2009",
+            year: "2007 to 2009",
             title: "Consultant on stone carving and sculptures",
             subtitle: "Star Granite, Minuwangoda, Sri Lanka",
         },
         {
             year: "2010",
-            title: "Teacher and trainer, one-week workshop — Theertha International Women Artists' Residency 2009",
+            title: "Teacher and trainer, one-week workshop, Theertha International Women Artists' Residency 2009",
             subtitle: "Participants from India, Malaysia, Nepal, Sri Lanka",
         },
         {
             year: "2008",
-            title: "Chief Coordinator, Chief Project Manager and Training Instructor — \"Ape Gama\" and \"Ape Gampalatha\" Contemporary Art Project",
+            title: "Chief Coordinator, Chief Project Manager and Training Instructor, \"Ape Gama\" and \"Ape Gampalatha\" Contemporary Art Project",
             subtitle: "Theertha International Artists' Collective, Sri Lanka",
         },
         {
@@ -133,17 +134,17 @@ export const cvData: CVData = {
         },
         {
             year: "2007",
-            title: "Lecturer for 2nd year students — Modeling, casting and plaster carving",
+            title: "Lecturer for 2nd year students, Modeling, casting and plaster carving",
             subtitle: "Plymouth College of Art and Design, UK",
         },
         {
             year: "2006",
-            title: "Working committee member, Theertha International Artists' Workshop – 2006",
+            title: "Working committee member, Theertha International Artists' Workshop, 2006",
             subtitle: "Kandy, Sri Lanka",
         },
         {
             year: "2005",
-            title: "Curator panel member — \"Sri Lankan Visual Art, 20th Century\" Traveling Exhibition",
+            title: "Curator panel member, \"Sri Lankan Visual Art, 20th Century\" Traveling Exhibition",
             subtitle: "Under chief curator Prof. Jagath Weerasinghe, organized by Theertha Artists' Collective, Sri Lanka",
         },
         {
@@ -162,7 +163,7 @@ export const cvData: CVData = {
             subtitle: "Theertha International Artists' Collective, Colombo, Sri Lanka",
         },
         {
-            year: "2002–2003",
+            year: "2002 to 2003",
             title: "Art teacher",
             subtitle: "Vidyarathana University College, Horana, Sri Lanka",
         },
@@ -184,32 +185,32 @@ export const cvData: CVData = {
     groupExhibitions: [
         {
             year: "2026",
-            title: "'A Contemporary Convergence' — Group Exhibition curated by Suresh Dominic",
-            subtitle: "Curado Art Space, Colombo, Sri Lanka (19–31 March 2026)",
+            title: "'A Contemporary Convergence', Group Exhibition curated by Suresh Dominic",
+            subtitle: "Curado Art Space, Colombo, Sri Lanka (19 to 31 March 2026)",
         },
         {
             year: "2025",
-            title: "'NOSTOS' — Group Exhibition",
+            title: "'NOSTOS', Group Exhibition",
             subtitle: "The Barefoot Gallery, Colombo, Sri Lanka",
         },
         {
-            year: "2024–2025",
+            year: "2024 to 2025",
             title: "'Total Landscaping' (Rotation 3)",
             subtitle: "Museum of Modern and Contemporary Art Sri Lanka (MMCA), Colombo. Public programming supported by Nations Trust Bank",
         },
         {
             year: "2023",
-            title: "'Antibodies' — 24-hour Performance Marathon",
-            subtitle: "HH Art Spaces & The Tetley, Leeds, supported by British Council; Aguada Central Jail, Goa, India (17–18 March 2023)",
+            title: "'Antibodies', 24-hour Performance Marathon",
+            subtitle: "HH Art Spaces & The Tetley, Leeds, supported by British Council; Aguada Central Jail, Goa, India (17 to 18 March 2023)",
         },
         {
             year: "2022",
-            title: "'The Smell' — 4th Theertha Performance Platform",
+            title: "'The Smell', 4th Theertha Performance Platform",
             subtitle: "Theertha Red Dot Gallery, Sri Lanka",
         },
         {
             year: "2022",
-            title: "'The Black History' — International Print Exhibition",
+            title: "'The Black History', International Print Exhibition",
             subtitle: "Printmaking Gallery",
         },
         {
@@ -224,22 +225,22 @@ export const cvData: CVData = {
         },
         {
             year: "2020",
-            title: "'OBLAK Performances, Objects & Vulnerability' — online via Zoom",
+            title: "'OBLAK Performances, Objects & Vulnerability', online via Zoom",
             subtitle: "Performed at Borella Junction",
         },
         {
-            year: "2019–2020",
+            year: "2019 to 2020",
             title: "'One Hundred Thousand Small Tales'",
-            subtitle: "Museum of Modern and Contemporary Art Sri Lanka (MMCA), Colombo (Dec 2019 – Aug 2020)",
+            subtitle: "Museum of Modern and Contemporary Art Sri Lanka (MMCA), Colombo (Dec 2019 to Aug 2020)",
         },
         {
             year: "2019",
-            title: "'Texting Being' — Theertha Performance Platform 2019",
+            title: "'Texting Being', Theertha Performance Platform 2019",
             subtitle: "Theertha, Borella, Sri Lanka",
         },
         {
             year: "2019",
-            title: "'A Cross Section' — Group Exhibition of Sri Lankan Artists",
+            title: "'A Cross Section', Group Exhibition of Sri Lankan Artists",
             subtitle: "Jaleh Gallery, Tehran, Iran",
         },
         {
@@ -249,7 +250,7 @@ export const cvData: CVData = {
         },
         {
             year: "2018",
-            title: "'One Hundred Thousand Small Tales' — 4th Dhaka Art Summit",
+            title: "'One Hundred Thousand Small Tales', 4th Dhaka Art Summit",
             subtitle: "Bangladesh Shilpakala Academy, Dhaka, Bangladesh (curated by Sharmini Pereira, organised by Samdani Art Foundation)",
         },
         {
@@ -259,7 +260,7 @@ export const cvData: CVData = {
         },
         {
             year: "2017",
-            title: "ART CONNECT — Colombo Fashion Week 2017",
+            title: "ART CONNECT, Colombo Fashion Week 2017",
             subtitle: "Colombo, Sri Lanka",
         },
         {
@@ -269,7 +270,7 @@ export const cvData: CVData = {
         },
         {
             year: "2017",
-            title: "'Life and Time — The Changing Landscape'",
+            title: "'Life and Time, The Changing Landscape'",
             subtitle: "Academy of Fine Arts, Kolkata, India",
         },
         {
@@ -289,37 +290,37 @@ export const cvData: CVData = {
         },
         {
             year: "2016",
-            title: "'Washing Man' — performance, OPEN 6, curated by Nikhil Chopra",
+            title: "'Washing Man', performance, OPEN 6, curated by Nikhil Chopra",
             subtitle: "Open Studio Residency, The Heritage Hotel: Art Spaces, Goa, India",
         },
         {
             year: "2016",
-            title: "'Iron Man' — performance",
+            title: "'Iron Man', performance",
             subtitle: "India Art Fair, New Delhi, India",
         },
         {
             year: "2016",
-            title: "'Reading The Biography' — performance with G.R. Constantine",
+            title: "'Reading The Biography', performance with G.R. Constantine",
             subtitle: "Theertha Performance Evening, Colombo, Sri Lanka",
         },
         {
             year: "2016",
-            title: "'Developing Land' — performance",
+            title: "'Developing Land', performance",
             subtitle: "Theertha Performance Evening, Colombo, Sri Lanka",
         },
         {
             year: "2016",
-            title: "'Washing Man' — performance, Down Town Pulse 2016",
+            title: "'Washing Man', performance, Down Town Pulse 2016",
             subtitle: "Bakeriya Space, Colombo",
         },
         {
             year: "2015",
-            title: "'Dead Fish' — performance",
+            title: "'Dead Fish', performance",
             subtitle: "Theertha Performance Platform 1st Edition, Sri Lanka",
         },
         {
             year: "2014",
-            title: "'Me and My Image' — performance with Godwin Constantine",
+            title: "'Me and My Image', performance with Godwin Constantine",
             subtitle: "'Transforming Bodies', Colombo Dance Platform 2014",
         },
         {
@@ -329,7 +330,7 @@ export const cvData: CVData = {
         },
         {
             year: "2014",
-            title: "'Beware Wet Ink' — Digital Art Exhibition",
+            title: "'Beware Wet Ink', Digital Art Exhibition",
             subtitle: "Lionel Wendt Gallery, Colombo",
         },
         {
@@ -339,20 +340,20 @@ export const cvData: CVData = {
         },
         {
             year: "2014",
-            title: "'Making History' — Colombo Art Biennale, curated by Amit Jain",
+            title: "'Making History', Colombo Art Biennale, curated by Amit Jain",
         },
         {
             year: "2013",
-            title: "'Golden Barrel Man' (2nd performance) — 'WAR & PEACE: Visual Narratives from Contemporary Sri Lanka'",
+            title: "'Golden Barrel Man' (2nd performance), 'WAR & PEACE: Visual Narratives from Contemporary Sri Lanka'",
             subtitle: "Harold Pieris Gallery, Colombo",
         },
         {
             year: "2012",
-            title: "'Becoming' — 2nd Colombo Art Biennale, curated by Suresh Jayaram & Roman Berka",
+            title: "'Becoming', 2nd Colombo Art Biennale, curated by Suresh Jayaram & Roman Berka",
         },
         {
             year: "2011",
-            title: "'Crushing Eggs' — Live Art 2011",
+            title: "'Crushing Eggs', Live Art 2011",
             subtitle: "Bangalore Artists' Residency, India",
         },
         {
@@ -367,7 +368,7 @@ export const cvData: CVData = {
         },
         {
             year: "2011",
-            title: "'(de)-inscribed Memories' — Group Exhibition with Pradeep Chandrasiri",
+            title: "'(de) inscribed Memories', Group Exhibition with Pradeep Chandrasiri",
             subtitle: "Hempel Galleries, Colombo",
         },
         {
@@ -377,17 +378,17 @@ export const cvData: CVData = {
         },
         {
             year: "2011",
-            title: "Sethu Residency 1 — Shanthi Road @ Theertha 2010",
+            title: "Sethu Residency 1, Shanthi Road @ Theertha 2010",
             subtitle: "Red Dot Gallery, Colombo",
         },
         {
             year: "2009",
-            title: "'Imagining Peace' — 1st Colombo Art Biennale",
+            title: "'Imagining Peace', 1st Colombo Art Biennale",
             subtitle: "Curated by Prof. Jagath Weerasinghe & Annoushka Hampel, Sri Lanka",
         },
         {
             year: "2009",
-            title: "'Theertha — Works on Paper'",
+            title: "'Theertha, Works on Paper'",
             subtitle: "National Art Gallery, Maldives",
         },
         {
@@ -407,12 +408,12 @@ export const cvData: CVData = {
         },
         {
             year: "2007",
-            title: "'Buy 1 Get 1 Free' — HAT2 Programme",
+            title: "'Buy 1 Get 1 Free', HAT2 Programme",
             subtitle: "Plymouth College of Art and Design Gallery, UK",
         },
         {
             year: "2006",
-            title: "'The Maze' — Collaborative Art Project",
+            title: "'The Maze', Collaborative Art Project",
             subtitle: "Lionel Wendt Gallery, Colombo, Sri Lanka",
         },
         {
@@ -472,7 +473,7 @@ export const cvData: CVData = {
         },
         {
             year: "2000",
-            title: "'Artist for Peace' — Flag Exhibition",
+            title: "'Artist for Peace', Flag Exhibition",
             subtitle: "Selected Public Places, Sri Lanka",
         },
         {
@@ -510,17 +511,17 @@ export const cvData: CVData = {
     workshopsResidencies: [
         {
             year: "2025",
-            title: "Museum Intensive 3 (MI 3) — Integrated Pest Management & Archival Conservation Workshop",
-            subtitle: "MMCA Sri Lanka, Colombo (10–11 March 2025). Conducted by Nicola Walker, Senior Conservator, National Trust UK; developed in partnership with World Monuments Fund",
+            title: "Museum Intensive 3 (MI 3), Integrated Pest Management & Archival Conservation Workshop",
+            subtitle: "MMCA Sri Lanka, Colombo (10 to 11 March 2025). Conducted by Nicola Walker, Senior Conservator, National Trust UK; developed in partnership with World Monuments Fund",
         },
         {
             year: "2023",
-            title: "Artist Delegate & Collaborator — 7th Arts Collaboratory Assembly",
+            title: "Artist Delegate & Collaborator, 7th Arts Collaboratory Assembly",
             subtitle: "Netherlands (Utrecht, Amsterdam, Eindhoven). Represented Theertha International Artists' Collective",
         },
         {
             year: "2019",
-            title: "Artist in Residence — Theertha",
+            title: "Artist in Residence, Theertha",
             subtitle: "Colombo, Sri Lanka",
         },
         {
@@ -544,8 +545,8 @@ export const cvData: CVData = {
             subtitle: "The Heritage Hotel: Art Spaces, Goa, India",
         },
         {
-            year: "2015–ongoing",
-            title: "Participant — The Tale of Two Cities 2015",
+            year: "2015 to ongoing",
+            title: "Participant, The Tale of Two Cities 2015",
             subtitle: "One-year-long project for established artists of India and Sri Lanka, exploring Varanasi and Anuradhapura. Conceived by Renu Modi; sponsored by Espace Gallery, Theertha International Artists Collective and Serendipity Arts Trust",
         },
         {
@@ -555,12 +556,12 @@ export const cvData: CVData = {
         },
         {
             year: "2011",
-            title: "Workshop in Art History: Buddhist Iconography — conducted by Dr. Nandana Chutiwongs",
+            title: "Workshop in Art History: Buddhist Iconography, conducted by Dr. Nandana Chutiwongs",
             subtitle: "Postgraduate Institute of Archaeology (PGIAR), University of Kelaniya, Colombo",
         },
         {
             year: "2011",
-            title: "Workshop in Art History: Sri Lanka and Burma in the wider Buddhist world — conducted by Dr. Donald Stadner",
+            title: "Workshop in Art History: Sri Lanka and Burma in the wider Buddhist world, conducted by Dr. Donald Stadner",
             subtitle: "Former Associate Professor, University of Texas, Austin",
         },
         {
@@ -595,7 +596,7 @@ export const cvData: CVData = {
         },
         {
             year: "2007",
-            title: "HAT2 Programme: International Research Fellowship — Three months Residency",
+            title: "HAT2 Programme: International Research Fellowship, Three months Residency",
             subtitle: "Plymouth College of Art and Design, UK",
         },
         {
@@ -625,7 +626,7 @@ export const cvData: CVData = {
         },
         {
             year: "2000",
-            title: "Art Link — 4th International Artists' Camp",
+            title: "Art Link, 4th International Artists' Camp",
             subtitle: "Culture Club, Kandalama, Sri Lanka",
         },
         {
@@ -649,12 +650,12 @@ export const cvData: CVData = {
         {
             year: "2015",
             title: "Lecture and presentation on Performance Art and Photo Performance",
-            subtitle: "City School of Architecture (partnering with University of the West of England, Bristol, UK) — for 1st year students",
+            subtitle: "City School of Architecture (partnering with University of the West of England, Bristol, UK), for 1st year students",
         },
         {
             year: "2013",
-            title: "Talk on \"Golden Barrel Man – Performance artwork by Bandu Manamperi\"",
-            subtitle: "WAR & PEACE – Visual Narratives from contemporary Sri Lanka, Harold Pieris Gallery, Colombo, Sri Lanka",
+            title: "Talk on \"Golden Barrel Man, Performance artwork by Bandu Manamperi\"",
+            subtitle: "WAR & PEACE, Visual Narratives from contemporary Sri Lanka, Harold Pieris Gallery, Colombo, Sri Lanka",
         },
         {
             year: "2011",
@@ -664,12 +665,12 @@ export const cvData: CVData = {
         {
             year: "2010",
             title: "Lecture on \"Sri Lankan Performance Art\"",
-            subtitle: "German Culture Centre, Colombo — organized by Theertha International Artists' Collective, Pitakotte, Sri Lanka",
+            subtitle: "German Culture Centre, Colombo, organized by Theertha International Artists' Collective, Pitakotte, Sri Lanka",
         },
         {
             year: "2010",
             title: "Symposium on \"Sri Lanka Performance Art\"",
-            subtitle: "3rd Beyond Pressure Festival of Performance Art, Myanmar — Kargqwell Co-YIN KABAR Gallery",
+            subtitle: "3rd Beyond Pressure Festival of Performance Art, Myanmar, Kargqwell Co-YIN KABAR Gallery",
         },
     ],
 
@@ -690,14 +691,14 @@ type DBRow = {
 
 function rowsToEntries(rows: DBRow[]): CVEntry[] {
     return rows.map((r) => ({
-        year: r.year,
-        title: r.title,
-        subtitle: r.subtitle ?? undefined,
+        year: withoutDashes(r.year),
+        title: withoutDashes(r.title),
+        subtitle: r.subtitle ? withoutDashes(r.subtitle) : undefined,
     }));
 }
 
 function rowsToCollections(rows: DBRow[]): CVCollection[] {
-    return rows.map((r) => ({ name: r.title }));
+    return rows.map((r) => ({ name: withoutDashes(r.title) }));
 }
 
 /**

@@ -4,8 +4,8 @@ import ContactSection from './contactSection'
 import IntroAnimation from './introAnimation'
 import { UpcomingEventsSection } from './upcomingEventsSection'
 import { WorkSection } from './workSection'
-import { BackgroundSection } from './backgroundSection'
 import { getUpcomingExhibitions, getExhibitions } from '@/lib/actions/exhibitions'
+import { getNowShowing } from '@/lib/data/now-showing'
 
 const Home = async () => {
     // Prefer ongoing/upcoming events; fall back to recent past events so the
@@ -14,6 +14,8 @@ const Home = async () => {
     if (events.length === 0) {
         events = (await getExhibitions()).slice(0, 6)
     }
+
+    const nowShowing = getNowShowing(events)
 
     const panel = "w-screen flex-shrink-0 h-full overflow-hidden"
 
@@ -37,16 +39,8 @@ const Home = async () => {
                     </div>
                 )}
 
-                <div id="panel-background" data-panel data-panel-label="Background" className={panel}>
-                    <BackgroundSection />
-                </div>
-
                 <div id="panel-contact" data-panel data-panel-label="Contact" className={panel}>
-                    <ContactSection nowShowing={
-                        events[0]?.endDate
-                            ? { name: events[0].name, endDate: events[0].endDate }
-                            : undefined
-                    } />
+                    <ContactSection index={events.length > 0 ? 4 : 3} nowShowing={nowShowing} />
                 </div>
 
             </div>
