@@ -95,6 +95,7 @@ export default async function PageDetail({
       <article className="prose prose-lg dark:prose-invert mx-auto">
         {page.featuredImageUrl && (
           <div className="mb-8">
+            {/* eslint-disable-next-line @next/next/no-img-element -- featured images can be any URL an editor pastes, which next/image would need whitelisted */}
             <img
               src={page.featuredImageUrl}
               alt={page.title}

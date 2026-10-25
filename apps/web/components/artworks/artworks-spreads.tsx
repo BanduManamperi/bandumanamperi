@@ -3,7 +3,8 @@ import Link from "next/link";
 import type { CatalogueEntry } from "@/lib/data/artworks";
 import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPage, rightPageAfterText } from "@/components/sheet/spread";
 import { PanelLink } from "@/components/sheet/panel-link";
-import { Facts, TextLink, body, caption, display, title } from "@/components/sheet/type";
+import { WorkSpreadPanel } from "@/components/artworks/work-spread";
+import { Facts, TextLink, body, caption, display } from "@/components/sheet/type";
 
 type Props = {
     latest: CatalogueEntry[];
@@ -86,54 +87,14 @@ export function ArtworksSpreads({ latest, archive, intro }: Props) {
 
             {/* One spread per work */}
             {latest.map((e, i) => (
-                <SpreadPanel key={e.id} id={workPanelId(e)} label={`Cat. ${e.label}`} section={`Artworks, ${i + 1} of ${latest.length}`} index={i + 2}>
-                    <SpreadGrid>
-                        <div className={leftPage}>
-                            <p className={`${caption} tabular-nums`}>Cat. no. {e.label}</p>
-                            <h2 className={`mt-3 ${title}`}>{e.title}</h2>
-                            {e.sourceRef && <p className={`mt-2 ${caption}`}>Ref. {e.sourceRef}</p>}
-
-                            {e.description && <p className={`mt-6 line-clamp-6 max-w-[30rem] ${body}`}>{e.description}</p>}
-
-                            <Facts
-                                className="mt-8 max-w-[30rem] lg:mt-auto"
-                                items={[
-                                    { label: "Date", value: e.date },
-                                    { label: "Medium", value: e.medium },
-                                    { label: "Dimensions", value: e.dimensions },
-                                    { label: "Series", value: e.series },
-                                ]}
-                            />
-                            <TextLink href={e.href} className="mt-6 self-start text-[0.8125rem]">
-                                View the full record
-                            </TextLink>
-                        </div>
-
-                        <figure className={rightPage}>
-                            <Link
-                                href={e.href}
-                                tabIndex={-1}
-                                aria-hidden
-                                className="relative block aspect-[4/3] w-full lg:aspect-auto lg:flex-1"
-                            >
-                                {e.images[0] && (
-                                    <Image
-                                        src={e.images[0]}
-                                        alt=""
-                                        fill
-                                        className="object-contain object-left-bottom"
-                                        sizes="(min-width: 1280px) 64vw, (min-width: 1024px) 56vw, 100vw"
-                                        priority={i < 2}
-                                    />
-                                )}
-                            </Link>
-                            <figcaption className={`mt-2 ${caption}`}>
-                                {e.title}, {e.date}
-                                {e.medium ? `, ${e.medium}` : ""}
-                            </figcaption>
-                        </figure>
-                    </SpreadGrid>
-                </SpreadPanel>
+                <WorkSpreadPanel
+                    key={e.id}
+                    entry={e}
+                    panelId={workPanelId(e)}
+                    section={`Artworks, ${i + 1} of ${latest.length}`}
+                    index={i + 2}
+                    priority={i < 2}
+                />
             ))}
 
             {/* Into the archive */}

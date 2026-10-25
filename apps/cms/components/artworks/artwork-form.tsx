@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { createClient } from "@/lib/supabase/client"
 import {
   Dialog,
   DialogContent,
@@ -34,8 +33,13 @@ import type {
   ExhibitionHistory,
 } from "@/lib/types/artwork"
 import { createArtwork, updateArtwork } from "@/lib/actions/artworks"
+import { findTitleMatches, resolveTitleDecision, type TitleMatch } from "@/lib/actions/series"
+import { discardUploads, uploadImage } from "@/lib/storage/images"
+import { TitleChoice, type TitleChoiceValue } from "@/components/artworks/title-choice"
+import { ImageList, imagesFromArtwork, type ImageItem } from "@/components/artworks/form/image-list"
+import { SeriesPicker, type SeriesPick } from "@/components/artworks/form/series-picker"
+import { ExhibitionPicker } from "@/components/artworks/form/exhibition-picker"
 import { generateSlug, validateSlug } from "@/lib/utils/slug"
-import Image from "next/image"
 
 interface ArtworkFormProps {
   artwork?: Artwork | null
@@ -43,16 +47,8 @@ interface ArtworkFormProps {
   onOpenChange: (open: boolean) => void
 }
 
-function generateUniqueName(file: File): string {
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(2, 15)
-  const extension = file.name.split(".").pop()
-  return `${timestamp}-${random}.${extension}`
-}
-
 export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
   const router = useRouter()
-  const supabase = createClient()
   const isEditing = !!artwork
 
   const [formData, setFormData] = useState<ArtworkInsert>({
@@ -88,11 +84,14 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  // Duplicate-title check: the title that was checked, what it matched, and the user's answer
+  const [checkedTitle, setCheckedTitle] = useState<string | null>(null)
+  const [titleMatch, setTitleMatch] = useState<TitleMatch | null>(null)
+  const [titleChoice, setTitleChoice] = useState<TitleChoiceValue>({ kind: null, number: 1, editionSize: null })
   const [tagInput, setTagInput] = useState("")
-  const [mediaFiles, setMediaFiles] = useState<File[]>([])
-  const [mediaPreviews, setMediaPreviews] = useState<Record<string, string>>({})
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>("")
+  // The work's images in order; the first is the main image
+  const [images, setImages] = useState<ImageItem[]>([])
+  const [seriesPick, setSeriesPick] = useState<SeriesPick>({ seriesId: null, seriesNumber: null })
   const [autoGenerateSlug, setAutoGenerateSlug] = useState(true)
   const [exhibitionHistory, setExhibitionHistory] = useState<ExhibitionHistory[]>([])
 
@@ -130,10 +129,8 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         media: artwork.media || [],
       })
       setAutoGenerateSlug(false)
-      setThumbnailPreview(artwork.thumbnailPath || "")
-      setThumbnailFile(null)
-      setMediaFiles([])
-      setMediaPreviews({})
+      setImages(imagesFromArtwork(artwork.thumbnailPath, artwork.media))
+      setSeriesPick({ seriesId: artwork.seriesId ?? null, seriesNumber: artwork.seriesNumber ?? null })
       setExhibitionHistory(artwork.exhibitionHistory || [])
     } else {
       setFormData({
@@ -168,10 +165,8 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         media: [],
       })
       setAutoGenerateSlug(true)
-      setThumbnailPreview("")
-      setThumbnailFile(null)
-      setMediaFiles([])
-      setMediaPreviews({})
+      setImages([])
+      setSeriesPick({ seriesId: null, seriesNumber: null })
       setExhibitionHistory([])
     }
   }, [artwork, open])
@@ -183,50 +178,6 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
       setFormData((prev) => ({ ...prev, slug }))
     }
   }, [formData.title, autoGenerateSlug])
-
-  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setThumbnailFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setThumbnailPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    setMediaFiles((prev) => [...prev, ...files])
-
-    files.forEach((file) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setMediaPreviews((prev) => ({
-          ...prev,
-          [file.name]: reader.result as string,
-        }))
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
-  const removeMediaFile = (fileName: string) => {
-    setMediaFiles((prev) => prev.filter((f) => f.name !== fileName))
-    setMediaPreviews((prev) => {
-      const newPreviews = { ...prev }
-      delete newPreviews[fileName]
-      return newPreviews
-    })
-  }
-
-  const removeMediaUrl = (url: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      media: (prev.media || []).filter((m) => m !== url),
-    }))
-  }
 
   const handleAddTag = () => {
     if (tagInput.trim()) {
@@ -245,42 +196,10 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
     }))
   }
 
-  const handleAddExhibition = () => {
-    setExhibitionHistory([
-      ...exhibitionHistory,
-      {
-        name: "",
-        venue: "",
-        startDate: "",
-        endDate: "",
-        dates: "",
-        about: "",
-        curator: "",
-        coverImage: null,
-        exhibitionImages: [],
-        type: "group" as const,
-        otherArtists: null,
-      },
-    ])
-  }
-
-  const handleUpdateExhibition = (
-    index: number,
-    field: keyof ExhibitionHistory,
-    value: string
-  ) => {
-    const updated = [...exhibitionHistory]
-    updated[index] = { ...updated[index], [field]: value }
-    setExhibitionHistory(updated)
-  }
-
-  const handleRemoveExhibition = (index: number) => {
-    setExhibitionHistory(exhibitionHistory.filter((_, i) => i !== index))
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    let uploadedThisSave: string[] = []
 
     try {
       // Validate required fields
@@ -294,112 +213,57 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         return
       }
 
-      let thumbnailPath = formData.thumbnailPath
-
-      // Upload thumbnail if new file is selected
-      if (thumbnailFile) {
-        // Verify user is authenticated
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser()
-
-        if (authError || !user) {
-          throw new Error("You must be logged in to upload files. Please refresh the page and try again.")
-        }
-
-        const uniqueName = generateUniqueName(thumbnailFile)
-        const timestamp = Date.now()
-        const filePath = `thumbnails/${timestamp}-${uniqueName}`
-
-        const { data: uploadData, error: storageError } = await supabase.storage
-          .from("artworks")
-          .upload(filePath, thumbnailFile, {
-            cacheControl: "3600",
-            upsert: false,
-          })
-
-        if (storageError) {
-          console.error("Thumbnail upload error:", storageError)
-          // Provide more helpful error messages
-          if (storageError.message.includes("row-level security")) {
-            throw new Error(
-              "Storage bucket not configured. Please run the database-storage-artworks-bucket.sql script in your Supabase SQL Editor."
-            )
+      // A title already in use must be answered: edition, version, series or separate work
+      const sameAsBefore = isEditing && formData.title.trim().toLowerCase() === (artwork?.title ?? "").trim().toLowerCase()
+      if (!sameAsBefore) {
+        if (checkedTitle !== formData.title) {
+          const matches = await findTitleMatches(formData.title, artwork?.id)
+          setCheckedTitle(formData.title)
+          setTitleMatch(matches[0] ?? null)
+          setTitleChoice({ kind: null, number: 1, editionSize: null })
+          if (matches.length > 0) {
+            toast.info("This title is already used. Choose what this work is, then save again.")
+            return
           }
-          throw new Error(`Failed to upload thumbnail: ${storageError.message}`)
+        } else if (titleMatch && !titleChoice.kind) {
+          toast.error("Choose what this work is before saving.")
+          return
         }
-
-        if (!uploadData) {
-          throw new Error("Upload succeeded but no data returned")
-        }
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("artworks").getPublicUrl(filePath)
-
-        if (!publicUrl) {
-          throw new Error("Failed to get public URL for uploaded thumbnail")
-        }
-
-        thumbnailPath = publicUrl
       }
 
-      // Upload media files
-      const uploadedMediaUrls: string[] = []
-      for (const file of mediaFiles) {
-        try {
-          const uniqueName = generateUniqueName(file)
-          const timestamp = Date.now()
-          const filePath = `media/${timestamp}-${uniqueName}`
+      // Upload new images in list order; the first image is the main one
+      uploadedThisSave = []
+      const imageUrls: string[] = []
+      for (const [index, item] of images.entries()) {
+        if (item.kind === "saved") {
+          imageUrls.push(item.url)
+        } else {
+          const url = await uploadImage(item.file, index === 0 ? "thumbnails" : "media")
+          uploadedThisSave.push(url)
+          imageUrls.push(url)
+        }
+      }
 
-          const { data: uploadData, error: storageError } = await supabase.storage
-            .from("artworks")
-            .upload(filePath, file, {
-              cacheControl: "3600",
-              upsert: false,
+      const relation =
+        titleMatch && checkedTitle === formData.title && titleChoice.kind && titleChoice.kind !== "separate"
+          ? await resolveTitleDecision({
+              kind: titleChoice.kind,
+              originalId: titleMatch.original.id,
+              number: titleChoice.number,
+              editionSize: titleChoice.editionSize,
             })
-
-          if (storageError) {
-            console.error("Media upload error:", storageError)
-            // Provide more helpful error messages
-            if (storageError.message.includes("row-level security")) {
-              throw new Error(
-                "Storage bucket not configured. Please run the database-storage-artworks-bucket.sql script in your Supabase SQL Editor."
-              )
-            }
-            throw new Error(`Failed to upload media: ${storageError.message}`)
-          }
-
-          if (!uploadData) {
-            throw new Error("Upload succeeded but no data returned")
-          }
-
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from("artworks").getPublicUrl(filePath)
-
-          if (!publicUrl) {
-            throw new Error("Failed to get public URL for uploaded media")
-          }
-
-          uploadedMediaUrls.push(publicUrl)
-        } catch (error) {
-          console.error("Error uploading media:", error)
-          throw error
-        }
-      }
-
-      // Combine existing media with newly uploaded ones
-      const allMediaUrls = [
-        ...(formData.media || []),
-        ...uploadedMediaUrls,
-      ]
+          : {}
 
       const artworkData: ArtworkInsert = {
         ...formData,
-        thumbnailPath,
-        media: allMediaUrls,
+        // The series is set by its id; the database fills in the name
+        series: undefined,
+        seriesId: seriesPick.seriesId,
+        seriesNumber: seriesPick.seriesId ? seriesPick.seriesNumber : null,
+        // A duplicate-title decision (edition, version, series) wins over the picker
+        ...relation,
+        thumbnailPath: imageUrls[0] ?? null,
+        media: imageUrls,
         exhibitionHistory: exhibitionHistory.filter(
           (e) => e.name && e.venue && (e.startDate || e.dates)
         ),
@@ -422,6 +286,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         router.refresh()
       }, 100)
     } catch (error) {
+      if (uploadedThisSave.length > 0) await discardUploads(uploadedThisSave)
       console.error("Error saving artwork:", error)
       toast.error(
         error instanceof Error ? error.message : "Failed to save artwork"
@@ -526,16 +391,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="series">Series</Label>
-              <Input
-                id="series"
-                value={formData.series || ""}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, series: e.target.value }))
-                }
-              />
-            </div>
+            <SeriesPicker value={seriesPick} onChange={setSeriesPick} disabled={isLoading} />
             <div className="space-y-2">
               <Label htmlFor="tags">Tags</Label>
               <div className="flex gap-2">
@@ -875,138 +731,32 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
             </div>
           </div>
 
-          {/* Media */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Media</h3>
-            <div className="space-y-2">
-              <Label htmlFor="thumbnail">Thumbnail</Label>
-              <Input
-                id="thumbnail"
-                type="file"
-                accept="image/*"
-                onChange={handleThumbnailChange}
-              />
-              {thumbnailPreview && (
-                <div className="mt-2 relative h-32 w-32">
-                  <Image
-                    src={thumbnailPreview}
-                    alt="Thumbnail preview"
-                    fill
-                    className="object-cover rounded"
-                    unoptimized
-                  />
-                </div>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="media">Media Files</Label>
-              <Input
-                id="media"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleMediaChange}
-              />
-              {mediaFiles.length > 0 && (
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  {mediaFiles.map((file) => (
-                    <div key={file.name} className="relative h-24 w-24">
-                      <Image
-                        src={mediaPreviews[file.name]}
-                        alt={file.name}
-                        fill
-                        className="object-cover rounded"
-                        unoptimized
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-0 right-0 z-10"
-                        onClick={() => removeMediaFile(file.name)}
-                      >
-                        ×
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {formData.media && formData.media.length > 0 && (
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  {formData.media.map((url) => (
-                    <div key={url} className="relative h-24 w-24">
-                      <Image
-                        src={url}
-                        alt="Media"
-                        fill
-                        className="object-cover rounded"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-0 right-0 z-10"
-                        onClick={() => removeMediaUrl(url)}
-                      >
-                        ×
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          {/* Images */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold">Images</h3>
+            <ImageList images={images} onChange={setImages} disabled={isLoading} />
           </div>
 
-          {/* Exhibition History */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Exhibition History</h3>
-              <Button type="button" variant="outline" onClick={handleAddExhibition}>
-                Add Exhibition
-              </Button>
-            </div>
-            {exhibitionHistory.map((exhibition, index) => (
-              <div key={index} className="grid grid-cols-4 gap-2 p-2 border rounded">
-                <Input
-                  placeholder="Exhibition Name"
-                  value={exhibition.name}
-                  onChange={(e) =>
-                    handleUpdateExhibition(index, "name", e.target.value)
-                  }
-                />
-                <Input
-                  placeholder="Venue"
-                  value={exhibition.venue}
-                  onChange={(e) =>
-                    handleUpdateExhibition(index, "venue", e.target.value)
-                  }
-                />
-                <Input
-                  type="date"
-                  placeholder="Start date"
-                  value={exhibition.startDate || ""}
-                  onChange={(e) =>
-                    handleUpdateExhibition(index, "startDate", e.target.value)
-                  }
-                />
-                <Input
-                  type="date"
-                  placeholder="End date"
-                  value={exhibition.endDate || ""}
-                  onChange={(e) =>
-                    handleUpdateExhibition(index, "endDate", e.target.value)
-                  }
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => handleRemoveExhibition(index)}
-                >
-                  Remove
-                </Button>
-              </div>
-            ))}
-          </div>
+          <ExhibitionPicker value={exhibitionHistory} onChange={setExhibitionHistory} disabled={isLoading} />
+
+          {titleMatch && checkedTitle === formData.title && (
+            <TitleChoice
+              title={(formData.title ?? "").trim()}
+              original={{
+                title: titleMatch.original.title,
+                year: titleMatch.original.year,
+                thumbnailPath: titleMatch.original.thumbnailPath,
+                editionSize: titleMatch.original.editionSize,
+                seriesName: titleMatch.original.seriesName,
+                count: titleMatch.count,
+                nextEditionNumber: titleMatch.nextEditionNumber,
+                nextVersionNumber: titleMatch.nextVersionNumber,
+                nextSeriesNumber: titleMatch.nextSeriesNumber,
+              }}
+              value={titleChoice}
+              onChange={setTitleChoice}
+            />
+          )}
 
           <DialogFooter>
             <Button

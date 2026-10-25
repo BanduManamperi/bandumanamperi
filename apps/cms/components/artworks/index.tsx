@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 import { useState, useEffect, useMemo } from "react"
 import {
     IconDotsVertical,
@@ -42,7 +44,8 @@ import {
 } from "@/components/ui/table"
 import { ArtworkForm } from "./artwork-form"
 import { ArtworkPreview } from "./artwork-preview"
-import { ArtworkBulkUpload } from "./artwork-bulk-upload"
+import { BulkActions } from "./bulk-actions"
+import { Checkbox } from "@/components/ui/checkbox"
 import type { Artwork, ArtworkStatus } from "@/lib/types/artwork"
 import { deleteArtwork, duplicateArtwork } from "@/lib/actions/artworks"
 import { useRouter } from "next/navigation"
@@ -59,12 +62,12 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
     const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks)
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-    const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
     const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null)
     const [previewArtwork, setPreviewArtwork] = useState<Artwork | null>(null)
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [statusFilter, setStatusFilter] = useState<string>("all")
     const [categoryFilter, setCategoryFilter] = useState<string>("all")
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
     const supabase = useMemo(() => createClient(), [])
 
@@ -91,6 +94,21 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
         }
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     })
+
+    // Selected works in the order the list shows them, so bulk numbering follows it
+    const selectedArtworks = sortedArtworks.filter((a) => selectedIds.has(a.id))
+    const allShownSelected = sortedArtworks.length > 0 && sortedArtworks.every((a) => selectedIds.has(a.id))
+
+    const toggleSelected = (id: string) =>
+        setSelectedIds((prev) => {
+            const next = new Set(prev)
+            if (next.has(id)) next.delete(id)
+            else next.add(id)
+            return next
+        })
+
+    const toggleAllShown = () =>
+        setSelectedIds(allShownSelected ? new Set() : new Set(sortedArtworks.map((a) => a.id)))
 
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this artwork?")) {
@@ -254,13 +272,11 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
                                     />
                                     <span className="hidden sm:inline">Refresh</span>
                                 </Button>
-                                <Button
-                                    onClick={() => setIsBulkUploadOpen(true)}
-                                    variant="outline"
-                                    size="sm"
-                                >
-                                    <IconUpload className="size-4" />
-                                    <span className="hidden sm:inline">Bulk Upload</span>
+<Button asChild variant="outline" size="sm">
+                                    <Link href="/protected/artworks/upload">
+                                        <IconUpload className="size-4" />
+                                        <span className="hidden sm:inline">Upload works</span>
+                                    </Link>
                                 </Button>
                                 <Button onClick={handleNewArtwork}>
                                     <IconPlus className="size-4" />
@@ -311,6 +327,13 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
+                                        <TableHead className="w-10">
+                                            <Checkbox
+                                                checked={allShownSelected}
+                                                onCheckedChange={toggleAllShown}
+                                                aria-label="Select all shown artworks"
+                                            />
+                                        </TableHead>
                                         <TableHead className="w-[100px]">Image</TableHead>
                                         <TableHead>Title</TableHead>
                                         <TableHead>Category</TableHead>
@@ -325,7 +348,7 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
                                     {sortedArtworks.length === 0 ? (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={8}
+                                                colSpan={9}
                                                 className="text-center py-8 text-muted-foreground"
                                             >
                                                 No artworks found. Click &quot;New Artwork&quot; to get started.
@@ -340,7 +363,14 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
                                                     : null
 
                                             return (
-                                                <TableRow key={artwork.id}>
+                                                <TableRow key={artwork.id} data-state={selectedIds.has(artwork.id) ? "selected" : undefined}>
+                                                    <TableCell>
+                                                        <Checkbox
+                                                            checked={selectedIds.has(artwork.id)}
+                                                            onCheckedChange={() => toggleSelected(artwork.id)}
+                                                            aria-label={`Select ${artwork.title || "Untitled"}`}
+                                                        />
+                                                    </TableCell>
                                                     <TableCell>
                                                         {imageUrl ? (
                                                             <div className="relative h-16 w-16 overflow-hidden rounded-md">
@@ -360,11 +390,16 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
                                                     <TableCell>
                                                         <div>
                                                             <div className="font-medium">{artwork.title || "Untitled"}</div>
-                                                            {artwork.year && (
-                                                                <div className="text-sm text-muted-foreground">
-                                                                    {artwork.year}
-                                                                </div>
-                                                            )}
+                                                            <div className="text-sm text-muted-foreground">
+                                                                {[
+                                                                    artwork.year,
+                                                                    artwork.relationType === "edition" ? `Edition ${artwork.relationNumber ?? ""}`.trim() : null,
+                                                                    artwork.relationType === "version" ? `Version ${artwork.relationNumber ?? ""}`.trim() : null,
+                                                                    artwork.series ? `${artwork.series}${artwork.seriesNumber ? `, no. ${artwork.seriesNumber}` : ""}` : null,
+                                                                ]
+                                                                    .filter(Boolean)
+                                                                    .join(" · ")}
+                                                            </div>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
@@ -458,6 +493,14 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
                     }
                 }}
             />
+            <BulkActions
+                selected={selectedArtworks}
+                onClear={() => setSelectedIds(new Set())}
+                onDone={() => {
+                    setSelectedIds(new Set())
+                    router.refresh()
+                }}
+            />
             <ArtworkPreview
                 artwork={previewArtwork}
                 open={isPreviewOpen}
@@ -468,15 +511,7 @@ const Artworks = ({ initialArtworks }: ArtworksProps) => {
                     }
                 }}
             />
-            <ArtworkBulkUpload
-                open={isBulkUploadOpen}
-                onOpenChange={(open) => {
-                    setIsBulkUploadOpen(open)
-                    if (!open) {
-                        router.refresh()
-                    }
-                }}
-            />
+
         </div>
     )
 }
