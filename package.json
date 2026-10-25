@@ -6,9 +6,11 @@
     "dev": "pnpm --filter \"./apps/*\" dev",
     "dev:web": "pnpm --filter @bandumanamperi/web dev",
     "dev:cms": "pnpm --filter @bandumanamperi/cms dev",
+    "dev:studio": "pnpm --filter @bandumanamperi/studio dev",
     "build": "pnpm --filter \"./apps/*\" build",
     "build:web": "pnpm --filter @bandumanamperi/web build",
     "build:cms": "pnpm --filter @bandumanamperi/cms build",
+    "build:studio": "pnpm --filter @bandumanamperi/studio build",
     "lint": "pnpm --filter \"./apps/*\" lint",
     "clean": "pnpm --filter \"./apps/*\" exec rm -rf node_modules .next",
     "clean:all": "rm -rf node_modules && pnpm clean"

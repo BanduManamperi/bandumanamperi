@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --wall: #efefef;
+  --well: #e4e4e4;
+  --ink: #171717;
+  --mute: #5f5f5f;
+  --line: #d2d2d2;
+  --paper: #f7f7f7;
+}
+
+@theme inline {
+  --font-sans: var(--font-noto-sans);
+  --color-wall: var(--wall);
+  --color-well: var(--well);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-line: var(--line);
+  --color-paper: var(--paper);
+}
+
+body {
+  background: var(--wall);
+  color: var(--ink);
+  font-family: var(--font-noto-sans), sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Viewing room. Source order is picture, label, index so the work is read first.
+   On a wide screen the index moves to the left and each column scrolls alone. */
+.room {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.room-picture {
+  position: relative;
+  min-height: 72vw;
+  background: var(--well);
+}
+
+.room-label {
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.room-index {
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 64rem) {
+  .room {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 16.5rem minmax(0, 1fr) 20rem;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "index picture label";
+    overflow: hidden;
+  }
+
+  .room-index {
+    grid-area: index;
+    overflow-y: auto;
+    border-top: 0;
+    border-right: 1px solid var(--line);
+  }
+
+  .room-picture {
+    grid-area: picture;
+    min-height: 0;
+  }
+
+  .room-label {
+    grid-area: label;
+    overflow-y: auto;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+}
