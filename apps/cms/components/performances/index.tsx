@@ -127,8 +127,8 @@ export function Performances({ initialPerformances }: PerformancesProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="@container/main flex flex-1 flex-col gap-6">
+      <div className="flex items-center justify-between px-4 pt-6 lg:px-6">
         <div>
           <h1 className="text-3xl font-bold">Performances</h1>
           <p className="text-muted-foreground">
@@ -155,7 +155,7 @@ export function Performances({ initialPerformances }: PerformancesProps) {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-4 px-4 lg:px-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total</CardTitle>
@@ -191,7 +191,7 @@ export function Performances({ initialPerformances }: PerformancesProps) {
       </div>
 
       {/* Filters */}
-      <div className="space-y-2">
+      <div className="space-y-2 px-4 lg:px-6">
         {types.length > 0 && (
           <div className="flex gap-2 flex-wrap">
             <span className="text-sm text-muted-foreground self-center">Type:</span>
@@ -242,7 +242,7 @@ export function Performances({ initialPerformances }: PerformancesProps) {
       </div>
 
       {/* Performance Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 px-4 pb-6 lg:px-6">
         {filteredPerformances.map((performance) => {
           const coverUrl = getCoverImageUrl(performance.coverImage)
           return (
@@ -325,7 +325,7 @@ export function Performances({ initialPerformances }: PerformancesProps) {
       </div>
 
       {filteredPerformances.length === 0 && (
-        <div className="text-center py-12">
+        <div className="text-center py-12 px-4 lg:px-6">
           <IconCalendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">No performances found</p>
           <Button onClick={handleNewPerformance} className="mt-4">

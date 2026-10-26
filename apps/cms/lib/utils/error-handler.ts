@@ -113,12 +113,13 @@ export const ErrorMessages = {
   EXHIBITION_DELETE_FAILED: "Failed to delete exhibition. It may be referenced by artworks.",
   
   // Collection errors
-  COLLECTION_NOT_FOUND: "Collection not found.",
-  COLLECTION_CREATE_FAILED: "Failed to create collection. Please try again.",
-  COLLECTION_UPDATE_FAILED: "Failed to update collection. Please try again.",
-  COLLECTION_DELETE_FAILED: "Failed to delete collection. Please try again.",
-  COLLECTION_NAME_REQUIRED: "Collection name is required.",
-  COLLECTION_NO_ARTWORKS: "Please select at least one artwork for the collection.",
+  COLLECTION_NOT_FOUND: "Series not found.",
+  COLLECTION_CREATE_FAILED: "Failed to create the series. Please try again.",
+  COLLECTION_UPDATE_FAILED: "Failed to update the series. Please try again.",
+  COLLECTION_DELETE_FAILED: "Failed to delete the series. Please try again.",
+  COLLECTION_NAME_REQUIRED: "Series name is required.",
+  COLLECTION_NO_ARTWORKS: "Select at least one artwork.",
+  SERIES_DUPLICATE_NAME: "A series with this name already exists.",
   
   // Validation errors
   REQUIRED_FIELD: "This field is required.",

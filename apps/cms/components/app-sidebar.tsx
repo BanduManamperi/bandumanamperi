@@ -14,6 +14,7 @@ import {
   IconCalendar,
   IconMicrophone,
   IconFileText,
+  IconId,
   IconPlus,
   IconSearch,
   IconLifebuoy,
@@ -56,8 +57,8 @@ const data = {
       icon: IconFolder,
     },
     {
-      title: "Collections",
-      url: "/protected/collections",
+      title: "Series",
+      url: "/protected/series",
       icon: IconFolders,
     },
     {
@@ -91,6 +92,11 @@ const data = {
       title: "Media Library",
       url: "/protected/media",
       icon: IconFileText,
+    },
+    {
+      title: "CV",
+      url: "/protected/cv",
+      icon: IconId,
     },
   ],
   utilities: [

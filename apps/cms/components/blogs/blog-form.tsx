@@ -117,7 +117,7 @@ export function BlogForm({ isOpen, onClose, editingBlog }: BlogFormProps) {
     if (!isEditing && formData.title && !formData.slug) {
       setFormData((prev) => ({ ...prev, slug: slugify(prev.title) }))
     }
-  }, [formData.title, isEditing])
+  }, [formData.title, formData.slug, isEditing])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

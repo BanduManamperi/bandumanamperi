@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -68,6 +68,24 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
     const [searchQuery, setSearchQuery] = useState("")
     const [isSaving, setIsSaving] = useState(false)
 
+    const getImageUrl = useCallback((path: string | null) => {
+        if (!path) return null
+
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return path
+        }
+
+        // Determine bucket based on path (for backward compatibility)
+        // New exhibition images don't have folder prefix
+        // Old exhibition images have "exhibitions/" prefix
+        const isExhibitionImage = !path.includes("/") || path.startsWith("exhibitions/")
+        const bucket = isExhibitionImage ? "exhibitions" : "artworks"
+        const filePath = path.replace("exhibitions/", "") // Remove old prefix if exists
+
+        const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
+        return data.publicUrl
+    }, [supabase])
+
     // Reset state and fetch available artworks when drawer opens
     useEffect(() => {
         if (open && exhibition) {
@@ -108,25 +126,8 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                     setIsLoadingAvailable(false)
                 })
         }
-    }, [open, exhibition])
+    }, [open, exhibition, getImageUrl])
 
-    const getImageUrl = (path: string | null) => {
-        if (!path) return null
-
-        if (path.startsWith("http://") || path.startsWith("https://")) {
-            return path
-        }
-
-        // Determine bucket based on path (for backward compatibility)
-        // New exhibition images don't have folder prefix
-        // Old exhibition images have "exhibitions/" prefix
-        const isExhibitionImage = !path.includes("/") || path.startsWith("exhibitions/")
-        const bucket = isExhibitionImage ? "exhibitions" : "artworks"
-        const filePath = path.replace("exhibitions/", "") // Remove old prefix if exists
-
-        const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
-        return data.publicUrl
-    }
 
     const toggleRemoveArtwork = (artworkId: string) => {
         setSelectedRemoveIds((prev) => {

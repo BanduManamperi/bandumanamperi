@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { requireAuth } from "@/lib/auth/verify-auth"
 import { parseSupabaseError, AppError, ErrorType, ErrorMessages, logError } from "@/lib/utils/error-handler"
+import { generateSlug } from "@/lib/utils/slug"
 import type {
   Artwork,
   ArtworkDB,
@@ -48,7 +49,43 @@ function transformArtwork(artwork: ArtworkDB): Artwork {
     media: artwork.media,
     createdAt: artwork.created_at,
     updatedAt: artwork.updated_at,
+    seriesId: artwork.series_id ?? null,
+    seriesNumber: artwork.series_number ?? null,
+    parentArtworkId: artwork.parent_artwork_id ?? null,
+    relationType: artwork.relation_type ?? null,
+    relationNumber: artwork.relation_number ?? null,
+    editionSize: artwork.edition_size ?? null,
+    sourceFilename: artwork.source_filename ?? null,
   }
+}
+
+/** Columns added by database-schema-series.sql, mapped from camelCase. Only keys that were given. */
+function relationColumns(artwork: Partial<ArtworkInsert>): Partial<ArtworkDB> {
+  const columns: Partial<ArtworkDB> = {}
+  if (artwork.seriesId !== undefined) columns.series_id = artwork.seriesId
+  if (artwork.seriesNumber !== undefined) columns.series_number = artwork.seriesNumber
+  if (artwork.parentArtworkId !== undefined) columns.parent_artwork_id = artwork.parentArtworkId
+  if (artwork.relationType !== undefined) columns.relation_type = artwork.relationType
+  if (artwork.relationNumber !== undefined) columns.relation_number = artwork.relationNumber
+  if (artwork.editionSize !== undefined) columns.edition_size = artwork.editionSize
+  if (artwork.sourceFilename !== undefined) columns.source_filename = artwork.sourceFilename
+  return columns
+}
+
+/**
+ * A slug no other artwork uses: "wings", then "wings-2", "wings-3", ...
+ * Works may share a title, so on create a clash is expected rather than an error.
+ */
+async function uniqueArtworkSlug(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  base: string
+): Promise<string> {
+  const { data } = await supabase.from("artworks").select("slug").like("slug", `${base}%`)
+  const taken = new Set((data ?? []).map((row) => row.slug))
+  if (!taken.has(base)) return base
+  let n = 2
+  while (taken.has(`${base}-${n}`)) n++
+  return `${base}-${n}`
 }
 
 interface GetArtworksOptions {
@@ -205,6 +242,9 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
 
     const supabase = await createClient()
 
+    // A title entirely in Sinhala (or another non-Latin script) slugs to "", so fall back
+    const slug = await uniqueArtworkSlug(supabase, artwork.slug || generateSlug(artwork.title) || "artwork")
+
     const { data, error } = await supabase
       .from("artworks")
       .insert({
@@ -219,7 +259,7 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
         height: artwork.height || null,
         depth: artwork.depth || null,
         unit: artwork.unit || "cm",
-        slug: artwork.slug || null,
+        slug,
         status: artwork.status || "draft",
         tags: artwork.tags || [],
         series: artwork.series || null,
@@ -237,6 +277,7 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
         date_created: artwork.dateCreated || null,
         exhibition_history: artwork.exhibitionHistory || [],
         media: artwork.media || [],
+        ...relationColumns(artwork),
       })
       .select()
       .single()
@@ -333,6 +374,7 @@ export async function updateArtwork(
     if (updates.dateCreated !== undefined) updateData.date_created = updates.dateCreated
     if (updates.exhibitionHistory !== undefined) updateData.exhibition_history = updates.exhibitionHistory
     if (updates.media !== undefined) updateData.media = updates.media || []
+    Object.assign(updateData, relationColumns(updates))
 
     const { data, error } = await supabase
       .from("artworks")
@@ -558,320 +600,3 @@ export async function incrementArtworkViews(id: string): Promise<void> {
   revalidatePath("/api/artworks")
   revalidatePath(`/artworks/${id}`)
 }
-
-/**
- * Get all unique series/collection names from artworks
- */
-export async function getArtworkSeries(): Promise<string[]> {
-  const supabase = await createClient()
-
-  // Verify user is authenticated
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error("Unauthorized: You must be logged in to view series")
-  }
-
-  const { data, error } = await supabase
-    .from("artworks")
-    .select("series")
-    .not("series", "is", null)
-
-  if (error) {
-    throw new Error(`Failed to fetch series: ${error.message}`)
-  }
-
-  // Get unique series names
-  const seriesSet = new Set<string>()
-  data?.forEach((item) => {
-    if (item.series) {
-      seriesSet.add(item.series)
-    }
-  })
-
-  return Array.from(seriesSet).sort()
-}
-
-/**
- * Get artworks grouped by collection/series
- */
-export async function getArtworksByCollection(): Promise<Record<string, Artwork[]>> {
-  const supabase = await createClient()
-
-  // Verify user is authenticated (collections view is protected)
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error("Unauthorized: You must be logged in to view collections")
-  }
-
-  // Get all artworks with series
-  const { data, error } = await supabase
-    .from("artworks")
-    .select("*")
-    .not("series", "is", null)
-    .order("sort_order", { ascending: true })
-    .order("updated_at", { ascending: false })
-
-  if (error) {
-    throw new Error(`Failed to fetch artworks by collection: ${error.message}`)
-  }
-
-  // Group artworks by series
-  const grouped: Record<string, Artwork[]> = {}
-  data?.forEach((item) => {
-    const artwork = transformArtwork(item)
-    const series = artwork.series
-    if (series) {
-      if (!grouped[series]) {
-        grouped[series] = []
-      }
-      grouped[series].push(artwork)
-    }
-  })
-
-  return grouped
-}
-
-/**
- * Update multiple artworks to assign them to a collection/series
- */
-export async function updateArtworksCollection(
-  artworkIds: string[],
-  collectionName: string
-): Promise<void> {
-  try {
-    await requireAuth()
-
-    const supabase = await createClient()
-
-    // Validate input
-    if (!artworkIds || artworkIds.length === 0) {
-      throw new AppError(
-        ErrorType.VALIDATION_ERROR,
-        ErrorMessages.COLLECTION_NO_ARTWORKS,
-        "No artworks selected for collection"
-      )
-    }
-
-    if (!collectionName || !collectionName.trim()) {
-      throw new AppError(
-        ErrorType.REQUIRED_FIELD,
-        ErrorMessages.COLLECTION_NAME_REQUIRED,
-        "Missing required field: collectionName"
-      )
-    }
-
-    // Update all selected artworks with the new series name
-    const { error } = await supabase
-      .from("artworks")
-      .update({ series: collectionName.trim() })
-      .in("id", artworkIds)
-
-    if (error) {
-      const appError = parseSupabaseError(error, "update", "Collection")
-      logError(appError, { operation: "updateArtworksCollection", additionalInfo: { artworkIds, collectionName } })
-      throw appError
-    }
-
-    revalidatePath("/protected/artworks")
-    revalidatePath("/protected/collections")
-    revalidatePath("/api/artworks")
-  } catch (error) {
-    if (error instanceof AppError) throw error
-
-    logError(error, { operation: "updateArtworksCollection", additionalInfo: { artworkIds, collectionName } })
-    throw new AppError(
-      ErrorType.UPDATE_FAILED,
-      ErrorMessages.COLLECTION_UPDATE_FAILED,
-      error instanceof Error ? error.message : "Unknown error"
-    )
-  }
-}
-
-/**
- * Rename a collection (updates series field for all artworks in the collection)
- */
-export async function renameCollection(
-  oldName: string,
-  newName: string
-): Promise<void> {
-  try {
-    await requireAuth()
-
-    const supabase = await createClient()
-
-    // Validate input
-    if (!oldName || !oldName.trim() || !newName || !newName.trim()) {
-      throw new AppError(
-        ErrorType.REQUIRED_FIELD,
-        "Both old and new collection names are required.",
-        "Missing collection names"
-      )
-    }
-
-    if (oldName.trim() === newName.trim()) {
-      throw new AppError(
-        ErrorType.VALIDATION_ERROR,
-        "New collection name must be different from the old name.",
-        "Same collection names provided"
-      )
-    }
-
-    // Check if old collection exists
-    const { data: existingArtworks, error: checkError } = await supabase
-      .from("artworks")
-      .select("id")
-      .eq("series", oldName.trim())
-      .limit(1)
-
-    if (checkError) {
-      const appError = parseSupabaseError(checkError, "fetch", "Collection")
-      logError(appError, { operation: "renameCollection", additionalInfo: { oldName, newName } })
-      throw appError
-    }
-
-    if (!existingArtworks || existingArtworks.length === 0) {
-      throw new AppError(
-        ErrorType.NOT_FOUND,
-        `Collection "${oldName}" not found.`,
-        "Collection does not exist"
-      )
-    }
-
-    // Update all artworks with the old series name to the new series name
-    const { error } = await supabase
-      .from("artworks")
-      .update({ series: newName.trim() })
-      .eq("series", oldName.trim())
-
-    if (error) {
-      const appError = parseSupabaseError(error, "update", "Collection")
-      logError(appError, { operation: "renameCollection", additionalInfo: { oldName, newName } })
-      throw appError
-    }
-
-    revalidatePath("/protected/artworks")
-    revalidatePath("/protected/collections")
-    revalidatePath("/api/artworks")
-  } catch (error) {
-    if (error instanceof AppError) throw error
-
-    logError(error, { operation: "renameCollection", additionalInfo: { oldName, newName } })
-    throw new AppError(
-      ErrorType.UPDATE_FAILED,
-      ErrorMessages.COLLECTION_UPDATE_FAILED,
-      error instanceof Error ? error.message : "Unknown error"
-    )
-  }
-}
-
-/**
- * Delete a collection (removes series field from all artworks in the collection)
- */
-export async function deleteCollection(collectionName: string): Promise<void> {
-  try {
-    await requireAuth()
-
-    const supabase = await createClient()
-
-    // Validate input
-    if (!collectionName || !collectionName.trim()) {
-      throw new AppError(
-        ErrorType.REQUIRED_FIELD,
-        ErrorMessages.COLLECTION_NAME_REQUIRED,
-        "Missing collection name"
-      )
-    }
-
-    // Check if collection exists
-    const { data: existingArtworks, error: checkError } = await supabase
-      .from("artworks")
-      .select("id")
-      .eq("series", collectionName.trim())
-      .limit(1)
-
-    if (checkError) {
-      const appError = parseSupabaseError(checkError, "fetch", "Collection")
-      logError(appError, { operation: "deleteCollection", additionalInfo: { collectionName } })
-      throw appError
-    }
-
-    if (!existingArtworks || existingArtworks.length === 0) {
-      throw new AppError(
-        ErrorType.NOT_FOUND,
-        `Collection "${collectionName}" not found.`,
-        "Collection does not exist"
-      )
-    }
-
-    // Remove series from all artworks in this collection
-    const { error } = await supabase
-      .from("artworks")
-      .update({ series: null })
-      .eq("series", collectionName.trim())
-
-    if (error) {
-      const appError = parseSupabaseError(error, "delete", "Collection")
-      logError(appError, { operation: "deleteCollection", additionalInfo: { collectionName } })
-      throw appError
-    }
-
-    revalidatePath("/protected/artworks")
-    revalidatePath("/protected/collections")
-    revalidatePath("/api/artworks")
-  } catch (error) {
-    if (error instanceof AppError) throw error
-
-    logError(error, { operation: "deleteCollection", additionalInfo: { collectionName } })
-    throw new AppError(
-      ErrorType.DELETE_FAILED,
-      ErrorMessages.COLLECTION_DELETE_FAILED,
-      error instanceof Error ? error.message : "Unknown error"
-    )
-  }
-}
-
-/**
- * Remove artworks from a collection
- */
-export async function removeArtworksFromCollection(
-  artworkIds: string[]
-): Promise<void> {
-  const supabase = await createClient()
-
-  // Verify user is authenticated
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error("Unauthorized: You must be logged in to update collections")
-  }
-
-  if (artworkIds.length === 0) {
-    throw new Error("No artworks selected")
-  }
-
-  // Remove series from selected artworks
-  const { error } = await supabase
-    .from("artworks")
-    .update({ series: null })
-    .in("id", artworkIds)
-
-  if (error) {
-    throw new Error(`Failed to remove artworks from collection: ${error.message}`)
-  }
-
-  revalidatePath("/protected/artworks")
-  revalidatePath("/protected/collections")
-  revalidatePath("/api/artworks")
-}
-
