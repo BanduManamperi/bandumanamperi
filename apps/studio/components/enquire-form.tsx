@@ -25,7 +25,7 @@ export function EnquireForm({ slug, title }: { slug: string; title: string }) {
             </p>
 
             <div>
-                <label htmlFor="name" className="block text-[0.8125rem] text-mute">
+                <label htmlFor="name" className="block text-[0.8125rem] text-room-mute">
                     Name
                 </label>
                 <input
@@ -34,12 +34,12 @@ export function EnquireForm({ slug, title }: { slug: string; title: string }) {
                     required
                     autoComplete="name"
                     maxLength={200}
-                    className="mt-1 w-full border border-line bg-paper px-3 py-2"
+                    className="mt-1 w-full border border-room-line bg-room-paper px-3 py-2"
                 />
             </div>
 
             <div>
-                <label htmlFor="email" className="block text-[0.8125rem] text-mute">
+                <label htmlFor="email" className="block text-[0.8125rem] text-room-mute">
                     Email
                 </label>
                 <input
@@ -49,12 +49,12 @@ export function EnquireForm({ slug, title }: { slug: string; title: string }) {
                     required
                     autoComplete="email"
                     maxLength={200}
-                    className="mt-1 w-full border border-line bg-paper px-3 py-2"
+                    className="mt-1 w-full border border-room-line bg-room-paper px-3 py-2"
                 />
             </div>
 
             <div>
-                <label htmlFor="message" className="block text-[0.8125rem] text-mute">
+                <label htmlFor="message" className="block text-[0.8125rem] text-room-mute">
                     Message
                 </label>
                 <textarea
@@ -62,7 +62,7 @@ export function EnquireForm({ slug, title }: { slug: string; title: string }) {
                     name="message"
                     rows={5}
                     maxLength={4000}
-                    className="mt-1 w-full border border-line bg-paper px-3 py-2"
+                    className="mt-1 w-full border border-room-line bg-room-paper px-3 py-2"
                 />
             </div>
 
@@ -71,7 +71,7 @@ export function EnquireForm({ slug, title }: { slug: string; title: string }) {
             <button
                 type="submit"
                 disabled={pending}
-                className="bg-ink px-4 py-2.5 text-paper disabled:opacity-50"
+                className="bg-room-ink px-4 py-2.5 text-room-paper disabled:opacity-50"
             >
                 {pending ? "Sending" : "Send enquiry"}
             </button>

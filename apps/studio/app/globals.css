@@ -1,32 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --wall: #efefef;
-  --well: #e4e4e4;
-  --ink: #171717;
-  --mute: #5f5f5f;
-  --line: #d2d2d2;
-  --paper: #f7f7f7;
+  /* The viewing room is a white-cube gallery: pure white behind the work,
+     so nothing competes with it. Everywhere else stays the site's own
+     soft-grey palette below. */
+  --room-wall: #ffffff;
+  --room-well: #ffffff;
+  --room-ink: #202020;
+  --room-mute: #717171;
+  --room-line: #e3e3e3;
+  --room-paper: #ffffff;
+
+  --paper: #f1f1f1;
+  --ink: #202020;
+  --mute: #717171;
+  --rule: #d6d6d6;
+
+  --foreground: var(--ink);
+  --muted-foreground: var(--mute);
+  --background: var(--paper);
+  --border: var(--rule);
 }
 
 @theme inline {
   --font-sans: var(--font-noto-sans);
-  --color-wall: var(--wall);
-  --color-well: var(--well);
-  --color-ink: var(--ink);
-  --color-mute: var(--mute);
-  --color-line: var(--line);
-  --color-paper: var(--paper);
+  --font-serif: var(--font-fraunces);
+  --font-display: var(--font-anton);
+  --color-room-wall: var(--room-wall);
+  --color-room-well: var(--room-well);
+  --color-room-ink: var(--room-ink);
+  --color-room-mute: var(--room-mute);
+  --color-room-line: var(--room-line);
+  --color-room-paper: var(--room-paper);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-background: var(--background);
+  --color-border: var(--border);
 }
 
 body {
-  background: var(--wall);
-  color: var(--ink);
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-noto-sans), sans-serif;
 }
 
 :focus-visible {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--foreground);
   outline-offset: 3px;
 }
 
@@ -37,30 +56,27 @@ body {
   min-height: 0;
   flex: 1;
   flex-direction: column;
+  background: var(--room-wall);
+  color: var(--room-ink);
 }
 
 .room-picture {
   position: relative;
   min-height: 72vw;
-  background: var(--well);
-}
-
-.room-label {
-  border-top: 1px solid var(--line);
-  background: var(--paper);
+  background: var(--room-well);
 }
 
 .room-index {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--room-line);
 }
 
 @media (min-width: 64rem) {
   .room {
     display: grid;
     height: 100%;
-    grid-template-columns: 16.5rem minmax(0, 1fr) 20rem;
+    grid-template-columns: 16.5rem minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: "index picture label";
+    grid-template-areas: "index stage";
     overflow: hidden;
   }
 
@@ -68,18 +84,18 @@ body {
     grid-area: index;
     overflow-y: auto;
     border-top: 0;
-    border-right: 1px solid var(--line);
+    border-right: 1px solid var(--room-line);
   }
 
-  .room-picture {
-    grid-area: picture;
+  .room-stage {
+    grid-area: stage;
+    position: relative;
     min-height: 0;
   }
 
-  .room-label {
-    grid-area: label;
-    overflow-y: auto;
-    border-top: 0;
-    border-left: 1px solid var(--line);
+  .room-picture {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
   }
 }

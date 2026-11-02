@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { headers } from "next/headers";
 import { getRoom } from "@/lib/inventory";
 import { offerLine } from "@/lib/price";
+import { escapeHtml } from "@/lib/text";
 
 export type EnquireState = {
     error?: string;
@@ -69,12 +70,4 @@ export async function sendEnquiry(_prev: EnquireState, formData: FormData): Prom
     }
 
     return { ok: true };
-}
-
-function escapeHtml(text: string): string {
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
 }

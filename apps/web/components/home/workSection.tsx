@@ -10,7 +10,7 @@ const categories = [
         title: "Paintings and Drawings",
         description: "Paintings, mixed media, and works on paper",
         // The studio viewing room. Not live yet; the subdomain is wired ahead of release.
-        link: "https://studio.bandumanamperi.com",
+        link: "https://studio.bandumanamperi.com/paintings-and-drawings",
         external: true,
         image: "/JBP06256.jpg",
         alt: "A large ink work on paper by Bandu Manamperi",
