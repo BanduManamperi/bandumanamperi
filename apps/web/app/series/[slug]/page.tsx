@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getSeriesWithWorks } from "@/lib/data/artworks";
 import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPageBleed } from "@/components/sheet/spread";
-import { Facts, body, caption, display } from "@/components/sheet/type";
+import { Facts, TextLink, body, caption, display } from "@/components/sheet/type";
 import { WorkSpreadPanel } from "@/components/artworks/work-spread";
 
 interface PageProps {
@@ -52,6 +52,9 @@ export default async function SeriesPage({ params }: PageProps) {
                                 { label: "Dates", value: yearSpan(works.map((w) => w.year ?? "")) },
                             ]}
                         />
+                        <TextLink href="/artworks" className="mt-6 self-start text-[0.8125rem]">
+                            Back to artworks
+                        </TextLink>
                     </div>
                     {cover && (
                         <figure className={rightPageBleed}>

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { CatalogueEntry } from "@/lib/data/artworks";
-import { Facts, body, caption, display } from "@/components/sheet/type";
+import { Facts, TextLink, body, caption, display } from "@/components/sheet/type";
 
 type View = "ledger" | "sheet";
 type Order = "asc" | "desc";
@@ -80,6 +80,11 @@ export function ArchiveCatalogue({ entries, latestCount }: { entries: CatalogueE
             {/* Finding aid */}
             <div className="grid grid-cols-1 gap-y-8 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)]">
                 <div className="lg:col-span-5">
+                    {/* The way back up a level. The link at the foot of the list is a long
+                        scroll away once the catalogue runs to dozens of records. */}
+                    <TextLink href="/artworks" className="mb-6 inline-block text-[0.8125rem]">
+                        Back to artworks
+                    </TextLink>
                     <h1 className={display}>Archive</h1>
                     <p className={`mt-6 max-w-[30rem] ${body}`}>
                         Works by Bandu Manamperi that sit behind the current selection of{" "}

@@ -7,9 +7,11 @@ import { Spread, rightPageBleed } from "@/components/sheet/spread";
 
 const categories = [
     {
-        title: "Artworks",
+        title: "Paintings and Drawings",
         description: "Paintings, mixed media, and works on paper",
-        link: "/artworks",
+        // The studio viewing room. Not live yet; the subdomain is wired ahead of release.
+        link: "https://studio.bandumanamperi.com",
+        external: true,
         image: "/JBP06256.jpg",
         alt: "A large ink work on paper by Bandu Manamperi",
     },
@@ -19,13 +21,6 @@ const categories = [
         link: "/performances",
         image: "/Bandaged_Body_1.jpg",
         alt: "Bandu Manamperi performing Bandaged Body",
-    },
-    {
-        title: "Framing, restoration, and conservation",
-        description: "Framing and restoration of paintings and sculpture",
-        link: "/art-framing-and-restoration",
-        image: "/IMG_8614.JPG",
-        alt: "Bandu Manamperi working in his studio",
     },
 ];
 
@@ -48,20 +43,22 @@ export function WorkSection({ index = 2, headingLevel = "h2" }: { index?: number
                         </Heading>
                         <p className="mt-6 max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80">
                             A practice that moves across media to confront identity, conflict,
-                            and memory, alongside a long working life in the care of other
-                            people&apos;s art.
+                            and the complexities of human nature. Working through performance,
+                            drawing, and installation, Manamperi asks viewers to confront their
+                            own perceptions and enter a deeper dialogue with the subject matter.
                         </p>
 
                         <ul className="mt-8 border-t border-border lg:mt-auto">
-                            {categories.map((cat, i) => (
-                                <li key={cat.link} className="border-b border-border">
-                                    <Link
-                                        href={cat.link}
-                                        onMouseEnter={() => setActive(i)}
-                                        onFocus={() => setActive(i)}
-                                        aria-current={active === i ? "true" : undefined}
-                                        className="group block py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                    >
+                            {categories.map((cat, i) => {
+                                const linkProps = {
+                                    onMouseEnter: () => setActive(i),
+                                    onFocus: () => setActive(i),
+                                    "aria-current": active === i ? ("true" as const) : undefined,
+                                    className:
+                                        "group block py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                };
+                                const label = (
+                                    <>
                                         <span
                                             className={`block text-[1.375rem] font-light leading-tight transition-colors ${active === i ? "text-foreground" : "text-foreground/45"}`}
                                         >
@@ -70,9 +67,22 @@ export function WorkSection({ index = 2, headingLevel = "h2" }: { index?: number
                                         <span className="mt-1 block text-[0.75rem] text-muted-foreground">
                                             {cat.description}
                                         </span>
-                                    </Link>
-                                </li>
-                            ))}
+                                    </>
+                                );
+                                return (
+                                    <li key={cat.link} className="border-b border-border">
+                                        {cat.external ? (
+                                            <a href={cat.link} target="_blank" rel="noopener noreferrer" {...linkProps}>
+                                                {label}
+                                            </a>
+                                        ) : (
+                                            <Link href={cat.link} {...linkProps}>
+                                                {label}
+                                            </Link>
+                                        )}
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
 

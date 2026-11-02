@@ -5,11 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Spread, rightPageBleed } from "@/components/sheet/spread";
+import { textLink } from "@/components/sheet/type";
+
+// A short standfirst drawn from the biography on /about. Kept to two short
+// paragraphs so the facts below stay on the page without scrolling.
+const about = [
+    "Bandu Manamperi's work transcends traditional boundaries to explore identity, conflict, and the complexities of human nature. His approach incorporates performances, drawings, and installations, challenging viewers to confront their perceptions.",
+    "Drawing on his own experiences and cultural heritage, his pieces reflect the societal and personal impacts of political turmoil, serving both as a mirror to societal issues and as a bridge between diverse audiences.",
+];
 
 // Facts set like the project data on a portfolio page.
 // TODO(human): curate these 3-4 facts; this is the first thing a curator scans.
 const facts = [
-    { label: "Based in", value: "Colombo, Sri Lanka" },
+    { label: "Based in", value: "Bandaragama, Sri Lanka" },
     { label: "Collective", value: "Theertha International Artists' Collective, founding member and Vice Chairman" },
     { label: "Education", value: "MA Archaeology, PGIAR. BFA Sculpture, University of Kelaniya" },
 ];
@@ -37,13 +45,20 @@ const HeroSection = () => {
                             Manamperi
                         </h1>
 
-                        <p className="mt-6 max-w-[34rem] text-[0.9375rem] leading-[1.6] text-foreground/80 xl:mt-8">
-                            A Sri Lankan artist whose practice moves between performance,
-                            sculpture, drawing, photography, video, and installation. His work
-                            deals with identity, memory, conflict, and cultural change, drawing
-                            on Sri Lanka&apos;s history and archaeology. It has been shown across
-                            South Asia, Europe, Australia, and beyond.
-                        </p>
+                        <div className="mt-6 max-w-[34rem] space-y-4 text-[0.9375rem] leading-[1.6] text-foreground/80 xl:mt-8">
+                            {about.map((paragraph, i) => (
+                                <p key={i}>{paragraph}</p>
+                            ))}
+                        </div>
+
+                        <nav className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[0.8125rem]">
+                            <Link href="/about" className={textLink}>
+                                Read the full biography
+                            </Link>
+                            <Link href="/background" className={textLink}>
+                                Read the full CV
+                            </Link>
+                        </nav>
 
                         <dl className="mt-8 grid max-w-[34rem] grid-cols-[5.5rem_1fr] gap-x-4 gap-y-2 text-[0.75rem] leading-[1.5] lg:mt-auto lg:pt-6">
                             {facts.map((f) => (
@@ -53,13 +68,6 @@ const HeroSection = () => {
                                 </React.Fragment>
                             ))}
                         </dl>
-
-                        <Link
-                            href="/background"
-                            className="mt-6 self-start text-[0.8125rem] text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
-                        >
-                            Read the full CV
-                        </Link>
                     </motion.div>
 
                     {/* Right page: the artist at work */}

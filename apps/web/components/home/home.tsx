@@ -1,7 +1,6 @@
 import React from 'react'
 import HeroSection from './heroSection'
 import ContactSection from './contactSection'
-import IntroAnimation from './introAnimation'
 import { UpcomingEventsSection } from './upcomingEventsSection'
 import { WorkSection } from './workSection'
 import { getUpcomingExhibitions, getExhibitions } from '@/lib/actions/exhibitions'
@@ -20,31 +19,27 @@ const Home = async () => {
     const panel = "w-screen flex-shrink-0 h-full overflow-hidden"
 
     return (
-        <>
-            <IntroAnimation />
+        <div className="flex flex-row h-full w-max flex-shrink-0">
 
-            <div className="flex flex-row h-full w-max flex-shrink-0">
-
-                <div id="panel-hero" data-panel data-panel-label="About" className={panel}>
-                    <HeroSection />
-                </div>
-
-                <div id="panel-work" data-panel data-panel-label="Work" className={panel}>
-                    <WorkSection />
-                </div>
-
-                {events.length > 0 && (
-                    <div id="panel-upcoming" data-panel data-panel-label="Events" className={panel}>
-                        <UpcomingEventsSection exhibitions={events} />
-                    </div>
-                )}
-
-                <div id="panel-contact" data-panel data-panel-label="Contact" className={panel}>
-                    <ContactSection index={events.length > 0 ? 4 : 3} nowShowing={nowShowing} />
-                </div>
-
+            <div id="panel-hero" data-panel data-panel-label="About" className={panel}>
+                <HeroSection />
             </div>
-        </>
+
+            <div id="panel-work" data-panel data-panel-label="Work" className={panel}>
+                <WorkSection />
+            </div>
+
+            {events.length > 0 && (
+                <div id="panel-upcoming" data-panel data-panel-label="Events" className={panel}>
+                    <UpcomingEventsSection exhibitions={events} />
+                </div>
+            )}
+
+            <div id="panel-contact" data-panel data-panel-label="Contact" className={panel}>
+                <ContactSection index={events.length > 0 ? 4 : 3} nowShowing={nowShowing} />
+            </div>
+
+        </div>
     )
 }
 
