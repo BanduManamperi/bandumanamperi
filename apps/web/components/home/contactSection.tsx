@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import posthog from "posthog-js";
 import { CONTACT_FORM_ENABLED } from "@/lib/contact-form";
+import { STUDIO_HOST, STUDIO_MAPS, STUDIO_URL } from "@/lib/studio";
 import { Spread, belowStandfirst, footStandfirst, rightPageBleed } from "@/components/sheet/spread";
 
 interface ContactSectionProps {
@@ -89,8 +90,8 @@ const ContactSection = ({ index, headingLevel = "h2", nowShowing }: ContactSecti
                         </Heading>
 
                         <p className={`${footStandfirst} max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80`}>
-                            For exhibitions, commissions, framing and restoration, or a studio
-                            visit, I&rsquo;d be glad to hear from you.
+                            For enquiries concerning artworks, exhibitions, studio visits, or any
+                            other matter.
                         </p>
 
                         <dl className={`${belowStandfirst} grid max-w-[30rem] grid-cols-[6.5rem_1fr] gap-x-4 gap-y-3 text-[0.8125rem] leading-[1.5]`}>
@@ -101,7 +102,14 @@ const ContactSection = ({ index, headingLevel = "h2", nowShowing }: ContactSecti
                             <dd><a href="tel:+94773672789" className={textLink}>+94 77 367 2789</a> <span className="text-muted-foreground">(WhatsApp)</span></dd>
 
                             <dt className="text-muted-foreground">Studio</dt>
-                            <dd className="text-foreground">Bandaragama, Sri Lanka</dd>
+                            <dd><a href={STUDIO_URL} target="_blank" rel="noopener noreferrer" className={textLink}>{STUDIO_HOST}</a></dd>
+
+                            <dt className="text-muted-foreground">Visit</dt>
+                            <dd className="flex flex-wrap gap-x-4 gap-y-1">
+                                <span className="text-foreground">Bandaragama, Sri Lanka</span>
+                                <a href={STUDIO_MAPS.google} target="_blank" rel="noopener noreferrer" className={textLink}>Google Maps</a>
+                                <a href={STUDIO_MAPS.apple} target="_blank" rel="noopener noreferrer" className={textLink}>Apple Maps</a>
+                            </dd>
 
                             <dt className="text-muted-foreground">Elsewhere</dt>
                             <dd className="flex flex-wrap gap-x-4 gap-y-1">

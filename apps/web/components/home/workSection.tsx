@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Spread, belowStandfirst, footStandfirst, rightPageBleed } from "@/components/sheet/spread";
+import { studioUrl } from "@/lib/studio";
 
 const categories = [
     {
         title: "Paintings and Drawings",
         description: "Paintings, mixed media, and works on paper",
-        // The studio viewing room. Not live yet; the subdomain is wired ahead of release.
-        link: "https://studio.bandumanamperi.com/paintings-and-drawings",
+        // Works for sale live on the studio site.
+        link: studioUrl("/paintings-and-drawings"),
         external: true,
         image: "/JBP06256.jpg",
         alt: "A large ink work on paper by Bandu Manamperi",
