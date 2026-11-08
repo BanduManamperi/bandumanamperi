@@ -5,7 +5,7 @@ import { Journal } from "@/components/blog/journal";
 export default async function BlogPage() {
     const posts = await getAllBlogPosts();
     return (
-        <DocumentSheet section="Journal">
+        <DocumentSheet>
             <Journal posts={posts} />
         </DocumentSheet>
     );

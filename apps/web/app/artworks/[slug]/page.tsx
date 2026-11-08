@@ -65,7 +65,7 @@ export default async function ArtworkRecordPage({ params }: PageProps) {
             />
 
             {/* The record */}
-            <SpreadPanel id="record" label={`Cat. ${entry.label}`} section={`${shelfName}, cat. ${entry.label}`} index={1}>
+            <SpreadPanel id="record" label={`Cat. ${entry.label}`} index={1}>
                 <SpreadGrid>
                     <div className={leftPage}>
                         <p className={`${caption} tabular-nums`}>
@@ -121,7 +121,6 @@ export default async function ArtworkRecordPage({ params }: PageProps) {
                     key={src}
                     id={`plate-${i + 2}`}
                     label={`Plate ${i + 2}`}
-                    section={`${shelfName}, cat. ${entry.label}`}
                     index={i + 2}
                 >
                     <SpreadGrid>
@@ -150,7 +149,7 @@ export default async function ArtworkRecordPage({ params }: PageProps) {
             ))}
             {/* Works related to this one: its original and editions/versions, then its series */}
             {hasRelated && (
-                <SpreadPanel id="related" label="Related works" section={`${shelfName}, cat. ${entry.label}`} index={plates + 1}>
+                <SpreadPanel id="related" label="Related works" index={plates + 1}>
                     <div className="grid h-full grid-cols-1 content-start gap-y-10 py-6 lg:grid-cols-2 lg:gap-x-[clamp(2rem,5vw,6rem)] lg:py-8">
                         {family.length > 0 && (
                             <RelatedList

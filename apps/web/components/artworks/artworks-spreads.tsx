@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CatalogueEntry } from "@/lib/data/artworks";
-import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPage, rightPageAfterText } from "@/components/sheet/spread";
+import { SpreadGrid, SpreadPanel, SpreadRow, belowStandfirst, footStandfirst, leftPage, rightPage, rightPageAfterText } from "@/components/sheet/spread";
 import { PanelLink } from "@/components/sheet/panel-link";
 import { WorkSpreadPanel } from "@/components/artworks/work-spread";
 import { Facts, TextLink, body, caption, display } from "@/components/sheet/type";
@@ -59,17 +59,17 @@ export function ArtworksSpreads({ latest, archive, intro }: Props) {
     return (
         <SpreadRow>
             {/* Intro */}
-            <SpreadPanel id="panel-artworks" label="Artworks" section="Artworks" index={1}>
+            <SpreadPanel id="panel-artworks" label="Artworks" index={1}>
                 <SpreadGrid>
                     <div className={leftPage}>
                         <h1 className={display}>Artworks</h1>
-                        <p className={`mt-6 max-w-[30rem] ${body}`}>
+                        <p className={`${footStandfirst} max-w-[30rem] ${body}`}>
                             These works do not simply depict, they excavate. Across painting,
                             drawing, sculpture, and photography, Manamperi returns again and again
                             to the sites where history leaves its marks on the body.
                         </p>
                         <Facts
-                            className="mt-8 max-w-[30rem] lg:mt-auto"
+                            className={`${belowStandfirst} max-w-[30rem]`}
                             items={[
                                 { label: "Shown here", value: `The ${latest.length} most recently catalogued works` },
                                 { label: "Series", value: series.join(", ") || null },
@@ -91,7 +91,6 @@ export function ArtworksSpreads({ latest, archive, intro }: Props) {
                     key={e.id}
                     entry={e}
                     panelId={workPanelId(e)}
-                    section={`Artworks, ${i + 1} of ${latest.length}`}
                     index={i + 2}
                     priority={i < 2}
                 />
@@ -99,15 +98,15 @@ export function ArtworksSpreads({ latest, archive, intro }: Props) {
 
             {/* Into the archive */}
             {archive.length > 0 && (
-                <SpreadPanel id="panel-artworks-archive" label="Archive" section="Artworks" index={latest.length + 2}>
+                <SpreadPanel id="panel-artworks-archive" label="Archive" index={latest.length + 2}>
                     <SpreadGrid>
                         <div className={leftPage}>
                             <h2 className={display}>Archive</h2>
-                            <p className={`mt-6 max-w-[30rem] ${body}`}>
+                            <p className={`${footStandfirst} max-w-[30rem] ${body}`}>
                                 Earlier works are kept in the archive, catalogued in the order they
                                 were entered, with dates and titles recorded where they are known.
                             </p>
-                            <TextLink href="/archive" className="mt-8 self-start text-[0.8125rem] lg:mt-auto">
+                            <TextLink href="/archive" className={`${belowStandfirst} self-start text-[0.8125rem]`}>
                                 Open the archive, {archive.length} works
                             </TextLink>
                         </div>

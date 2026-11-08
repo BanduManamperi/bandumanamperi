@@ -5,6 +5,7 @@ import { getExhibitionImageUrl, generateExhibitionSlug } from "@/lib/utils/supab
 import { getExhibitionScheduleStatus, getExhibitionYear } from "@bandumanamperi/types";
 import { DocumentSheet } from "@/components/sheet/document-sheet";
 import { ExhibitionDetail, type ExhibitionDetailData, type ExhibitionStatus } from "@/components/exhibitions/exhibition-detail";
+import { exhibitionPanelId } from "@/components/exhibitions/exhibition-spread";
 
 const ARTIST_BLURB =
     "Bandu Manamperi is a Sri Lankan contemporary artist working across performance, sculpture, drawing, and installation, and a founding member and Vice Chairman of Theertha International Artists' Collective. His work has been shown across South Asia, Europe, and Australia.";
@@ -37,6 +38,7 @@ function mapExhibition(ex: Exhibition): ExhibitionDetailData {
 
     return {
         title: ex.name,
+        backHref: `/exhibitions#${exhibitionPanelId(ex)}`,
         status,
         type: typeLabel,
         startDate: ex.startDate,
@@ -83,7 +85,7 @@ export default async function ExhibitionDetailPage({ params }: PageProps) {
     if (!exhibition) notFound();
 
     return (
-        <DocumentSheet section={`Exhibitions, ${getExhibitionYear(exhibition)}`}>
+        <DocumentSheet>
             <ExhibitionDetail exhibition={mapExhibition(exhibition)} />
         </DocumentSheet>
     );

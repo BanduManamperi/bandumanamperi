@@ -2,8 +2,6 @@ import React from "react";
 import { SheetHeader } from "./sheet-header";
 
 type SpreadProps = {
-    /** Shown in the top-right running head, like a chapter title. */
-    section: React.ReactNode;
     /** 1-based position of this spread; drives the page numbers. */
     index: number;
     children: React.ReactNode;
@@ -12,14 +10,14 @@ type SpreadProps = {
 // One printed spread: a sheet of paper on a grey ground, with running heads
 // along the top and page numbers along the bottom. The horizontal scroll turns
 // these like pages of a monograph.
-export function Spread({ section, index, children }: SpreadProps) {
+export function Spread({ index, children }: SpreadProps) {
     return (
         <section className="h-full bg-[var(--stage)] lg:p-[clamp(1rem,2.2vw,2.25rem)]">
             <div
                 data-sheet
                 className="relative flex h-full flex-col lg:rounded-[2px] lg:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_24px_60px_-28px_rgb(0_0_0/0.35)]"
             >
-                <SheetHeader section={section} />
+                <SheetHeader />
 
                 <div className="min-h-0 flex-1 overflow-y-auto px-[var(--sheet-pad)] lg:overflow-hidden">{children}</div>
 
@@ -75,5 +73,12 @@ export const rightPage = "order-first flex min-h-0 min-w-0 flex-col lg:order-non
  * bleeds off a printed page. Desktop only; on phones the picture stays inset.
  */
 export const rightPageBleed = `${rightPage} lg:-mr-[var(--sheet-pad)]`;
+/**
+ * An opening spread's standfirst, set at the foot of the left page so the title
+ * stands alone at the top and the reading text lines up with the picture's foot.
+ */
+export const footStandfirst = "mt-6 lg:mt-auto lg:pt-6";
+/** The facts or index under a foot standfirst, a clear step down from the text. */
+export const belowStandfirst = "mt-10 lg:mt-16";
 /** A right page that follows the text on small screens, for indexes rather than pictures. */
 export const rightPageAfterText = "flex min-h-0 min-w-0 flex-col lg:col-span-7 lg:h-full xl:col-span-8";

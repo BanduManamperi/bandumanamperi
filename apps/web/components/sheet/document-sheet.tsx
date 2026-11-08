@@ -4,7 +4,6 @@ import React, { useEffect, useRef } from "react";
 import { SheetHeader } from "./sheet-header";
 
 type DocumentSheetProps = {
-    section: React.ReactNode;
     /** Anchor id when the sheet sits in a row of panels. */
     id?: string;
     /**
@@ -19,7 +18,7 @@ type DocumentSheetProps = {
 // A long sheet for reading pages (CV, archive, exhibition records). Same paper
 // and running head as a spread, but the paper scrolls vertically inside the
 // frame instead of turning sideways, so the running head stays in view.
-export function DocumentSheet({ section, id, handoff = false, children }: DocumentSheetProps) {
+export function DocumentSheet({ id, handoff = false, children }: DocumentSheetProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     // A native listener, so stopPropagation reliably beats the pager's own
@@ -48,7 +47,7 @@ export function DocumentSheet({ section, id, handoff = false, children }: Docume
                 data-sheet
                 className="flex h-full flex-col lg:rounded-[2px] lg:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_24px_60px_-28px_rgb(0_0_0/0.35)]"
             >
-                <SheetHeader section={section} />
+                <SheetHeader />
                 <div ref={ref} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-[var(--sheet-pad)] pb-16">
                     {children}
                 </div>

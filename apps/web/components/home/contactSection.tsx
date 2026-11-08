@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import posthog from "posthog-js";
 import { CONTACT_FORM_ENABLED } from "@/lib/contact-form";
-import { Spread, rightPageBleed } from "@/components/sheet/spread";
+import { Spread, belowStandfirst, footStandfirst, rightPageBleed } from "@/components/sheet/spread";
 
 interface ContactSectionProps {
     /** Spread position, so page numbers stay sequential when Events is hidden. */
@@ -76,7 +76,7 @@ const ContactSection = ({ index, headingLevel = "h2", nowShowing }: ContactSecti
         posthog.capture("social_link_clicked", { platform, source: "homepage_contact_section" });
 
     return (
-        <Spread section="Contact" index={index}>
+        <Spread index={index}>
             <div id="contact" className="h-full">
                 <div className="grid min-h-full grid-cols-1 gap-y-10 py-6 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)] lg:py-8">
 
@@ -88,12 +88,12 @@ const ContactSection = ({ index, headingLevel = "h2", nowShowing }: ContactSecti
                             Contact
                         </Heading>
 
-                        <p className="mt-6 max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80">
+                        <p className={`${footStandfirst} max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80`}>
                             For exhibitions, commissions, framing and restoration, or a studio
                             visit, I&rsquo;d be glad to hear from you.
                         </p>
 
-                        <dl className="mt-8 grid max-w-[30rem] grid-cols-[6.5rem_1fr] gap-x-4 gap-y-3 text-[0.8125rem] leading-[1.5] lg:mt-auto">
+                        <dl className={`${belowStandfirst} grid max-w-[30rem] grid-cols-[6.5rem_1fr] gap-x-4 gap-y-3 text-[0.8125rem] leading-[1.5]`}>
                             <dt className="text-muted-foreground">Email</dt>
                             <dd><a href="mailto:bandumanamperi@yahoo.com" className={textLink}>bandumanamperi@yahoo.com</a></dd>
 
@@ -159,7 +159,7 @@ const ContactSection = ({ index, headingLevel = "h2", nowShowing }: ContactSecti
                         </div>
                     ) : (
                         <figure className={rightPageBleed}>
-                            <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1">
+                            <div className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1 grayscale">
                                 <Image
                                     src="/Iron Man.jpg"
                                     alt="Bandu Manamperi ironing a white cloth on a street in front of the Old Parliament building in Colombo"

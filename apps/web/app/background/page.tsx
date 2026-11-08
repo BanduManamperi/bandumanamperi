@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function BackgroundPage() {
     const cvData = await getCVData();
     return (
-        <DocumentSheet section="Background">
+        <DocumentSheet>
             <div className="mx-auto max-w-[72rem] pt-8 lg:pt-12">
                 <h1 className={`mb-12 ${display}`}>Curriculum vitae</h1>
                 <CVSection cvData={cvData} />

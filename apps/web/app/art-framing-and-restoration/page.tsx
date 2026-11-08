@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Image from "next/image";
-import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPage } from "@/components/sheet/spread";
+import { SpreadGrid, SpreadPanel, SpreadRow, belowStandfirst, footStandfirst, leftPage, rightPage } from "@/components/sheet/spread";
 import { Facts, TextLink, body, caption, display } from "@/components/sheet/type";
 
 export const metadata: Metadata = {
@@ -11,18 +11,18 @@ export const metadata: Metadata = {
 export default function ArtRestorationPage() {
     return (
         <SpreadRow>
-            <SpreadPanel id="panel-framing" label="Framing and restoration" section="Framing and restoration" index={1}>
+            <SpreadPanel id="panel-framing" label="Framing and restoration" index={1}>
                 <SpreadGrid>
                     <div className={leftPage}>
                         <h1 className={display}>Framing and restoration</h1>
-                        <p className={`mt-6 max-w-[30rem] ${body}`}>
+                        <p className={`${footStandfirst} max-w-[30rem] ${body}`}>
                             Restoration, conservation, and custom framing for paintings, works on
                             paper, and sculpture. Manamperi is trained in the conservation of murals
                             and paintings, and in stone conservation through UNESCO. A fuller page
                             is being prepared; in the meantime, get in touch about a piece.
                         </p>
                         <Facts
-                            className="mt-8 max-w-[30rem] lg:mt-auto"
+                            className={`${belowStandfirst} max-w-[30rem]`}
                             labelWidth="6.5rem"
                             items={[
                                 { label: "Services", value: "Restoration, conservation, custom framing" },

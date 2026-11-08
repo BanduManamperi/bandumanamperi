@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Spread, rightPageBleed } from "@/components/sheet/spread";
+import { Spread, belowStandfirst, footStandfirst, rightPageBleed } from "@/components/sheet/spread";
 
 const categories = [
     {
@@ -30,7 +30,7 @@ export function WorkSection({ index = 2, headingLevel = "h2" }: { index?: number
     const current = categories[active];
 
     return (
-        <Spread section="Work" index={index}>
+        <Spread index={index}>
             <div className="h-full">
                 <div className="grid min-h-full grid-cols-1 gap-y-8 py-6 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)] lg:py-8">
 
@@ -41,14 +41,14 @@ export function WorkSection({ index = 2, headingLevel = "h2" }: { index?: number
                         >
                             Work
                         </Heading>
-                        <p className="mt-6 max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80">
+                        <p className={`${footStandfirst} max-w-[30rem] text-[0.9375rem] leading-[1.6] text-foreground/80`}>
                             A practice that moves across media to confront identity, conflict,
                             and the complexities of human nature. Working through performance,
                             drawing, and installation, Manamperi asks viewers to confront their
                             own perceptions and enter a deeper dialogue with the subject matter.
                         </p>
 
-                        <ul className="mt-8 border-t border-border lg:mt-auto">
+                        <ul className={`${belowStandfirst} border-t border-border`}>
                             {categories.map((cat, i) => {
                                 const linkProps = {
                                     onMouseEnter: () => setActive(i),

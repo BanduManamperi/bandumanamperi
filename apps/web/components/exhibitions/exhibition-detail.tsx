@@ -10,6 +10,8 @@ export type ExhibitionStatus = "on-view" | "upcoming" | "past";
 
 export interface ExhibitionDetailData {
     title: string;
+    /** This exhibition's spread on /exhibitions. */
+    backHref: string;
     status: ExhibitionStatus;
     type: string;
     dek?: string;
@@ -118,6 +120,9 @@ export function ExhibitionDetail({ exhibition }: { exhibition: ExhibitionDetailD
         <article className="mx-auto max-w-[72rem] pt-8 lg:pt-12">
             <div className="grid grid-cols-1 gap-y-8 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)]">
                 <div className="flex flex-col lg:col-span-5">
+                    <Link href={exhibition.backHref} className={`mb-6 self-start text-[0.8125rem] ${textLink}`}>
+                        <span aria-hidden>&larr;</span> Back to exhibitions
+                    </Link>
                     <p className="flex items-center gap-2 text-[0.75rem] text-foreground">
                         <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} aria-hidden />
                         {status.label}, {exhibition.type.toLowerCase()}
@@ -208,8 +213,8 @@ export function ExhibitionDetail({ exhibition }: { exhibition: ExhibitionDetailD
             )}
 
             <nav aria-label="Exhibitions" className="mt-16 flex justify-between border-t border-border pt-6 text-[0.8125rem]">
-                <Link href="/exhibitions" className={textLink}>
-                    All exhibitions
+                <Link href={exhibition.backHref} className={textLink}>
+                    Back to exhibitions
                 </Link>
                 <Link href="/" className={textLink}>
                     Home

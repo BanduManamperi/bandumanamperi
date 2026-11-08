@@ -3,7 +3,7 @@ import { TextLink, body, display } from "@/components/sheet/type";
 
 export default function NotFound() {
     return (
-        <DocumentSheet section="Not found">
+        <DocumentSheet>
             <div className="mx-auto max-w-[72rem] pt-8 lg:pt-12">
                 <h1 className={display}>Page not found</h1>
                 <p className={`mt-6 max-w-[30rem] ${body}`}>

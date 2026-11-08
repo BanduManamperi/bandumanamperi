@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getSeriesWithWorks } from "@/lib/data/artworks";
-import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPageBleed } from "@/components/sheet/spread";
+import { SpreadGrid, SpreadPanel, SpreadRow, belowStandfirst, footStandfirst, leftPage, rightPageBleed } from "@/components/sheet/spread";
 import { Facts, TextLink, body, caption, display } from "@/components/sheet/type";
 import { WorkSpreadPanel } from "@/components/artworks/work-spread";
 
@@ -40,13 +40,13 @@ export default async function SeriesPage({ params }: PageProps) {
 
     return (
         <SpreadRow>
-            <SpreadPanel id="series" label={series.name} section="Series" index={1}>
+            <SpreadPanel id="series" label={series.name} index={1}>
                 <SpreadGrid>
                     <div className={leftPage}>
                         <h1 className={display}>{series.name}</h1>
-                        {series.description && <p className={`mt-6 max-w-[30rem] whitespace-pre-line ${body}`}>{series.description}</p>}
+                        {series.description && <p className={`${footStandfirst} max-w-[30rem] whitespace-pre-line ${body}`}>{series.description}</p>}
                         <Facts
-                            className="mt-8 max-w-[30rem] lg:mt-auto"
+                            className={`${series.description ? belowStandfirst : "mt-8 lg:mt-auto"} max-w-[30rem]`}
                             items={[
                                 { label: "Works", value: `${works.length}` },
                                 { label: "Dates", value: yearSpan(works.map((w) => w.year ?? "")) },
@@ -72,7 +72,6 @@ export default async function SeriesPage({ params }: PageProps) {
                     key={entry.id}
                     entry={entry}
                     panelId={`work-${entry.label}`}
-                    section={`${series.name}, ${i + 1} of ${works.length}`}
                     index={i + 2}
                     priority={i === 0}
                 />

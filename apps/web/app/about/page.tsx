@@ -39,7 +39,7 @@ export default async function About() {
 
     return (
         <SpreadRow>
-            <DocumentSheet id="panel-biography" section="About, biography" handoff>
+            <DocumentSheet id="panel-biography" handoff>
                 <div className="mx-auto max-w-[72rem] pt-8 lg:pt-12">
                     <h1 className={display}>Biography</h1>
                     <div className="mt-10 max-w-[38rem] space-y-6">
@@ -52,7 +52,7 @@ export default async function About() {
                 </div>
             </DocumentSheet>
 
-            <SpreadPanel id="panel-practice" label="Practice" section="About" index={1}>
+            <SpreadPanel id="panel-practice" label="Practice" index={1}>
                 <SpreadGrid>
                     <div className={leftPage}>
                         <h2 className={display}>Practice</h2>
@@ -80,7 +80,7 @@ export default async function About() {
                 </SpreadGrid>
             </SpreadPanel>
 
-            <DocumentSheet id="panel-cv" section="About, curriculum vitae" handoff>
+            <DocumentSheet id="panel-cv" handoff>
                 <div className="mx-auto max-w-[72rem] pt-8 lg:pt-12">
                     <h2 className={`mb-12 ${display}`}>Curriculum vitae</h2>
                     <CVSection cvData={cvData} />

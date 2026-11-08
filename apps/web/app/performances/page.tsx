@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { getPublishedPerformances, type PerformanceItem } from "@/lib/services/performanceService";
 import { withoutDashes } from "@/lib/text";
-import { SpreadGrid, SpreadPanel, SpreadRow, leftPage, rightPage } from "@/components/sheet/spread";
+import { SpreadGrid, SpreadPanel, SpreadRow, belowStandfirst, footStandfirst, leftPage, rightPage } from "@/components/sheet/spread";
 import { Facts, body, caption, display } from "@/components/sheet/type";
 
 // Entries per page column; two columns make a spread.
@@ -85,17 +85,17 @@ export default async function PerformancesPage() {
 
     return (
         <SpreadRow>
-            <SpreadPanel id="panel-performances" label="Performance" section="Performance" index={1}>
+            <SpreadPanel id="panel-performances" label="Performance" index={1}>
                 <SpreadGrid>
                     <div className={leftPage}>
                         <h1 className={display}>Performance</h1>
-                        <p className={`mt-6 max-w-[30rem] ${body}`}>
+                        <p className={`${footStandfirst} max-w-[30rem] ${body}`}>
                             The body as site, duration as medium, presence as material. Each action
                             unfolds in real time and asks for a witness. These are not documents of
                             events. They are the events themselves.
                         </p>
                         <Facts
-                            className="mt-8 max-w-[30rem] lg:mt-auto"
+                            className={`${belowStandfirst} max-w-[30rem]`}
                             items={[
                                 { label: "Record", value: `${entries.length} performances and exhibitions` },
                                 { label: "Years", value: span || null },
@@ -133,7 +133,6 @@ export default async function PerformancesPage() {
                         key={i}
                         id={`chronology-${i + 1}`}
                         label={`Chronology ${yearSpan(group)}`}
-                        section={`Chronology, ${yearSpan(group)}`}
                         index={i + 2}
                     >
                         <div className="grid h-full grid-cols-1 gap-y-6 py-6 lg:grid-cols-2 lg:gap-x-[clamp(2rem,5vw,6rem)] lg:py-8">

@@ -35,19 +35,17 @@ export function workFacts(entry: CatalogueEntry) {
 export function WorkSpreadPanel({
     entry,
     panelId,
-    section,
     index,
     priority = false,
 }: {
     entry: CatalogueEntry;
     panelId: string;
-    section: string;
     index: number;
     priority?: boolean;
 }) {
     const description = displayDescription(entry);
     return (
-        <SpreadPanel id={panelId} label={`Cat. ${entry.label}`} section={section} index={index}>
+        <SpreadPanel id={panelId} label={`Cat. ${entry.label}`} index={index}>
             <SpreadGrid>
                 <div className={leftPage}>
                     <p className={`${caption} tabular-nums`}>Cat. no. {entry.label}</p>

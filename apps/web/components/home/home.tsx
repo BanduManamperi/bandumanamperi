@@ -1,20 +1,15 @@
 import React from 'react'
 import HeroSection from './heroSection'
 import ContactSection from './contactSection'
-import { UpcomingEventsSection } from './upcomingEventsSection'
+import { ExhibitionsSection } from './exhibitionsSection'
 import { WorkSection } from './workSection'
-import { getUpcomingExhibitions, getExhibitions } from '@/lib/actions/exhibitions'
+import { getExhibitions } from '@/lib/actions/exhibitions'
 import { getNowShowing } from '@/lib/data/now-showing'
 
 const Home = async () => {
-    // Prefer ongoing/upcoming events; fall back to recent past events so the
-    // section always has something to show.
-    let events = await getUpcomingExhibitions()
-    if (events.length === 0) {
-        events = (await getExhibitions()).slice(0, 6)
-    }
-
-    const nowShowing = getNowShowing(events)
+    // Sorted for display: on view, then upcoming, then past from the newest.
+    const exhibitions = await getExhibitions()
+    const nowShowing = getNowShowing(exhibitions)
 
     const panel = "w-screen flex-shrink-0 h-full overflow-hidden"
 
@@ -29,14 +24,14 @@ const Home = async () => {
                 <WorkSection />
             </div>
 
-            {events.length > 0 && (
-                <div id="panel-upcoming" data-panel data-panel-label="Events" className={panel}>
-                    <UpcomingEventsSection exhibitions={events} />
+            {exhibitions.length > 0 && (
+                <div id="panel-exhibitions" data-panel data-panel-label="Exhibitions" className={panel}>
+                    <ExhibitionsSection exhibitions={exhibitions} index={3} />
                 </div>
             )}
 
             <div id="panel-contact" data-panel data-panel-label="Contact" className={panel}>
-                <ContactSection index={events.length > 0 ? 4 : 3} nowShowing={nowShowing} />
+                <ContactSection index={exhibitions.length > 0 ? 4 : 3} nowShowing={nowShowing} />
             </div>
 
         </div>

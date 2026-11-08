@@ -34,6 +34,19 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
         routerRef.current = router
     }, [pathname, router])
 
+    // Keep the current spread in the URL hash, so the browser's back button and
+    // a reload return to it instead of the first spread. replaceState rather
+    // than push: turning a page is not a navigation of its own.
+    const syncHash = useCallback((index: number) => {
+        const el = ref.current
+        if (!el) return
+        const id = el.querySelectorAll<HTMLElement>("[data-panel]")[index]?.id
+        const hash = index > 0 && id ? `#${id}` : ""
+        if (window.location.hash === hash) return
+        const { pathname, search } = window.location
+        window.history.replaceState(window.history.state, "", `${pathname}${search}${hash}`)
+    }, [])
+
     const animateTo = useCallback((targetLeft: number, onDone: () => void) => {
         const el = ref.current
         if (!el) return
@@ -83,6 +96,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
         setActiveIndex(clamped)
         animateTo(clamped * pw, () => {
             animatingRef.current = false
+            syncHash(clamped)
             if (managed) {
                 // only release if momentum has already stopped; otherwise the
                 // settle timer will release once events go quiet
@@ -91,7 +105,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
                 setTimeout(() => { lockedRef.current = false }, 80)
             }
         })
-    }, [animateTo])
+    }, [animateTo, syncHash])
 
     const goHome = useCallback((managed = false) => {
         const el = ref.current
@@ -185,6 +199,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
             const idx = Math.round(el.scrollLeft / el.clientWidth)
             currentPanelRef.current = idx
             setActiveIndex(idx)
+            syncHash(idx)
         }
         el.addEventListener("scroll", onScroll, { passive: true })
 
@@ -256,7 +271,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
             if (rafRef.current) cancelAnimationFrame(rafRef.current)
             if (settleTimerRef.current != null) clearTimeout(settleTimerRef.current)
         }
-    }, [goTo, goHome, goNext, goPrev])
+    }, [goTo, goHome, goNext, goPrev, syncHash])
 
     const canPrev = activeIndex > 0 || pathname !== "/"
     const canNext = activeIndex < panelCount - 1

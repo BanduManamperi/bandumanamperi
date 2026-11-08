@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Spread, rightPageBleed } from "@/components/sheet/spread";
+import { Spread, belowStandfirst, footStandfirst, rightPageBleed } from "@/components/sheet/spread";
 import { textLink } from "@/components/sheet/type";
 
 // A short standfirst drawn from the biography on /about. Kept to two short
@@ -26,7 +26,7 @@ const HeroSection = () => {
     const reduce = useReducedMotion();
 
     return (
-        <Spread section="About" index={1}>
+        <Spread index={1}>
             <div className="h-full">
                 <div className="grid min-h-full grid-cols-1 gap-y-8 py-6 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)] lg:py-8">
 
@@ -45,7 +45,7 @@ const HeroSection = () => {
                             Manamperi
                         </h1>
 
-                        <div className="mt-6 max-w-[34rem] space-y-4 text-[0.9375rem] leading-[1.6] text-foreground/80 xl:mt-8">
+                        <div className={`${footStandfirst} max-w-[34rem] space-y-4 text-[0.9375rem] leading-[1.6] text-foreground/80`}>
                             {about.map((paragraph, i) => (
                                 <p key={i}>{paragraph}</p>
                             ))}
@@ -60,7 +60,7 @@ const HeroSection = () => {
                             </Link>
                         </nav>
 
-                        <dl className="mt-8 grid max-w-[34rem] grid-cols-[5.5rem_1fr] gap-x-4 gap-y-2 text-[0.75rem] leading-[1.5] lg:mt-auto lg:pt-6">
+                        <dl className={`${belowStandfirst} grid max-w-[34rem] grid-cols-[5.5rem_1fr] gap-x-4 gap-y-2 text-[0.75rem] leading-[1.5]`}>
                             {facts.map((f) => (
                                 <React.Fragment key={f.label}>
                                     <dt className="text-muted-foreground">{f.label}</dt>
@@ -73,7 +73,7 @@ const HeroSection = () => {
                     {/* Right page: the artist at work */}
                     <figure className={rightPageBleed}>
                         <motion.div
-                            className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1"
+                            className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1 grayscale"
                             initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
                             animate={{ clipPath: "inset(0 0% 0 0)" }}
                             transition={{ duration: 1.1, ease: [0.65, 0, 0.35, 1] }}

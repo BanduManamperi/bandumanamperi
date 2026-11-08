@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function ArchivePage() {
     const catalogue = await getCatalogue();
     return (
-        <DocumentSheet section="Archive">
+        <DocumentSheet>
             <ArchiveCatalogue entries={catalogue.filter((e) => e.shelf === "archive")} latestCount={LATEST_COUNT} />
         </DocumentSheet>
     );
