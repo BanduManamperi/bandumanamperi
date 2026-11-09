@@ -152,15 +152,10 @@ export const getInventory = cache(async (): Promise<Offer[]> => {
         });
 });
 
-export async function getShelf(shelf: Shelf): Promise<Offer[]> {
-    const inventory = await getInventory();
-    return inventory.filter((work) => work.availability === shelf);
-}
-
+/** A work and the catalogue it sits in, for the viewing room's index. */
 export async function getRoom(slug: string) {
-    const inventory = await getInventory();
-    const work = inventory.find((entry) => entry.slug === slug || entry.id === slug);
+    const catalogue = await getInventory();
+    const work = catalogue.find((entry) => entry.slug === slug || entry.id === slug);
     if (!work) return null;
-    const shelf = inventory.filter((entry) => entry.availability === work.availability);
-    return { work, shelf };
+    return { work, catalogue };
 }

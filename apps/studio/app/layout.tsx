@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans, Fraunces, Anton } from "next/font/google";
+import { Noto_Sans, Fraunces, Anton, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
 export const revalidate = 60;
@@ -29,6 +29,13 @@ const anton = Anton({
     subsets: ["latin"],
 });
 
+// The catalogue's labels: titles and numbers set like a collection sheet.
+const plexMono = IBM_Plex_Mono({
+    variable: "--font-plex-mono",
+    weight: ["400", "500"],
+    subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3002"),
     title: {
@@ -41,7 +48,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en">
-            <body className={`${notoSans.variable} ${fraunces.variable} ${anton.variable} flex min-h-dvh flex-col font-sans antialiased lg:h-dvh lg:overflow-hidden`}>
+            <body className={`${notoSans.variable} ${fraunces.variable} ${anton.variable} ${plexMono.variable} flex min-h-dvh flex-col font-sans antialiased lg:h-dvh lg:overflow-hidden`}>
                 {children}
             </body>
         </html>

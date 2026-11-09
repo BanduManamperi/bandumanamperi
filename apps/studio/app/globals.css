@@ -26,6 +26,7 @@
   --font-sans: var(--font-noto-sans);
   --font-serif: var(--font-fraunces);
   --font-display: var(--font-anton);
+  --font-mono: var(--font-plex-mono);
   --color-room-wall: var(--room-wall);
   --color-room-well: var(--room-well);
   --color-room-ink: var(--room-ink);
@@ -38,64 +39,27 @@
   --color-border: var(--border);
 }
 
+/* The site never grows wider than 2900px; past that it sits centred, and the
+   page colour, carried to the whole window from the body, runs on either side. */
 body {
+  max-width: 2900px;
+  margin-inline: auto;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-noto-sans), sans-serif;
 }
 
+/* No visible scrollbars anywhere: every scrolling area still scrolls by wheel,
+   trackpad, touch and keyboard, but the frame stays clean. */
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
 :focus-visible {
   outline: 2px solid var(--foreground);
   outline-offset: 3px;
-}
-
-/* Viewing room. Source order is picture, label, index so the work is read first.
-   On a wide screen the index moves to the left and each column scrolls alone. */
-.room {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  background: var(--room-wall);
-  color: var(--room-ink);
-}
-
-.room-picture {
-  position: relative;
-  min-height: 72vw;
-  background: var(--room-well);
-}
-
-.room-index {
-  border-top: 1px solid var(--room-line);
-}
-
-@media (min-width: 64rem) {
-  .room {
-    display: grid;
-    height: 100%;
-    grid-template-columns: 16.5rem minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: "index stage";
-    overflow: hidden;
-  }
-
-  .room-index {
-    grid-area: index;
-    overflow-y: auto;
-    border-top: 0;
-    border-right: 1px solid var(--room-line);
-  }
-
-  .room-stage {
-    grid-area: stage;
-    position: relative;
-    min-height: 0;
-  }
-
-  .room-picture {
-    position: absolute;
-    inset: 0;
-    min-height: 0;
-  }
 }

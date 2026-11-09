@@ -15,9 +15,13 @@ export function formatPrice(amount: number, currency: string): string {
     }
 }
 
-/** The commercial line on a wall label. Absent when the work is for sale and unpriced. */
+/**
+ * The commercial line on a wall label. Absent when the work is unpriced, and
+ * for sold works: the catalogue carries no sale status, a sold work simply
+ * has no enquiry link.
+ */
 export function offerLine(work: Offer): { text: string; figure: boolean } | null {
-    if (work.availability === "sold") return { text: "Sold", figure: false };
+    if (work.availability === "sold") return null;
     if (work.priceUponRequest) return { text: "Price on request", figure: false };
     if (work.price == null) return null;
     return { text: formatPrice(work.price, work.currency), figure: true };

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ViewingRoom } from "@/components/viewing-room";
+import { getProportion } from "@/lib/image-shape";
 import { getRoom } from "@/lib/inventory";
 import { offerLine } from "@/lib/price";
 
@@ -33,5 +34,6 @@ export default async function WorkPage({ params }: PageProps) {
     const { slug } = await params;
     const room = await getRoom(slug);
     if (!room) notFound();
-    return <ViewingRoom work={room.work} shelf={room.shelf} />;
+    const proportion = await getProportion(room.work.images[0]);
+    return <ViewingRoom work={room.work} catalogue={room.catalogue} proportion={proportion} />;
 }

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { Shelf } from "@/lib/inventory";
 import { Monogram } from "@/components/brand/monogram";
 
 type Section = "about" | "paintings" | "framing";
@@ -10,20 +9,7 @@ const PRIMARY: { section: Section; href: string; label: string }[] = [
     { section: "about", href: "/about", label: "About" },
 ];
 
-export function SiteHeader({ section, shelf }: { section?: Section; shelf?: Shelf }) {
-    const shelfItem = (name: Shelf, href: string, label: string) => {
-        const current = shelf === name;
-        return (
-            <Link
-                href={href}
-                aria-current={current ? "page" : undefined}
-                className={current ? "underline decoration-foreground underline-offset-4" : "text-muted-foreground hover:text-foreground"}
-            >
-                {label}
-            </Link>
-        );
-    };
-
+export function SiteHeader({ section }: { section?: Section }) {
     return (
         <header className="shrink-0 border-b border-border bg-background">
             <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-5">
@@ -47,12 +33,6 @@ export function SiteHeader({ section, shelf }: { section?: Section; shelf?: Shel
                     ))}
                 </nav>
             </div>
-            {shelf && (
-                <nav aria-label="Inventory" className="flex items-center gap-5 border-t border-border px-4 py-2 text-[0.8125rem] sm:px-5">
-                    {shelfItem("available", "/works", "Available")}
-                    {shelfItem("sold", "/sold", "Sold")}
-                </nav>
-            )}
         </header>
     );
 }

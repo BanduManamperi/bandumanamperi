@@ -27,7 +27,7 @@ export default async function EnquirePage({ params }: PageProps) {
 
     return (
         <>
-            <SiteHeader section="paintings" shelf={work.availability} />
+            <SiteHeader section="paintings" />
             <main className="flex-1 overflow-y-auto">
                 <div className="mx-auto grid w-full max-w-5xl gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
                     <div>

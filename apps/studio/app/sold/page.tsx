@@ -1,10 +1,6 @@
-import { redirect } from "next/navigation";
-import { EmptyShelf } from "@/components/empty-shelf";
-import { getShelf } from "@/lib/inventory";
+import { permanentRedirect } from "next/navigation";
 
-export default async function SoldPage() {
-    const works = await getShelf("sold");
-    const first = works[0];
-    if (!first) return <EmptyShelf shelf="sold" />;
-    redirect(first.href);
+// The available and sold shelves are now one catalogue.
+export default function Page() {
+    permanentRedirect("/paintings-and-drawings");
 }

@@ -62,7 +62,7 @@ export default function About() {
                                         src="/house-exterior.jpg"
                                         alt="The brick house in Bandaragama, surrounded by palm trees and dense garden"
                                         fill
-                                        className="object-cover"
+                                        className="object-cover grayscale"
                                         sizes="(min-width: 64rem) 34rem, 100vw"
                                     />
                                 </div>
@@ -96,7 +96,7 @@ export default function About() {
                                         src="/house-pond.jpg"
                                         alt="A brick column and reflecting pond beneath the house's open verandah"
                                         fill
-                                        className="object-cover"
+                                        className="object-cover grayscale"
                                         sizes="14rem"
                                     />
                                 </div>
