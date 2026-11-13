@@ -11,11 +11,6 @@ export const metadata: Metadata = {
     },
 };
 
-export default function ArtRestorationLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return <>{children}</>;
+export default function ArtRestorationLayout({ children }: { children: React.ReactNode }) {
+    return <>{children}</>
 }
-

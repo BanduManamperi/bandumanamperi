@@ -118,12 +118,12 @@ export function formatExhibitionSchedule(
   if (end && startOfDay(end).getTime() !== startOfDay(start).getTime()) {
     const sameYear = start.getFullYear() === end.getFullYear()
     const range = sameYear
-      ? `${formatDayLabel(start, false)} – ${formatDayLabel(end, true)}`
-      : `${formatDayLabel(start, true)} – ${formatDayLabel(end, true)}`
+      ? `${formatDayLabel(start, false)} to ${formatDayLabel(end, true)}`
+      : `${formatDayLabel(start, true)} to ${formatDayLabel(end, true)}`
 
     if (startTime || endTime) {
       if (startTime && endTime) {
-        return `${range}, ${startTime} – ${endTime}`
+        return `${range}, ${startTime} to ${endTime}`
       }
       return `${range}, ${startTime ?? endTime}`
     }
@@ -134,7 +134,7 @@ export function formatExhibitionSchedule(
   let label = formatDayLabel(start, true)
 
   if (startTime && endTime) {
-    label = `${label}, ${startTime} – ${endTime}`
+    label = `${label}, ${startTime} to ${endTime}`
   } else if (startTime) {
     label = `${label}, ${startTime}`
   }

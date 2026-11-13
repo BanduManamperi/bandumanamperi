@@ -1,21 +1,20 @@
-import type { Metadata } from "next";
-import { Lora, Playfair_Display } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteHeader } from "@/components/site/site-header";
+import { HorizontalScroll } from "@/components/horizontal-scroll";
 import { Toaster } from "@/components/ui/sonner";
-import Footer from "@/components/footer/footer";
 import Provider from "@/components/provider";
 
 export const revalidate = 60;
 
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
 
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
+// One family for the whole site; the BM monogram is drawn from its Light (300) cut.
+const notoSans = Noto_Sans({
+  variable: "--font-noto-sans",
   subsets: ["latin"],
 });
 
@@ -36,20 +35,11 @@ export const metadata: Metadata = {
     siteName: "Bandu Manamperi",
     title: "Bandu Manamperi | Contemporary Artist & Art Restoration",
     description: "Explore the captivating artworks, exhibitions, and art restoration services by Bandu Manamperi. A contemporary Sri Lankan artist specializing in paintings, sculptures, and traditional art framing.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Bandu Manamperi - Contemporary Artist",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Bandu Manamperi | Contemporary Artist & Art Restoration",
     description: "Explore the captivating artworks, exhibitions, and art restoration services by Bandu Manamperi.",
-    images: ["/twitter-image.jpg"],
   },
   robots: {
     index: true,
@@ -77,7 +67,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <Provider>
         <body
-          className={`${lora.variable} ${playfairDisplay.variable} font-serif antialiased`}
+          className={`${notoSans.variable} font-sans antialiased overflow-hidden`}
         >
           <ThemeProvider
             attribute="class"
@@ -85,11 +75,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SiteHeader />
-            <main>
+            <HorizontalScroll>
               {children}
-            </main>
-            <Footer />
+            </HorizontalScroll>
             <Toaster />
           </ThemeProvider>
         </body>

@@ -2,81 +2,99 @@
 
 import React from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
+import { Spread, belowStandfirst, footStandfirst, rightPageBleed } from "@/components/sheet/spread";
+import { textLink } from "@/components/sheet/type";
+
+// A short standfirst drawn from the biography on /about. Kept to two short
+// paragraphs so the facts below stay on the page without scrolling.
+const about = [
+    "Bandu Manamperi's work transcends traditional boundaries to explore identity, conflict, and the complexities of human nature. His approach incorporates performances, drawings, and installations, challenging viewers to confront their perceptions.",
+    "Drawing on his own experiences and cultural heritage, his pieces reflect the societal and personal impacts of political turmoil, serving both as a mirror to societal issues and as a bridge between diverse audiences.",
+];
+
+// Facts set like the project data on a portfolio page.
+// TODO(human): curate these 3-4 facts; this is the first thing a curator scans.
+const facts = [
+    { label: "Based in", value: "Bandaragama, Sri Lanka" },
+    { label: "Collective", value: "Theertha International Artists' Collective, founding member and Vice Chairman" },
+    { label: "Education", value: "MA Archaeology, PGIAR. BFA Sculpture, University of Kelaniya" },
+];
 
 const HeroSection = () => {
+    const reduce = useReducedMotion();
+
     return (
-        <section className="relative min-h-dvh flex items-center justify-center overflow-hidden">
-            {/* Full Section Image */}
-            <motion.div
-                className="absolute inset-0 w-full h-full"
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
-            >
-                <Image
-                    src="/IMG_8614.JPG"
-                    alt="Bandu manamperi"
-                    fill
-                    className="object-cover brightness-[0.35] grayscale"
-                    style={{ objectPosition: "center 30%" }}
-                    priority
-                    sizes="100vw"
-                />
+        <Spread index={1}>
+            <div className="h-full">
+                <div className="grid min-h-full grid-cols-1 gap-y-8 py-6 lg:grid-cols-12 lg:gap-x-[clamp(1.5rem,3vw,3.5rem)] lg:py-8">
 
-                {/* Subtle gradient overlay for better text readability */}
-                <div
-                    className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-black/20"
-                    aria-hidden="true"
-                />
-            </motion.div>
-
-            {/* Text Content - Centered */}
-            <div className="relative z-20 w-full px-6 sm:px-8 lg:px-12">
-                <div className="max-w-5xl mx-auto text-center">
-                    <div className="space-y-6 sm:space-y-8">
-                        {/* Name */}
-                        <motion.h1
-                            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-wide text-white"
-                            initial={{ opacity: 0, y: 24 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                    {/* Left page: name, bio, facts */}
+                    <motion.div
+                        className="flex min-w-0 flex-col lg:col-span-5 lg:h-full lg:overflow-y-auto xl:col-span-4"
+                        initial={reduce ? false : { opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <h1
+                            className="font-display text-[clamp(3rem,4.8vw,6rem)] font-light leading-[0.95] tracking-[-0.02em] text-foreground"
                         >
-                            Bandu Manamperi
-                        </motion.h1>
+                            Bandu
+                            <br />
+                            Manamperi
+                        </h1>
 
-                        {/* Divider */}
+                        <div className={`${footStandfirst} max-w-[34rem] space-y-4 text-[0.9375rem] leading-[1.6] text-foreground/80`}>
+                            {about.map((paragraph, i) => (
+                                <p key={i}>{paragraph}</p>
+                            ))}
+                        </div>
+
+                        <nav className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[0.8125rem]">
+                            <Link href="/about" className={textLink}>
+                                Read the full biography
+                            </Link>
+                            <Link href="/background" className={textLink}>
+                                Read the full CV
+                            </Link>
+                        </nav>
+
+                        <dl className={`${belowStandfirst} grid max-w-[34rem] grid-cols-[5.5rem_1fr] gap-x-4 gap-y-2 text-[0.75rem] leading-[1.5]`}>
+                            {facts.map((f) => (
+                                <React.Fragment key={f.label}>
+                                    <dt className="text-muted-foreground">{f.label}</dt>
+                                    <dd className="text-foreground">{f.value}</dd>
+                                </React.Fragment>
+                            ))}
+                        </dl>
+                    </motion.div>
+
+                    {/* Right page: the artist at work */}
+                    <figure className={rightPageBleed}>
                         <motion.div
-                            className="flex items-center justify-center"
-                            initial={{ opacity: 0, scaleX: 0 }}
-                            animate={{ opacity: 1, scaleX: 1 }}
-                            transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
+                            className="relative aspect-[3/2] w-full overflow-hidden bg-[var(--sheet-rule)] lg:aspect-auto lg:flex-1 grayscale"
+                            initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
+                            animate={{ clipPath: "inset(0 0% 0 0)" }}
+                            transition={{ duration: 1.1, ease: [0.65, 0, 0.35, 1] }}
                         >
-                            <div className="h-px w-24 bg-white/30 origin-center" />
+                            <Image
+                                src="/IMG_8614.JPG"
+                                alt="Bandu Manamperi drawing on tissue paper laid over a large work in his studio"
+                                fill
+                                priority
+                                className="object-cover object-[30%_40%]"
+                                sizes="(min-width: 1280px) 64vw, (min-width: 1024px) 56vw, 100vw"
+                            />
                         </motion.div>
+                        <figcaption className="mt-2 text-[0.6875rem] text-muted-foreground">
+                            In the studio, drawing on tissue over a work in progress
+                        </figcaption>
+                    </figure>
 
-                        {/* Description */}
-                        <motion.p
-                            className="text-lg sm:text-xl md:text-2xl text-white/70 max-w-3xl mx-auto font-light leading-relaxed"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, delay: 0.6, ease: "easeOut" }}
-                        >
-                            Contemporary Sri Lankan Artist
-                        </motion.p>
-
-                        <motion.p
-                            className="text-sm sm:text-base md:text-lg text-white/50 max-w-2xl mx-auto font-light leading-relaxed"
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, delay: 0.8, ease: "easeOut" }}
-                        >
-                            Performance · Installation · Drawing
-                        </motion.p>
-                    </div>
                 </div>
             </div>
-        </section>
+        </Spread>
     );
 };
 

@@ -1,27 +1,38 @@
 import React from 'react'
 import HeroSection from './heroSection'
-import FeaturedWorks from './featuredWorks'
-import { getFeaturedArtworks } from '@/lib/data/artworks'
-import AboutSection from './aboutSection'
 import ContactSection from './contactSection'
-import IntroAnimation from './introAnimation'
-import { UpcomingEventsSection } from './upcomingEventsSection'
-import { getUpcomingExhibitions } from '@/lib/actions/exhibitions'
+import { ExhibitionsSection } from './exhibitionsSection'
+import { WorkSection } from './workSection'
+import { getExhibitions } from '@/lib/actions/exhibitions'
+import { getNowShowing } from '@/lib/data/now-showing'
 
 const Home = async () => {
-    const [featuredArtworks, upcomingExhibitions] = await Promise.all([
-        getFeaturedArtworks(),
-        getUpcomingExhibitions(),
-    ])
+    // Sorted for display: on view, then upcoming, then past from the newest.
+    const exhibitions = await getExhibitions()
+    const nowShowing = getNowShowing(exhibitions)
+
+    const panel = "w-screen flex-shrink-0 h-full overflow-hidden"
 
     return (
-        <div>
-            <IntroAnimation />
-            <HeroSection />
-            <UpcomingEventsSection exhibitions={upcomingExhibitions} />
-            <FeaturedWorks artworks={featuredArtworks} />
-            <AboutSection />
-            <ContactSection />
+        <div className="flex flex-row h-full w-max flex-shrink-0">
+
+            <div id="panel-hero" data-panel data-panel-label="About" className={panel}>
+                <HeroSection />
+            </div>
+
+            <div id="panel-work" data-panel data-panel-label="Work" className={panel}>
+                <WorkSection />
+            </div>
+
+            {exhibitions.length > 0 && (
+                <div id="panel-exhibitions" data-panel data-panel-label="Exhibitions" className={panel}>
+                    <ExhibitionsSection exhibitions={exhibitions} index={3} />
+                </div>
+            )}
+
+            <div id="panel-contact" data-panel data-panel-label="Contact" className={panel}>
+                <ContactSection index={exhibitions.length > 0 ? 4 : 3} nowShowing={nowShowing} />
+            </div>
 
         </div>
     )

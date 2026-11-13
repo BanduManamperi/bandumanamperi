@@ -24,7 +24,7 @@ const Footer = () => {
 
                     {/* Navigation */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
                             Navigation
                         </h3>
                         <nav className="flex flex-col space-y-3">
@@ -57,7 +57,7 @@ const Footer = () => {
 
                     {/* Social */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
                             Connect
                         </h3>
                         <nav className="flex flex-col space-y-3">
@@ -95,7 +95,7 @@ const Footer = () => {
 
                     {/* Contact Info */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                        <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
                             Contact
                         </h3>
                         <div className="flex flex-col space-y-3 text-sm">
@@ -109,7 +109,7 @@ const Footer = () => {
                             <div className="flex items-start gap-2 text-muted-foreground">
                                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p>Colombo, Sri Lanka</p>
+                                    <p>Bandaragama, Sri Lanka</p>
                                 </div>
                             </div>
                         </div>

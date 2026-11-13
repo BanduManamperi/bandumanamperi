@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { cvData, CVEntry } from '@/lib/data/cv';
+import { CVData, CVEntry } from '@/lib/data/cv';
 import { cn } from '@/lib/utils';
 
 const NAV_SECTIONS = [
@@ -19,15 +19,15 @@ const PREVIEW_COUNT = 7;
 function EntryRow({ entry, italic = false }: { entry: CVEntry; italic?: boolean }) {
     return (
         <div className="flex gap-6 py-3.5 border-b border-border/40 last:border-0">
-            <span className="text-muted-foreground font-light w-24 shrink-0 text-sm tabular-nums leading-relaxed">
+            <span className="text-muted-foreground w-24 shrink-0 text-sm tabular-nums leading-relaxed">
                 {entry.year}
             </span>
             <div className="min-w-0">
-                <p className={cn('text-foreground font-light text-sm leading-relaxed', italic && 'italic')}>
+                <p className={cn('text-foreground text-sm leading-relaxed', italic && 'italic')}>
                     {entry.title}
                 </p>
                 {entry.subtitle && (
-                    <p className="text-muted-foreground text-xs font-light mt-0.5 leading-relaxed">
+                    <p className="text-muted-foreground text-xs mt-0.5 leading-relaxed">
                         {entry.subtitle}
                     </p>
                 )}
@@ -74,8 +74,8 @@ function SectionBlock({
     children: React.ReactNode;
 }) {
     return (
-        <div id={id} className="scroll-mt-36">
-            <h3 className="font-serif text-2xl text-foreground mb-8 pb-4 border-b border-border">
+        <div id={id} className="scroll-mt-8">
+            <h3 className="font-display text-[1.75rem] font-light leading-tight text-foreground mb-6 pb-3 border-b border-border">
                 {title}
             </h3>
             {children}
@@ -87,7 +87,7 @@ function SectionBlock({
 
 function SubLabel({ children }: { children: React.ReactNode }) {
     return (
-        <p className="text-xs tracking-widest uppercase text-muted-foreground mb-3">
+        <p className="text-[0.75rem] text-muted-foreground mb-2">
             {children}
         </p>
     );
@@ -95,28 +95,59 @@ function SubLabel({ children }: { children: React.ReactNode }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function CVSection() {
+// Walk up the DOM to find the nearest vertically-scrollable ancestor.
+function getScrollParent(node: HTMLElement | null): HTMLElement | null {
+    let el = node?.parentElement ?? null;
+    while (el) {
+        const overflowY = getComputedStyle(el).overflowY;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight) {
+            return el;
+        }
+        el = el.parentElement;
+    }
+    return null;
+}
+
+export function CVSection({ cvData }: { cvData: CVData }) {
     const [activeSection, setActiveSection] = useState('education');
 
     useEffect(() => {
-        const observers: IntersectionObserver[] = [];
+        const first = document.getElementById(NAV_SECTIONS[0].id);
+        if (!first) return;
 
-        NAV_SECTIONS.forEach(({ id }) => {
-            const el = document.getElementById(id);
-            if (!el) return;
+        const scroller = getScrollParent(first);
+        const target: HTMLElement | Window = scroller ?? window;
 
-            const observer = new IntersectionObserver(
-                ([entry]) => {
-                    if (entry.isIntersecting) setActiveSection(id);
-                },
-                { rootMargin: '-15% 0px -75% 0px' }
-            );
+        const updateActive = () => {
+            const viewTop = scroller ? scroller.getBoundingClientRect().top : 0;
+            const viewHeight = scroller ? scroller.clientHeight : window.innerHeight;
+            const threshold = viewHeight * 0.2;
 
-            observer.observe(el);
-            observers.push(observer);
-        });
+            // When scrolled to the bottom, the last nav section is the active one
+            // (its heading can't always reach the activation band).
+            const atBottom = scroller
+                ? Math.ceil(scroller.scrollTop + scroller.clientHeight) >= scroller.scrollHeight - 2
+                : window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
 
-        return () => observers.forEach(o => o.disconnect());
+            if (atBottom) {
+                setActiveSection(NAV_SECTIONS[NAV_SECTIONS.length - 1].id);
+                return;
+            }
+
+            let current = NAV_SECTIONS[0].id;
+            for (const { id } of NAV_SECTIONS) {
+                const el = document.getElementById(id);
+                if (!el) continue;
+                const top = el.getBoundingClientRect().top - viewTop;
+                if (top <= threshold) current = id;
+            }
+            setActiveSection(current);
+        };
+
+        target.addEventListener('scroll', updateActive, { passive: true });
+        updateActive();
+
+        return () => target.removeEventListener('scroll', updateActive);
     }, []);
 
     const scrollTo = (id: string) => {
@@ -126,7 +157,7 @@ export function CVSection() {
     return (
         <>
             {/* Mobile sticky nav */}
-            <div className="lg:hidden sticky top-20 z-10 bg-background/95 backdrop-blur-sm border-b border-border mb-10 -mx-6 px-6">
+            <div className="lg:hidden sticky top-0 z-10 bg-background border-b border-border mb-10 -mx-[var(--sheet-pad)] px-[var(--sheet-pad)]">
                 <div className="flex gap-6 overflow-x-auto py-3 scrollbar-none">
                     {NAV_SECTIONS.map(({ id, label }) => (
                         <button
@@ -149,7 +180,7 @@ export function CVSection() {
             <div className="flex gap-16">
                 {/* Sticky sidebar */}
                 <aside className="hidden lg:block w-40 shrink-0">
-                    <nav className="sticky top-36 space-y-0.5">
+                    <nav className="sticky top-8 space-y-0.5">
                         {NAV_SECTIONS.map(({ id, label }) => {
                             const isActive = activeSection === id;
                             return (
@@ -237,7 +268,7 @@ export function CVSection() {
                                 {cvData.publicCollections.map((c, i) => (
                                     <li
                                         key={i}
-                                        className="text-muted-foreground font-light text-sm pl-4 border-l-2 border-primary/30"
+                                        className="text-foreground/80 text-sm pl-4 border-l border-border"
                                     >
                                         {c.name}
                                     </li>
