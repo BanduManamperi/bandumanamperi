@@ -12,7 +12,8 @@ export type EnquireState = {
     ok?: boolean;
 };
 
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? STUDIO_EMAIL;
+// An empty setting falls back to the studio, as an unset one does.
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || STUDIO_EMAIL;
 
 export async function sendEnquiry(_prev: EnquireState, formData: FormData): Promise<EnquireState> {
     if (String(formData.get("company") ?? "").trim()) {

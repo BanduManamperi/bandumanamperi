@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { StudioFrame } from "@/components/studio-frame";
-import { mailStudio } from "@/lib/studio";
+import { WriteToStudio } from "@/components/write-to-studio";
 
 export const metadata: Metadata = {
     title: "Framing and Restoration",
@@ -25,7 +25,8 @@ const SERVICES = [
 
 // Framing and restoration, before it opens here: a sheet ruled like the
 // catalogue's, with the notice set low on the left like a wall label and
-// the two services it will cover listed beside it.
+// the two services it will cover listed beside it. Writing to the studio
+// opens a sheet over the page.
 export default function FramingAndRestorationPage() {
     return (
         <StudioFrame current="/framing-and-restoration" className="overflow-y-auto">
@@ -47,14 +48,12 @@ export default function FramingAndRestorationPage() {
                             Coming soon
                         </h2>
                         <p className="mt-5 max-w-[30rem] text-[0.9375rem] leading-relaxed text-foreground/80">
-                            This page is being prepared. Until it opens, framing and restoration enquiries go to the studio by email.
+                            This page is being prepared. Until it opens, write to the studio about a frame or a restoration, and it will reply by email.
                         </p>
-                        <a
-                            href={mailStudio("Framing and restoration")}
-                            className="mt-8 inline-block text-[0.875rem] font-medium text-foreground underline decoration-foreground/40 underline-offset-[5px] transition-colors hover:decoration-foreground"
-                        >
-                            Write to the studio →
-                        </a>
+                        <WriteToStudio
+                            about="Framing and restoration"
+                            className="mt-8 block text-left text-[0.875rem] font-medium text-foreground underline decoration-foreground/40 underline-offset-[5px] transition-colors hover:decoration-foreground"
+                        />
                     </section>
 
                     <ol aria-label="Services" className="border-b border-foreground/15 lg:max-w-[34rem] lg:justify-self-end">

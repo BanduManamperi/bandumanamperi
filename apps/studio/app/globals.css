@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* The focus ring everywhere, in the base layer so a component's own focus
+   classes can still set it differently. It stays up here beside the import:
+   Next's CSS step unwraps a base layer block that comes after unlayered
+   rules, which would put it back above every component's own classes. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 3px;
+  }
+}
+
 :root {
   /* The viewing room is a white-cube gallery: pure white behind the work,
      so nothing competes with it. Everywhere else stays the site's own
@@ -58,9 +69,4 @@ body {
 
 *::-webkit-scrollbar {
   display: none;
-}
-
-:focus-visible {
-  outline: 2px solid var(--foreground);
-  outline-offset: 3px;
 }

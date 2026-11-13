@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 // The left and right arrow keys turn to the previous and next work in the
 // catalogue, as the Previous and Next links do. They leave the keys alone
 // while someone is typing, holding a modifier (browser shortcuts), or has
-// the full-screen view open, where the arrows step through the work's views.
+// the full-screen view or a sheet open: in the full-screen view the arrows
+// step through the work's views.
 export function ArrowKeys({ previous, next }: { previous?: string; next?: string }) {
     const router = useRouter();
 
@@ -20,7 +21,7 @@ export function ArrowKeys({ previous, next }: { previous?: string; next?: string
             if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
             const target = e.target as HTMLElement | null;
             if (target?.closest("input, textarea, select, [contenteditable]")) return;
-            if (document.querySelector('[aria-modal="true"]')) return;
+            if (document.querySelector('[aria-modal="true"], dialog[open]')) return;
 
             const href = e.key === "ArrowLeft" ? previous : e.key === "ArrowRight" ? next : undefined;
             if (!href) return;
