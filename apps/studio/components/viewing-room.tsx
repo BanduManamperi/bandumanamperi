@@ -7,105 +7,18 @@ import { ReadMore } from "@/components/read-more";
 import { StudioFrame } from "@/components/studio-frame";
 import { WorkPicture } from "@/components/work-picture";
 
-// A work on one screen, inside the studio frame: the picture as large as the
-// sheet allows, and beside it on the left a column of words read like a wall
-// label, low and quiet, its last line level with the bottom edge of the work.
-// On a phone the picture comes first and the words follow.
+// A work on one screen, inside the studio frame, set down the middle of it:
+// a line of small capitals naming where it sits, the picture as large as the
+// screen allows, then a ruled row of words read like a wall label (the title,
+// what it is made of and its size, and what to do next), and the way on
+// through the catalogue beneath. On a phone the label's row folds onto two.
 
-const rule = "border-foreground/15";
-/** The catalogue number and the way around: small, spaced, monospaced capitals, as in the catalogue. */
-const caps = "font-mono text-[0.625rem] uppercase tracking-[0.16em] text-foreground/65";
-/** The equal step between the label's groups. */
-const step = "mt-[clamp(1.5rem,3.5vh,2.5rem)]";
+/** Small, spaced, monospaced capitals, as in the catalogue. */
+const mono = "font-mono text-[0.625rem] uppercase tracking-[0.12em] text-foreground/65";
 
 /** Letters and numbers only, lower case, so "The “Fish”" reads as "the fish". */
 function fold(text: string): string {
     return text.toLowerCase().replace(/[^\p{L}\p{M}\p{N}]+/gu, " ").trim();
-}
-
-/*
- * The label is set in five distinct levels, so the eye lands on them in order
- * rather than all at once:
- *
- *   1. the title, large and dark: what the work is called
- *   2. the tombstone: year, medium and size, as on a museum label
- *   3. the description, behind a link that opens it to read at length
- *   4. the enquiry: the one thing to act on, with its price
- *   5. the catalogue number and the way around, small, spaced capitals, last
- *
- * Proximity carries the grouping: the tombstone sits tight under the title,
- * and each group after it is separated by the same larger step.
- */
-function Label({ work, previous, next }: { work: Offer; previous?: Offer; next?: Offer }) {
-    const offer = offerLine(work);
-    // The series is left off when the title already says it.
-    const series = work.series && !` ${fold(work.title)} `.includes(` ${fold(work.series)} `) ? work.series : null;
-    const materials = work.materials && work.materials !== work.medium ? work.materials : null;
-    const tombstone = [work.medium, materials, work.dimensions].filter(Boolean);
-    // A taller hit area than the small capitals show, without moving them.
-    const navLink = "-my-2 py-2 transition-colors hover:text-foreground";
-
-    return (
-        <div className="flex w-full flex-col">
-            <p className={`${caps} tabular-nums`}>
-                Cat. {work.label}
-                {series && <span className="ml-3">{series}</span>}
-            </p>
-
-            <h1 className="mt-3 font-serif text-[clamp(1.5rem,1.9vw,2rem)] leading-[1.08] tracking-[-0.01em] text-foreground">{work.title}</h1>
-            {work.year && <p className="mt-1 font-serif text-[0.875rem] text-foreground/65">{work.year}</p>}
-            {tombstone.length > 0 && (
-                <p className="mt-4 text-[0.875rem] leading-relaxed text-foreground/85">
-                    {tombstone.map((fact) => (
-                        <span key={fact} className="block">
-                            {fact}
-                        </span>
-                    ))}
-                </p>
-            )}
-
-            {work.description && (
-                <ReadMore title={work.title} year={work.year} text={work.description} className={`${step} self-start text-[0.8125rem] text-foreground/75`} />
-            )}
-
-            {work.availability === "available" && (
-                <div className={`${step} flex items-baseline gap-5`}>
-                    {offer && <span className="text-[0.875rem] tabular-nums text-foreground">{offer.text}</span>}
-                    <Link
-                        href={`${work.href}/enquire`}
-                        className="text-[0.875rem] font-medium text-foreground underline decoration-foreground/40 underline-offset-[5px] transition-colors hover:decoration-foreground"
-                    >
-                        Enquire about this work →
-                    </Link>
-                </div>
-            )}
-
-            <nav aria-label="Catalogue" className={`${step} flex items-baseline gap-5 border-t ${rule} pt-3 ${caps}`}>
-                {/* At either end of the catalogue the missing link keeps its place, so the other never moves. */}
-                {previous ? (
-                    <Link href={previous.href} className={navLink} aria-label={`Previous: ${previous.title}`} aria-keyshortcuts="ArrowLeft">
-                        ← Previous
-                    </Link>
-                ) : (
-                    <span aria-hidden="true" className="invisible">
-                        ← Previous
-                    </span>
-                )}
-                {next ? (
-                    <Link href={next.href} className={navLink} aria-label={`Next: ${next.title}`} aria-keyshortcuts="ArrowRight">
-                        Next →
-                    </Link>
-                ) : (
-                    <span aria-hidden="true" className="invisible">
-                        Next →
-                    </span>
-                )}
-                <Link href="/paintings-and-drawings" className={`${navLink} ml-auto`}>
-                    Catalogue
-                </Link>
-            </nav>
-        </div>
-    );
 }
 
 export function ViewingRoom({ work, catalogue, proportion }: { work: Offer; catalogue: Offer[]; proportion: Proportion }) {
@@ -113,37 +26,97 @@ export function ViewingRoom({ work, catalogue, proportion }: { work: Offer; cata
     const previous = catalogue[at - 1];
     const next = catalogue[at + 1];
     const ratio = proportion.ratio ?? (proportion.shape === "landscape" ? 3 / 2 : 4 / 5);
+    const offer = offerLine(work);
+    const available = work.availability === "available";
 
-    // On a wide screen the picture is as large as the stage allows: the full
-    // width beside the label, or the full height less the view switcher,
-    // whichever runs out first. The picture and the label stand on one line,
-    // and the two are centred on the stage together.
-    const stage = {
-        "--label": "clamp(18rem, 26vw, 24rem)",
-        "--gap": "clamp(2rem, 4vw, 4rem)",
-        "--views": work.images.length > 1 ? "1.75rem" : "0rem",
-        "--fit": `min(100cqw - var(--label) - var(--gap), (100cqh - var(--views)) * ${ratio})`,
-    } as React.CSSProperties;
+    // The series is left off when the title already says it, and the line
+    // above the picture names the selection instead.
+    const series = work.series && !` ${fold(work.title)} `.includes(` ${fold(work.series)} `) ? work.series : null;
+    const materials = work.materials && work.materials !== work.medium ? work.materials : null;
+    const tombstone = [work.medium, materials, work.dimensions].filter(Boolean);
+
+    // The picture is as tall as 61% of the screen, up to 615px, but never so
+    // tall that the label and the way on are pushed below the fold: the rest of
+    // the column, and the view switcher when there is one, keep their room.
+    const views = work.images.length > 1 ? "1.75rem" : "0rem";
+    const height = `max(14rem, min(61dvh, 38.4375rem, 100dvh - 22rem - ${views}))`;
+    const picture = { width: `min(100%, ${ratio} * ${height})` };
+
+    const navLink = "transition-colors hover:text-foreground hover:underline underline-offset-4";
 
     return (
         <StudioFrame current="/paintings-and-drawings" className="overflow-y-auto">
             <ArrowKeys previous={previous?.href} next={next?.href} />
-            <section style={stage} className="py-[clamp(1.25rem,2.5vh,2rem)] lg:h-full">
-                {/* Centred only while it fits: a label taller than a short screen runs on downward and the page scrolls. */}
-                <div className="lg:flex lg:h-full lg:flex-col lg:justify-center-safe lg:[container-type:size]">
-                    <div className="flex flex-col gap-10 lg:flex-row-reverse lg:items-end lg:gap-(--gap)">
-                        <div className="lg:flex lg:min-w-0 lg:flex-1 lg:justify-center">
-                            <div className="w-full lg:w-(--fit)">
-                                <WorkPicture key={work.id} images={work.images} title={work.title} ratio={ratio} sizes="(min-width: 64rem) 65vw, 100vw" />
-                            </div>
-                        </div>
-                        {/* Lifted by the switcher's height, so its last line meets the picture, not the switcher. */}
-                        <aside className="flex lg:mb-(--views) lg:w-(--label) lg:shrink-0">
-                            <Label work={work} previous={previous} next={next} />
-                        </aside>
+            {/* Centred only while it fits: on a short screen it runs on downward and the page scrolls. */}
+            <div className="flex min-h-full flex-col justify-center-safe pb-5 pt-[1.625rem]">
+                <div className="mx-auto w-full max-w-[58.125rem]">
+                    <p className={`mb-[1.125rem] flex justify-between gap-6 ${mono} tracking-[0.13em]`}>
+                        <span className="tabular-nums">Works / {work.label}</span>
+                        <span className="flex gap-x-[1.25em] text-right">
+                            <span>{series ?? "Selected works"}</span>
+                            {work.year && <span className="tabular-nums">{work.year}</span>}
+                        </span>
+                    </p>
+
+                    <div style={picture} className="mx-auto">
+                        <WorkPicture key={work.id} images={work.images} title={work.title} ratio={ratio} sizes="(min-width: 64rem) 58rem, 100vw" />
                     </div>
+
+                    <section
+                        aria-label="About the work"
+                        className="mt-[1.1875rem] grid grid-cols-2 gap-[1.125rem] border-t border-border pt-[1.1875rem] md:grid-cols-[1.45fr_1fr_0.85fr] md:gap-7"
+                    >
+                        <div className="col-span-2 md:col-span-1">
+                            <p className={`${mono} tabular-nums`}>Cat. {work.label}</p>
+                            <h1 className="mb-0.5 mt-[0.4375rem] font-serif text-[1.5625rem] leading-[1.12] tracking-[-0.025em] text-foreground md:text-[1.6875rem]">
+                                {work.title}
+                            </h1>
+                            {work.year && <span className="text-[0.75rem] tabular-nums text-foreground/75">{work.year}</span>}
+                        </div>
+
+                        {/* Kept even when empty, so the actions stay in their own column. */}
+                        <p className="self-start text-[0.75rem] leading-[1.7] text-foreground/75 md:self-center">
+                            {tombstone.map((fact) => (
+                                <span key={fact} className="block">
+                                    {fact}
+                                </span>
+                            ))}
+                        </p>
+
+                        <div className="flex flex-col items-start gap-[0.8125rem] self-start md:gap-[0.9375rem] md:self-center">
+                            {work.description && <ReadMore title={work.title} year={work.year} text={work.description} className="text-[0.75rem] text-foreground/75" />}
+                            {available && offer && <span className="text-[0.75rem] tabular-nums text-foreground">{offer.text}</span>}
+                            {available && (
+                                <Link
+                                    href={`${work.href}/enquire`}
+                                    className="text-[0.75rem] font-semibold text-foreground underline decoration-foreground/60 underline-offset-4 transition-colors hover:decoration-foreground"
+                                >
+                                    Enquire about this work <span aria-hidden="true">→</span>
+                                </Link>
+                            )}
+                        </div>
+                    </section>
+
+                    <nav
+                        aria-label="Catalogue"
+                        className="mt-[1.375rem] flex items-center justify-between gap-x-[2.875rem] pb-[1.125rem] font-mono text-[0.6875rem] uppercase tracking-[0.15em] text-foreground/75 md:justify-start md:pb-0"
+                    >
+                        {previous && (
+                            <Link href={previous.href} className={navLink} aria-label={`Previous: ${previous.title}`} aria-keyshortcuts="ArrowLeft">
+                                ← Previous
+                            </Link>
+                        )}
+                        {next && (
+                            <Link href={next.href} className={navLink} aria-label={`Next: ${next.title}`} aria-keyshortcuts="ArrowRight">
+                                Next →
+                            </Link>
+                        )}
+                        <Link href="/paintings-and-drawings" className={navLink}>
+                            Catalogue
+                        </Link>
+                    </nav>
                 </div>
-            </section>
+            </div>
         </StudioFrame>
     );
 }

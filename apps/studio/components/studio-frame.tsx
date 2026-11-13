@@ -2,10 +2,12 @@ import Link from "next/link";
 import { mailStudio } from "@/lib/studio";
 
 // The studio's frame: a single screen with the way in set in small capitals
-// along the top and bottom edges, and the page itself held between them. The
-// landing page fills it with two pictures; the catalogue scrolls inside it.
+// along the top and bottom edges, and the page itself held between them, a
+// hairline above the bottom row. The landing page fills it with two pictures;
+// the catalogue scrolls inside it. On a phone each row folds onto two lines:
+// the middle link across the top, the outer two beneath it at either side.
 
-/** `short` stands in for the label on small screens, for labels that cannot wrap. */
+/** `short` stands in for the label on the narrowest screens, for labels that cannot wrap. */
 type Slot = { href: string; label: string; short?: string; external?: boolean };
 
 const TOP: [Slot, Slot, Slot] = [
@@ -24,18 +26,18 @@ const slotText = "text-[0.6875rem] uppercase leading-snug tracking-[0.08em] text
 
 function SlotLink({ slot, align, current }: { slot: Slot; align: "start" | "center" | "end"; current: boolean }) {
     // The outer slots wrap when space runs short; the middle one keeps to one
-    // line once there is room for it.
-    const alignment = {
-        start: "justify-self-start text-left max-w-[14rem]",
-        center: "justify-self-center text-center sm:whitespace-nowrap",
-        end: "justify-self-end text-right max-w-[14rem]",
+    // line, on its own row on a phone.
+    const placement = {
+        start: "col-start-1 row-start-2 justify-self-start text-left max-w-[14rem] md:row-start-1",
+        center: "col-span-2 row-start-1 justify-self-center text-center whitespace-nowrap md:col-span-1 md:col-start-2",
+        end: "col-start-2 row-start-2 justify-self-end text-right max-w-[14rem] md:col-start-3 md:row-start-1",
     }[align];
     const underline = current ? "decoration-foreground" : "decoration-transparent hover:decoration-foreground";
-    const className = `${slotText} ${alignment} underline underline-offset-4 transition-colors ${underline}`;
+    const className = `${slotText} ${placement} underline underline-offset-4 transition-colors ${underline}`;
     const label = slot.short ? (
         <>
-            <span className="sm:hidden">{slot.short}</span>
-            <span className="hidden sm:inline">{slot.label}</span>
+            <span className="min-[360px]:hidden">{slot.short}</span>
+            <span className="hidden min-[360px]:inline">{slot.label}</span>
         </>
     ) : (
         slot.label
@@ -53,7 +55,9 @@ function SlotLink({ slot, align, current }: { slot: Slot; align: "start" | "cent
 
 function Row({ slots, as: Tag, current }: { slots: [Slot, Slot, Slot]; as: "header" | "footer"; current?: string }) {
     return (
-        <Tag className="grid shrink-0 grid-cols-3 items-center gap-4 py-[clamp(0.875rem,2vw,1.25rem)] sm:grid-cols-[1fr_auto_1fr]">
+        <Tag
+            className={`grid shrink-0 grid-cols-2 items-center gap-x-4 gap-y-2 py-[clamp(0.875rem,2vw,1.25rem)] md:grid-cols-[1fr_auto_1fr] ${Tag === "footer" ? "border-t border-border" : ""}`}
+        >
             {(["start", "center", "end"] as const).map((align, i) => (
                 <SlotLink key={align} slot={slots[i]} align={align} current={slots[i].href === current && slots[i].href !== "/"} />
             ))}
