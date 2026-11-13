@@ -1,66 +1,77 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/site-header";
-import { Footer } from "@/components/footer";
-import { LedgerPage } from "@/components/ledger-page";
-import { LedgerRow } from "@/components/ledger-row";
-import { ContactForm } from "@/components/contact-form";
-import { display, heading, body, Facts } from "@/lib/type";
+import { StudioFrame } from "@/components/studio-frame";
+import { mailStudio } from "@/lib/studio";
 
 export const metadata: Metadata = {
     title: "Framing and Restoration",
-    description: "Custom framing, conservation, and restoration for paintings, works on paper, and sculpture, by Bandu Manamperi.",
+    description: "Custom framing, conservation, and restoration for paintings, works on paper, and sculpture, from Bandu Manamperi Home & Studio. Coming soon.",
 };
 
+// Set like a collection sheet, as in the catalogue: small monospaced capitals, widely spaced.
+const label = "font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-foreground/75";
+
+const SERVICES = [
+    {
+        number: "001",
+        title: "Custom framing",
+        description: "Paintings, works on paper, and photographs, framed to suit the piece rather than off a standard size.",
+    },
+    {
+        number: "002",
+        title: "Conservation and restoration",
+        description: "Paintings, works on paper, and sculpture, cleaned, stabilised, and restored after age, handling, and the Sri Lankan climate.",
+    },
+];
+
+// Framing and restoration, before it opens here: a sheet ruled like the
+// catalogue's, with the notice set low on the left like a wall label and
+// the two services it will cover listed beside it.
 export default function FramingAndRestorationPage() {
     return (
-        <>
-            <SiteHeader section="framing" />
-            <LedgerPage>
-                <h1 className={display}>Framing and Restoration</h1>
-
-                <p className={`mt-6 max-w-[32rem] ${body}`}>
-                    Manamperi is trained in the conservation of murals and
-                    paintings, and in stone conservation through UNESCO. The
-                    studio takes on restoration, conservation, and custom
-                    framing for paintings, works on paper, and sculpture.
-                </p>
-
-                <div className="mt-10">
-                    <LedgerRow
-                        number="001"
-                        href="#enquire"
-                        title="Custom framing"
-                        description="Framing for paintings, works on paper, and photographs, built to suit the piece rather than off a standard size."
-                    />
-                    <LedgerRow
-                        number="002"
-                        href="#enquire"
-                        title="Conservation and restoration"
-                        description="Cleaning, stabilisation, and restoration of paintings, works on paper, and sculpture, including damage from age, handling, and the Sri Lankan climate."
-                    />
-                </div>
-
-                <Facts
-                    className="mt-10 max-w-[32rem]"
-                    items={[
-                        { label: "Services", value: "Restoration, conservation, custom framing" },
-                        { label: "Works", value: "Paintings, works on paper, sculpture, frames" },
-                        { label: "Studio", value: "Bandaragama, Sri Lanka" },
-                    ]}
-                />
-
-                <div id="enquire" className="mt-12 max-w-[32rem] border-t border-border pt-8">
-                    <h2 className={heading}>Enquire</h2>
-                    <p className={`mt-2 ${body}`}>
-                        The studio replies by email. There is no payment on this
-                        site.
+        <StudioFrame current="/framing-and-restoration" className="overflow-y-auto">
+            <div className="flex min-h-full flex-col py-[clamp(2rem,5vw,4rem)]">
+                <header className="flex items-end justify-between gap-6 border-b border-foreground/60 pb-6">
+                    <h1 className="font-mono text-[clamp(1.5rem,2.6vw,2.25rem)] font-normal uppercase leading-[1.1] tracking-[0.14em] text-foreground">
+                        Framing and Restoration
+                    </h1>
+                    <p className={`${label} shrink-0 text-right text-[0.625rem] leading-relaxed`}>
+                        Bandaragama
+                        <br />
+                        Sri Lanka
                     </p>
-                    <div className="mt-6">
-                        <ContactForm />
-                    </div>
+                </header>
+
+                <div className="grid flex-1 content-end gap-x-[clamp(2rem,4vw,4rem)] gap-y-14 pt-[clamp(3rem,8vh,6rem)] lg:grid-cols-2 lg:items-end">
+                    <section aria-labelledby="notice">
+                        <h2 id="notice" className="font-serif text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.02] tracking-[-0.015em] text-foreground">
+                            Coming soon
+                        </h2>
+                        <p className="mt-5 max-w-[30rem] text-[0.9375rem] leading-relaxed text-foreground/80">
+                            This page is being prepared. Until it opens, framing and restoration enquiries go to the studio by email.
+                        </p>
+                        <a
+                            href={mailStudio("Framing and restoration")}
+                            className="mt-8 inline-block text-[0.875rem] font-medium text-foreground underline decoration-foreground/40 underline-offset-[5px] transition-colors hover:decoration-foreground"
+                        >
+                            Write to the studio →
+                        </a>
+                    </section>
+
+                    <ol aria-label="Services" className="border-b border-foreground/15 lg:max-w-[34rem] lg:justify-self-end">
+                        {SERVICES.map((service) => (
+                            <li key={service.number} className="grid grid-cols-[3.5rem_1fr] gap-x-4 border-t border-foreground/15 py-5">
+                                <span className={`${label} tabular-nums`}>{service.number}</span>
+                                <div>
+                                    <h3 className={`${label} text-foreground`}>{service.title}</h3>
+                                    <p className="mt-2 text-[0.8125rem] leading-relaxed text-foreground/75">{service.description}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ol>
                 </div>
-            </LedgerPage>
-            <Footer />
-        </>
+
+                <hr className="mt-[clamp(3rem,6vw,5rem)] border-foreground/60" />
+            </div>
+        </StudioFrame>
     );
 }

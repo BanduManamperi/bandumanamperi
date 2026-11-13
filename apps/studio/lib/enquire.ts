@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { headers } from "next/headers";
 import { getRoom } from "@/lib/inventory";
 import { offerLine } from "@/lib/price";
+import { STUDIO_EMAIL } from "@/lib/studio";
 import { escapeHtml } from "@/lib/text";
 
 export type EnquireState = {
@@ -11,7 +12,7 @@ export type EnquireState = {
     ok?: boolean;
 };
 
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? "bandumanamperi@yahoo.com";
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? STUDIO_EMAIL;
 
 export async function sendEnquiry(_prev: EnquireState, formData: FormData): Promise<EnquireState> {
     if (String(formData.get("company") ?? "").trim()) {

@@ -1,3 +1,5 @@
+import { STUDIO_EMAIL } from "@/lib/studio";
+
 // Rendered on the content pages (Home, About, the section landings) - not
 // on the viewing room, which stays edge-to-edge for looking at the work.
 export function Footer() {
@@ -6,8 +8,8 @@ export function Footer() {
             <div className="mx-auto flex max-w-[72rem] flex-wrap items-center justify-between gap-4">
                 <p>Bandu Manamperi Home &amp; Studio, Bandaragama, Sri Lanka</p>
                 <div className="flex flex-wrap items-center gap-4">
-                    <a href="mailto:bandumanamperi@yahoo.com" className="hover:text-foreground">
-                        bandumanamperi@yahoo.com
+                    <a href={`mailto:${STUDIO_EMAIL}`} className="hover:text-foreground">
+                        {STUDIO_EMAIL}
                     </a>
                     <a href="tel:+94773672789" className="hover:text-foreground">
                         +94 77 367 2789

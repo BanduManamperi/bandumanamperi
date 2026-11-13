@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { mailStudio } from "@/lib/studio";
 
 // The studio's frame: a single screen with the way in set in small capitals
 // along the top and bottom edges, and the page itself held between them. The
@@ -15,7 +16,7 @@ const TOP: [Slot, Slot, Slot] = [
 
 const BOTTOM: [Slot, Slot, Slot] = [
     { href: "/about", label: "About" },
-    { href: "mailto:bandumanamperi@yahoo.com?subject=Studio%20visit", label: "Visits by appointment", external: true },
+    { href: mailStudio("Studio visit"), label: "Visits by appointment", external: true },
     { href: "https://bandumanamperi.com", label: "bandumanamperi.com", short: "Portfolio", external: true },
 ];
 
