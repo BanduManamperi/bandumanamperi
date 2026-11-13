@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { CursorNav } from "@/components/cursor-nav"
+import { PageTurnHint } from "@/components/page-turn-hint"
 import { registerGoToPanel, setActivePanelId } from "@/components/horizontal-scroll-store"
 
 const easeInOutCubic = (t: number): number =>
@@ -292,6 +293,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
                 onPrev={goPrev}
                 onNext={goNext}
             />
+            <PageTurnHint page={activeIndex} pages={panelCount} />
         </>
     )
 }

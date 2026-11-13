@@ -46,6 +46,48 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* The page-turn hint's two motions: a fingertip drawn from right to left, and
+   the forward arrow key pressed. */
+@theme {
+  --animate-swipe-hint: swipe-hint 1.8s ease-in-out infinite;
+  --animate-key-press: key-press 1.8s ease-in-out infinite;
+
+  @keyframes swipe-hint {
+    0% {
+      opacity: 0;
+      transform: translateX(1.75rem);
+    }
+    15% {
+      opacity: 1;
+      transform: translateX(1.75rem);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(-1.75rem);
+    }
+    85%,
+    100% {
+      opacity: 0;
+      transform: translateX(-1.75rem);
+    }
+  }
+
+  @keyframes key-press {
+    0%,
+    40%,
+    70%,
+    100% {
+      transform: translateY(0);
+      background-color: transparent;
+    }
+    50%,
+    60% {
+      transform: translateY(2px);
+      background-color: rgb(255 255 255 / 0.2);
+    }
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
