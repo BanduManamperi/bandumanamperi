@@ -33,7 +33,7 @@ export default async function PaintingsAndDrawingsPage() {
 
                 {works.length > 0 ? (
                     <ul className="grid grid-cols-2 gap-x-[clamp(1.25rem,3vw,3rem)] gap-y-[clamp(2.5rem,5vw,4rem)] pt-[clamp(2.5rem,5vw,4rem)] sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-                        {works.map((work) => (
+                        {works.map((work, i) => (
                             <li key={work.id}>
                                 <Link href={work.href} className="group block focus-visible:outline-none">
                                     <div className="relative aspect-[4/5] overflow-hidden bg-border ring-foreground/50 ring-offset-4 ring-offset-background group-focus-visible:ring-2">
@@ -42,6 +42,8 @@ export default async function PaintingsAndDrawingsPage() {
                                                 src={work.images[0]}
                                                 alt=""
                                                 fill
+                                                // The first row, up to six across, is on screen at once.
+                                                loading={i < 6 ? "eager" : "lazy"}
                                                 className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                                                 sizes="(min-width: 1536px) 15vw, (min-width: 1280px) 18vw, (min-width: 1024px) 22vw, (min-width: 640px) 30vw, 45vw"
                                             />

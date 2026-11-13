@@ -19,7 +19,7 @@ export default function Home() {
             {VIEWS.map((view) => (
                 <div key={view.alt} className={`relative overflow-hidden ${view.tone}`}>
                     {view.src ? (
-                        <Image src={view.src} alt={view.alt} fill priority className="object-cover grayscale" sizes="50vw" />
+                        <Image src={view.src} alt={view.alt} fill preload className="object-cover grayscale" sizes="50vw" />
                     ) : (
                         <p className="absolute inset-x-0 bottom-3 text-center text-[0.6875rem] uppercase tracking-[0.08em] text-foreground/60">
                             Placeholder: {view.alt.toLowerCase()}

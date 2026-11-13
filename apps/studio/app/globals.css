@@ -23,10 +23,11 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-noto-sans);
-  --font-serif: var(--font-fraunces);
+  /* Each face is followed by the Noto Sinhala that matches it, for Sinhala letters. */
+  --font-sans: var(--font-noto-sans), var(--font-sans-sinhala), sans-serif;
+  --font-serif: var(--font-fraunces), var(--font-serif-sinhala), serif;
   --font-display: var(--font-anton);
-  --font-mono: var(--font-plex-mono);
+  --font-mono: var(--font-plex-mono), var(--font-sans-sinhala), monospace;
   --color-room-wall: var(--room-wall);
   --color-room-well: var(--room-well);
   --color-room-ink: var(--room-ink);
@@ -46,7 +47,7 @@ body {
   margin-inline: auto;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-noto-sans), sans-serif;
+  font-family: var(--font-noto-sans), var(--font-sans-sinhala), sans-serif;
 }
 
 /* No visible scrollbars anywhere: every scrolling area still scrolls by wheel,

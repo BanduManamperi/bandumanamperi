@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans, Fraunces, Anton, IBM_Plex_Mono } from "next/font/google";
+import { Noto_Sans, Noto_Sans_Sinhala, Noto_Serif_Sinhala, Fraunces, Anton, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
 export const revalidate = 60;
@@ -11,6 +11,22 @@ export const viewport: Viewport = {
 const notoSans = Noto_Sans({
     variable: "--font-noto-sans",
     subsets: ["latin"],
+});
+
+// Titles and notes are often part Sinhala, which none of the faces above
+// carry. These step in for those letters only, so every reader sees the same
+// Sinhala instead of whatever their system has. They load only on a page that
+// uses them.
+const sansSinhala = Noto_Sans_Sinhala({
+    variable: "--font-sans-sinhala",
+    subsets: ["sinhala"],
+    preload: false,
+});
+
+const serifSinhala = Noto_Serif_Sinhala({
+    variable: "--font-serif-sinhala",
+    subsets: ["sinhala"],
+    preload: false,
 });
 
 // The one serif moment: the wordmark, and the ampersand in the big
@@ -48,7 +64,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en">
-            <body className={`${notoSans.variable} ${fraunces.variable} ${anton.variable} ${plexMono.variable} flex min-h-dvh flex-col font-sans antialiased lg:h-dvh lg:overflow-hidden`}>
+            <body className={`${notoSans.variable} ${fraunces.variable} ${anton.variable} ${plexMono.variable} ${sansSinhala.variable} ${serifSinhala.variable} flex min-h-dvh flex-col font-sans antialiased lg:h-dvh lg:overflow-hidden`}>
                 {children}
             </body>
         </html>

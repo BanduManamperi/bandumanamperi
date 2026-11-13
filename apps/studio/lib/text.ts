@@ -7,6 +7,17 @@ export function withoutDashes(value: string): string {
         .replace(/\s+-\s+/g, ", ");
 }
 
+// Straight quotes become curly ones, and three dots an ellipsis, as a typesetter would set them.
+// A quote at the start, or after a space, bracket or dash, opens; any other closes.
+export function typeset(value: string): string {
+    return value
+        .replace(/\.\.\./g, "\u2026")
+        .replace(/(^|[\s([{\u2013\u2014-])"/g, "$1\u201C")
+        .replace(/"/g, "\u201D")
+        .replace(/(^|[\s([{\u2013\u2014-])'/g, "$1\u2018")
+        .replace(/'/g, "\u2019");
+}
+
 export function escapeHtml(text: string): string {
     return text
         .replace(/&/g, "&amp;")

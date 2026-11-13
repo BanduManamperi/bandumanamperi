@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import type { ArtworkAvailability } from "@bandumanamperi/types";
-import { withoutDashes } from "@/lib/text";
+import { typeset, withoutDashes } from "@/lib/text";
 
 const CAMERA_FILE = /^IMG[_\s-]?\d*$/i;
 
@@ -74,7 +74,7 @@ function publicNote(value: string | null): string | null {
 
 function clean(value: string | null | undefined): string | null {
     const v = value?.trim();
-    return v ? withoutDashes(v) : null;
+    return v ? typeset(withoutDashes(v)) : null;
 }
 
 function money(value: number | string | null): number | null {
@@ -115,7 +115,7 @@ export const getInventory = cache(async (): Promise<Offer[]> => {
     const numbered = (data as ArtworkRow[]).map((r, i) => {
         const rawTitle = r.title?.trim() ?? "";
         const isUntitled = !rawTitle || CAMERA_FILE.test(rawTitle);
-    const paths = (Array.isArray(r.media) ? r.media : []).filter((path): path is string => typeof path === "string" && path.length > 0);
+        const paths = (Array.isArray(r.media) ? r.media : []).filter((path): path is string => typeof path === "string" && path.length > 0);
         if (r.thumbnail_path && !paths.includes(r.thumbnail_path)) paths.unshift(r.thumbnail_path);
         const slug = r.slug || r.id;
         const availability: Shelf = r.availability === "sold" ? "sold" : "available";
@@ -126,7 +126,7 @@ export const getInventory = cache(async (): Promise<Offer[]> => {
             href: `/works/${slug}`,
             number: i + 1,
             label: String(i + 1).padStart(3, "0"),
-            title: isUntitled ? "Untitled" : withoutDashes(rawTitle),
+            title: isUntitled ? "Untitled" : typeset(withoutDashes(rawTitle)),
             isUntitled,
             sourceRef: isUntitled && rawTitle ? rawTitle : null,
             year: clean(r.year),
